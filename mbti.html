@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MBTI 认知功能分析器</title>
+    <style>
+        :root {
+            --primary-color: #4F46E5;
+            --border-color: #E5E7EB;
+            --bg-gray: #F9FAFB;
+            --text-gray: #6B7280;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.5;
+            color: #111827;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .container {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+        }
+
+        .select-container {
+            margin-bottom: 2rem;
+        }
+
+        select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.375rem;
+            font-size: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border: none;
+            background: none;
+            color: var(--text-gray);
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .function-stack {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .function-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg-gray);
+            border-radius: 0.5rem;
+            align-items: start;
+        }
+        .function-cognitive {
+            padding: 1rem;
+            background: var(--bg-gray);
+            border-radius: 0.5rem;
+        }
+        .function-code {
+            font-weight: bold;
+            font-size: 1.125rem;
+            min-width: 3rem;
+        }
+
+        .function-details {
+            flex: 1;
+        }
+
+        .function-description {
+            margin-bottom: 0.25rem;
+        }
+
+        .position-description {
+            font-size: 0.875rem;
+            color: var(--text-gray);
+        }
+
+        .quadra-info {
+            padding: 1rem;
+            background: var(--bg-gray);
+            border-radius: 0.5rem;
+        }
+
+        .quadra-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .type-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .type-tag {
+            padding: 0.25rem 0.75rem;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="select-container">
+            <label for="mbti-select">选择MBTI类型：</label>
+            <select id="mbti-select">
+                <option value="">请选择...</option>
+            </select>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" data-tab="functions">认知功能堆栈</button>
+            <button class="tab" data-tab="socionics">Socionics对应关系</button>
+            <button class="tab" data-tab="quadra">象限分析</button>
+            <button class="tab" data-tab="cognitive">认知功能位置详解</button>
+        </div>
+
+        <div id="functions" class="tab-content active">
+            <div class="function-stack"></div>
+        </div>
+        <div id="socionics" class="tab-content">
+            <div class="socionics-info"></div>
+        </div>
+        <div id="quadra" class="tab-content">
+            <div class="quadra-info"></div>
+        </div>
+        <div id="cognitive" class="tab-content">
+        <div class="cognitive-info">
+            <div class="function-stack">
+                <h3>主要功能</h3>
+
+                <div class="function-cognitive">
+                    <h4>主导功能（首选功能）</h4>
+                    <p>- 最自然和熟练使用的功能</p>
+                    <p>- 在压力较小时最容易表现出来</p>
+                    <p>- 影响个人最基本的认知方式和行为模式</p>
+                    <p>- 通常在童年早期就开始发展</p>
+                    <p>- 使用这个功能会让人感到最舒适和自信</p>
+                </div>
+
+                <div class="function-cognitive">
+                    <h4>辅助功能（副首选功能）</h4>
+                    <p>- 支持主导功能的平衡器</p>
+                    <p>- 提供了与主导功能相反的能量方向（内倾/外倾）</p>
+                    <p>- 在青少年时期开始发展</p>
+                    <p>- 帮助个人与外界互动的重要工具</p>
+                    <p>- 在健康发展的个体中表现得较为成熟</p>
+                </div>
+
+                <div class="function-cognitive">
+                    <h4>第三功能（第三位置）</h4>
+                    <p>- 较不成熟的功能</p>
+                    <p>- 常常是个人不安全感的来源</p>
+                    <p>- 在成年早期开始显著发展</p>
+                    <p>- 可能表现得不稳定或敏感</p>
+                    <p>- 是个人成长的重要领域</p>
+                </div>
+
+                <div class="function-cognitive">
+                    <h4>劣势功能（下级功能）</h4>
+                    <p>- 最不发达的意识功能</p>
+                    <p>- 在压力下容易表现出来</p>
+                    <p>- 常常是个人的"阿喀琉斯之踵"</p>
+                    <p>- 需要终身发展</p>
+                    <p>- 可能是个人盲点的来源</p>
+                </div>
+
+                <h3>影子功能</h3>
+
+                <div class="function-cognitive">
+                    <h4>对立角色（第五位置）</h4>
+                    <p>- 主导功能的对立面</p>
+                    <p>- 在压力情况下可能突然出现</p>
+                    <p>- 可能导致过度批评和怀疑自己</p>
+                    <p>- 往往带来防御性反应</p>
+                    <p>- 需要意识到并适当整合</p>
+                </div>
+
+                <div class="function-cognitive">
+                    <h4>批判角色（第六位置）</h4>
+                    <p>- 辅助功能的对立面</p>
+                    <p>- 容易对他人产生批判性想法</p>
+                    <p>- 可能导致固执或偏见</p>
+                    <p>- 常常是内在冲突的来源</p>
+                    <p>- 需要学会更开放和包容</p>
+                </div>
+
+                <div class="function-cognitive">
+                    <h4>欺骗角色（第七位置）</h4>
+                    <p>- 第三功能的对立面</p>
+                    <p>- 容易产生自欺欺人的行为</p>
+                    <p>- 可能导致不切实际的期望</p>
+                    <p>- 在压力下可能表现为逃避现实</p>
+                    <p>- 需要培养现实认知</p>
+                </div>
+
+                <div class="function-cognitive">
+                    <h4>恶魔角色（第八位置）</h4>
+                    <p>- 最不发达的无意识功能</p>
+                    <p>- 在极度压力下可能突然爆发</p>
+                    <p>- 可能导致破坏性行为</p>
+                    <p>- 往往与最深层的恐惧相关</p>
+                    <p>- 需要认识并谨慎处理</p>
+                </div>
+
+                <div class="function-cognitive">
+                    <h4>功能发展建议</h4>
+                    <p>1. 优先发展主导和辅助功能</p>
+                    <p>2. 逐步关注第三功能的改善</p>
+                    <p>3. 接纳并理解劣势功能的局限</p>
+                    <p>4. 意识到影子功能的存在及其影响</p>
+                    <p>5. 在压力管理中考虑各功能的作用</p>
+                    <p>6. 通过自我反思来整合各种功能</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script>
+        // MBTI类型数据
+        const mbtiTypes = {
+            'INTP': { name: '逻辑学家', stack: ['Ti', 'Ne', 'Si', 'Fe', 'Te', 'Ni', 'Se', 'Fi'] },
+            'INTJ': { name: '建筑师', stack: ['Ni', 'Te', 'Fi', 'Se', 'Ne', 'Ti', 'Fe', 'Si'] },
+            'INFP': { name: '调停者', stack: ['Fi', 'Ne', 'Si', 'Te', 'Fe', 'Ni', 'Se', 'Ti'] },
+            'INFJ': { name: '提倡者', stack: ['Ni', 'Fe', 'Ti', 'Se', 'Ne', 'Fi', 'Te', 'Si'] },
+            'ISTP': { name: '鉴赏家', stack: ['Ti', 'Se', 'Ni', 'Fe', 'Te', 'Si', 'Ne', 'Fi'] },
+            'ISTJ': { name: '检查员', stack: ['Si', 'Te', 'Fi', 'Ne', 'Se', 'Ti', 'Fe', 'Ni'] },
+            'ISFP': { name: '探险家', stack: ['Fi', 'Se', 'Ni', 'Te', 'Fe', 'Si', 'Ne', 'Ti'] },
+            'ISFJ': { name: '守卫者', stack: ['Si', 'Fe', 'Ti', 'Ne', 'Se', 'Fi', 'Te', 'Ni'] },
+            'ENTP': { name: '辩论家', stack: ['Ne', 'Ti', 'Fe', 'Si', 'Ni', 'Te', 'Fi', 'Se'] },
+            'ENTJ': { name: '指挥官', stack: ['Te', 'Ni', 'Se', 'Fi', 'Ti', 'Ne', 'Si', 'Fe'] },
+            'ENFP': { name: '竞选者', stack: ['Ne', 'Fi', 'Te', 'Si', 'Ni', 'Fe', 'Ti', 'Se'] },
+            'ENFJ': { name: '主人公', stack: ['Fe', 'Ni', 'Se', 'Ti', 'Fi', 'Ne', 'Si', 'Te'] },
+            'ESTP': { name: '企业家', stack: ['Se', 'Ti', 'Fe', 'Ni', 'Si', 'Te', 'Fi', 'Ne'] },
+            'ESTJ': { name: '总管', stack: ['Te', 'Si', 'Ne', 'Fi', 'Ti', 'Se', 'Ni', 'Fe'] },
+            'ESFP': { name: '表演者', stack: ['Se', 'Fi', 'Te', 'Ni', 'Si', 'Fe', 'Ti', 'Ne'] },
+            'ESFJ': { name: '执政官', stack: ['Fe', 'Si', 'Ne', 'Ti', 'Fi', 'Se', 'Ni', 'Te'] }
+        };
+
+        // 位置说明
+        const positionDescriptions = [
+            '主导功能 - 最自然和熟练使用的功能',
+            '辅助功能 - 支持主导功能的平衡器',
+            '第三功能 - 较不成熟，需要发展的功能',
+            '劣势功能 - 最不发达的意识功能',
+            '对立角色 - 主导功能的对立面',
+            '批判角色 - 辅助功能的对立面',
+            '欺骗角色 - 第三功能的对立面',
+            '恶魔角色 - 最不发达的无意识功能'
+        ];
+        const functionDescriptions = {
+            "Ti": {
+                "name": "内倾思维",
+                "description": "分析、分类和理解概念的内在逻辑。追求内在的逻辑一致性。",
+                "position1Desc": ["持续追求逻辑一致性","建立个人的理论体系","深入分析问题的核心","重视概念的准确性","追求理解事物的本质"],
+                "position2Desc": ["支持主要决策过程","提供理性分析框架","帮助系统化信息","平衡感性与理性"],
+                "position3Desc": ["可能表现不够成熟","在压力下容易过度分析","需要时间发展","可能显得犹豫不决"],
+                "position4Desc": ["在压力下可能过度教条","可能忽视情感因素","需要刻意发展","是成长的重要方向"],
+                "position5Desc": ["过度追求完美的逻辑体系","陷入无休止的分析和推理","对他人的逻辑观点过度批判","在压力下表现强迫性思考","难以接受不完美的解决方案"],
+                "position6Desc": ["在压力下表现为僵化思维","过分强调细节的逻辑一致性","难以灵活应对实际情况","可能表现出过度教条主义","对不合逻辑的事物强烈抵触"],
+                "position7Desc": ["容易忽视或排斥主观逻辑分析","对深入思考感到不适和抗拒","倾向于采用现成的解决方案","难以建立个人的理论体系","对逻辑推理缺乏耐心"],
+                "position8Desc": ["极度排斥深入的逻辑分析","可能完全依赖他人的判断","对理论探讨产生焦虑","难以独立进行系统思考","对抽象概念产生排斥"]
+            },
+            "Te": {
+                "name": "外倾思维",
+                "description": "组织外部世界，实现目标的效率和逻辑。关注客观事实和系统。",
+                "position1Desc": ["追求效率和结果","建立系统和流程","重视客观数据","擅长规划执行","注重实际成效"],
+                "position2Desc": ["协助决策和执行","提供实用解决方案","优化工作流程","平衡理想与现实"],
+                "position3Desc": ["可能过于死板","忽视人际感受","需要更多灵活性","可能显得专制"],
+                "position4Desc": ["在压力下可能强加控制","可能忽视直觉","需要学会放松","是自我完善的方向"],
+                "position5Desc": ["过度追求效率和完美执行","强制推行个人的工作方式","对结果有不切实际的期望","难以容忍计划的变动","在压力下变得过度控制"],
+                "position6Desc": ["在压力下变得独断专行","过分依赖规则和程序","忽视人性化管理的需求","可能表现出控制欲过强","对效率低下极度不耐烦"],
+                "position7Desc": ["对组织和规划感到力不从心","难以建立有效的工作系统","容易陷入效率低下的困境","对管理职责感到压力","回避决策和领导角色"],
+                "position8Desc": ["极度排斥组织和管理工作","难以应对结构化的任务","对效率和生产力感到焦虑","完全依赖他人的决策和规划","逃避任何系统性工作"]
+            },
+            "Fi": {
+                "name": "内倾情感",
+                "description": "深入理解个人价值观和情感。重视真实性和个人信念。",
+                "position1Desc": ["强烈的个人价值观","追求真实与真诚","深刻的情感体验","重视个人真实性","坚持道德准则"],
+                "position2Desc": ["协助价值判断","提供道德指引","增进自我了解","平衡理性决策"],
+                "position3Desc": ["可能过于主观","难以表达情感","需要更多客观性","可能显得固执"],
+                "position4Desc": ["在压力下情绪波动","可能过度理想化","需要接纳现实","是情感成长的关键"],
+                "position5Desc": ["过度坚持个人价值观","对道德问题极度敏感","难以接受与己不同的价值观","在价值冲突时情绪激动","对自我认同过分执着"],
+                "position6Desc": ["对他人的价值观持批判态度","在道德判断上过于严苛","难以理解他人的情感需求","可能表现出道德优越感","对价值观差异缺乏包容"],
+                "position7Desc": ["难以识别自身的情感需求","对个人价值观感到困惑","回避深入的情感体验","难以形成稳定的价值体系","对情感决策缺乏信心"],
+                "position8Desc": ["极度排斥情感决策","对价值观探讨感到不适","难以建立情感连结","对自我价值产生怀疑","逃避任何情感深度"]
+            },
+            "Fe": {
+                "name": "外倾情感",
+                "description": "理解和调和群体情感。关注人际和谐与社交互动。",
+                "position1Desc": ["敏锐感知群体氛围","促进人际和谐","关注他人需求","善于情感表达","追求社群和谐"],
+                "position2Desc": ["改善人际关系","营造积极氛围","促进团队合作","平衡个人与集体"],
+                "position3Desc": ["可能过分迎合","忽视自身需求","需要建立界限","可能情绪化"],
+                "position4Desc": ["在压力下社交焦虑","可能过度敏感","需要学会自处","是社交发展的重点"],
+                "position5Desc": ["过度关注社交和谐","强迫性地迎合他人","对群体氛围过分敏感","难以处理冲突情况","在社交压力下情绪失控"],
+                "position6Desc": ["对社交规范过度执着","批判他人的情感表达","在人际互动中显得生硬","对社交礼仪过分苛求","难以接受非传统的社交方式"],
+                "position7Desc": ["难以理解群体动态","对社交互动感到不适","回避情感表达和分享","在群体中感到格格不入","难以维持社交关系"],
+                "position8Desc": ["极度排斥社交活动","对群体互动产生焦虑","难以理解社交暗示","完全回避情感交流","对社交场合感到恐惧"]
+            },
+            "Ni": {
+                "name": "内倾直觉",
+                "description": "看到深层模式和未来可能性。综合信息形成深刻见解。",
+                "position1Desc": ["深度洞察力","预见未来趋势","整合复杂信息","追求长远愿景","理解深层含义"],
+                "position2Desc": ["提供战略视角","发现隐藏模式","预测可能结果","平衡具体与抽象"],
+                "position3Desc": ["可能过度解读","忽视当下细节","需要更多实践","可能显得神秘"],
+                "position4Desc": ["在压力下过度担忧","可能陷入幻想","需要脚踏实地","是直觉发展的方向"],
+                "position5Desc": ["过度沉迷未来预测","对直觉印象过分执着","难以接受计划变更","对未来过度焦虑","陷入阴暗的预感"],
+                "position6Desc": ["对直觉洞察持怀疑态度","批判他人的远见规划","对未来发展过分担忧","难以接受模糊性","对直觉型决策不信任"],
+                "position7Desc": ["难以看清长远影响","对未来规划感到困惑","回避战略性思考","难以理解隐含意义","对直觉判断缺乏信心"],
+                "position8Desc": ["极度排斥未来规划","对远见卓识感到不适","难以理解象征意义","完全依赖具体事实","对不确定性产生焦虑"]
+            },
+            "Ne": {
+                "name": "外倾直觉",
+                "description": "探索可能性和新想法。发现概念间的联系。",
+                "position1Desc": ["创新思维活跃","发现多种可能","联系不同概念","享受头脑风暴","追求新奇体验"],
+                "position2Desc": ["激发创意灵感","提供多元视角","促进思维发散","平衡传统与创新"],
+                "position3Desc": ["可能注意力分散","难以做出决定","需要更多聚焦","可能过于理想"],
+                "position4Desc": ["在压力下举棋不定","可能忽视现实","需要学会专注","是创造力的基础"],
+                "position5Desc": ["过度追求新奇可能性","对创新变革强迫性追求","难以专注于现实任务","在压力下思维发散失控","对稳定性产生抵触"],
+                "position6Desc": ["对创新想法持批判态度","排斥非传统方法","对可能性探索缺乏耐心","难以接受开放性结果","对创意思维表现怀疑"],
+                "position7Desc": ["难以产生创新想法","对可能性探索感到疲惫","回避头脑风暴活动","难以理解抽象概念","对创意过程缺乏信心"],
+                "position8Desc": ["极度排斥创新思维","对可能性探索感到焦虑","难以应对变化和创新","完全依赖既定方案","对新想法产生恐惧"]
+            },
+            "Si": {
+                "name": "内倾感知",
+                "description": "详细记忆过去经验。重视传统和具体细节。",
+                "position1Desc": ["重视传统经验","关注细节完整","建立稳定秩序","保持可靠责任","重视实践经验"],
+                "position2Desc": ["提供经验参考","维护日常秩序","确保可靠性","平衡创新与传统"],
+                "position3Desc": ["可能过分保守","抗拒变化","需要更多开放","可能固守过往"],
+                "position4Desc": ["在压力下过度担心","可能过分保守","需要接纳改变","是稳定性的来源"],
+                "position5Desc": ["过度依赖过往经验","对细节完美主义倾向","难以适应新环境","在变化中感到不安","对传统做法过分执着"],
+                "position6Desc": ["对习惯改变持批判态度","过分强调程序和规范","对新方法表现抗拒","难以接受非传统做法","对经验偏差过分敏感"],
+                "position7Desc": ["难以维持日常规律","对细节观察力不足","容易忽视实际经验","难以建立稳定习惯","对传统价值缺乏认同"],
+                "position8Desc": ["极度排斥常规和习惯","对细节关注产生焦虑","难以保持稳定作息","完全忽视传统经验","对规律生活感到压抑"]
+            },
+            "Se": {
+                "name": "外倾感知",
+                "description": "敏锐感知当下环境。享受身体体验和即时反应。",
+                "position1Desc": ["享受当下体验","敏锐感知环境","快速反应变化","追求感官刺激","善于实践操作"],
+                "position2Desc": ["提升现实适应","把握机会时机","增强行动力","平衡思考与行动"],
+                "position3Desc": ["可能冲动行事","忽视长远影响","需要更多规划","可能过度刺激"],
+                "position4Desc": ["在压力下感官过敏","可能逃避现实","需要学会节制","是行动力的基础"],
+                "position5Desc": ["过度追求感官刺激","对现实体验强迫性需求","难以控制冲动行为","在压力下寻求刺激","对安静环境感到不适"],
+                "position6Desc": ["对感官体验持批判态度","排斥物质享受","对现实活动缺乏投入","难以享受当下时刻","对体验型学习表示怀疑"],
+                "position7Desc": ["难以把握当下机会","对环境变化反应迟钝","回避实践性活动","难以适应现实情况","对身体感知缺乏敏锐"],
+                "position8Desc": ["极度排斥感官体验","对物质世界感到焦虑","难以应对实际情况","完全逃避现实活动","对身体活动感到恐惧"]
+            }
+        }
+        const typeDescriptions = {
+            'INTP': '独立的思考者和创新者。擅长发现复杂问题的解决方案，热爱探索理论概念。重视逻辑和知识，追求理解事物的本质。可能显得疏离和沉默寡言，但内心充满想法和创造力。',
+            'INTJ': '战略性思考者和规划者。有远见卓识，善于制定长期计划和系统性解决方案。追求效率和卓越，具有强烈的目标导向。独立自主，重视能力和智慧。',
+            'INFP': '富有同理心的理想主义者。重视个人价值观和内在和谐，对他人的感受敏感。具有创造力和想象力，追求真实和意义。善于理解他人的情感需求。',
+            'INFJ': '富有洞察力的理想主义者。能看到事物更深层的含义和人性的本质。关注他人福祉，追求改善世界。具有强烈的同理心和创造力。',
+            'ISTP': '灵活的问题解决者。擅长理解如何运作的机械原理，有很强的动手能力。喜欢探索和冒险，追求自由和独立。在压力下保持冷静的能力很强。',
+            'ISTJ': '负责任的实践者。重视传统和秩序，关注细节和准确性。可靠、勤奋，有强烈的责任感。依赖经验和事实做决策。',
+            'ISFP': '艺术家型的探索者。重视美感和个人体验，具有强烈的同理心。追求自由表达和真实生活。对周围的美和谐感知敏锐。',
+            'ISFJ': '忠诚的照顾者。具有强烈的责任感和服务精神，关注他人的需求。重视传统和稳定，善于记忆细节。温和且可靠。',
+            'ENTP': '充满创意的思考者。喜欢探索新想法和可能性，善于辩论和创新。灵活多变，适应力强。享受智力挑战和头脑风暴。',
+            'ENTJ': '天生的领导者。有组织能力和战略眼光，追求效率和成功。果断且目标导向，善于规划和执行。重视能力和成就。',
+            'ENFP': '热情的创新者。充满活力和创造力，善于激发他人潜能。追求新可能性，重视自由和真实表达。对人际关系敏感。',
+            'ENFJ': '富有魅力的引导者。关注他人成长和团体和谐，具有领导才能。善于激励他人，追求意义和真实关系。具有很强的同理心。',
+            'ESTP': '活力四射的冒险家。善于在当下行动，享受刺激和挑战。适应力强，善于解决即时问题。注重实用性和效果。',
+            'ESTJ': '高效的组织者。重视秩序和规则，善于管理和执行。实用主义者，追求具体成果。具有强烈的责任感和决断力。',
+            'ESFP': '活泼的表演者。热爱生活和社交，善于让他人开心。适应力强，喜欢即时体验。具有很强的观察力和表现力。',
+            'ESFJ': '热心的社交者。关注他人需求，重视和谐关系。具有强烈的责任感和服务精神。重视传统和社会价值。'
+        };
+
+        const socionicsTypes = {
+            'INTP': {
+                type: 'LII',
+                name: '研究者',
+                quadra: 'Alpha',
+                romance: 'ESFJ (ESE)',
+                benefit: 'ENFJ (EIE)',
+                supervision: 'ISFP (SEI)',
+                description: '理性的分析者，专注于系统和理论的逻辑结构。在Alpha象限中，强调知识共享和理性讨论。'
+            },
+            'INTJ': {
+                type: 'ILI',
+                name: '评论家',
+                quadra: 'Gamma',
+                romance: 'ESFP (SEE)',
+                benefit: 'ENTJ (LIE)',
+                supervision: 'ISFJ (ESI)',
+                description: '战略思考者，擅长预测趋势和分析系统漏洞。在Gamma象限中，注重效率和现实可行性。'
+            },
+            'INFP': {
+                type: 'EII',
+                name: '人道主义者',
+                quadra: 'Delta',
+                romance: 'ESTJ (LSE)',
+                benefit: 'ENFP (IEE)',
+                supervision: 'ISTP (SLI)',
+                description: '道德价值的守护者，关注个人成长和伦理准则。在Delta象限中，追求稳定和渐进式改革。'
+            },
+            'INFJ': {
+                type: 'IEI',
+                name: '先知',
+                quadra: 'Beta',
+                romance: 'ESTP (SLE)',
+                benefit: 'ENFJ (EIE)',
+                supervision: 'ISTJ (LSI)',
+                description: '富有洞察力的理想主义者，关注社会变革。在Beta象限中，强调力量和意志力的重要性。'
+            },
+            'ISTP': {
+                type: 'SLI',
+                name: '工匠',
+                quadra: 'Delta',
+                romance: 'ENFP (IEE)',
+                benefit: 'ESTJ (LSE)',
+                supervision: 'INFJ (IEI)',
+                description: '实践型专家，专注于技术和工艺的完善。在Delta象限中，重视实用性和可靠性。'
+            },
+            'ISTJ': {
+                type: 'LSI',
+                name: '检查官',
+                quadra: 'Beta',
+                romance: 'ENFJ (EIE)',
+                benefit: 'ESTP (SLE)',
+                supervision: 'INFP (EII)',
+                description: '系统的组织者，注重规则和秩序。在Beta象限中，强调纪律和责任。'
+            },
+            'ISFP': {
+                type: 'SEI',
+                name: '调解者',
+                quadra: 'Alpha',
+                romance: 'ENTJ (LIE)',
+                benefit: 'ESFJ (ESE)',
+                supervision: 'INTJ (ILI)',
+                description: '感性的享乐主义者，善于创造舒适氛围。在Alpha象限中，重视和谐与舒适。'
+            },
+            'ISFJ': {
+                type: 'ESI',
+                name: '卫士',
+                quadra: 'Gamma',
+                romance: 'ENTP (ILE)',
+                benefit: 'ESFP (SEE)',
+                supervision: 'INTP (LII)',
+                description: '忠诚的保护者，维护传统和关系。在Gamma象限中，注重安全和责任。'
+            },
+            'ENTP': {
+                type: 'ILE',
+                name: '发起者',
+                quadra: 'Alpha',
+                romance: 'ISFJ (ESI)',
+                benefit: 'INTP (LII)',
+                supervision: 'ESFJ (ESE)',
+                description: '创新的思想家，善于发现新机会。在Alpha象限中，推动思想交流和创新。'
+            },
+            'ENTJ': {
+                type: 'LIE',
+                name: '企业家',
+                quadra: 'Gamma',
+                romance: 'ISFP (SEI)',
+                benefit: 'INTJ (ILI)',
+                supervision: 'ESFP (SEE)',
+                description: '果断的领导者，追求效率和成功。在Gamma象限中，强调目标和成就。'
+            },
+            'ENFP': {
+                type: 'IEE',
+                name: '心理学家',
+                quadra: 'Delta',
+                romance: 'ISTP (SLI)',
+                benefit: 'INFP (EII)',
+                supervision: 'ESTJ (LSE)',
+                description: '充满想象力的激励者，关注他人潜能。在Delta象限中，追求个人成长和社会和谐。'
+            },
+            'ENFJ': {
+                type: 'EIE',
+                name: '导师',
+                quadra: 'Beta',
+                romance: 'ISTJ (LSI)',
+                benefit: 'INFJ (IEI)',
+                supervision: 'ESTP (SLE)',
+                description: '富有魅力的领导者，善于动员和激励他人。在Beta象限中，推动集体行动和变革。'
+            },
+            'ESTP': {
+                type: 'SLE',
+                name: '政治家',
+                quadra: 'Beta',
+                romance: 'INFJ (IEI)',
+                benefit: 'ISTJ (LSI)',
+                supervision: 'ENFP (IEE)',
+                description: '实践型领导者，善于掌控局势。在Beta象限中，强调力量和行动。'
+            },
+            'ESTJ': {
+                type: 'LSE',
+                name: '管理者',
+                quadra: 'Delta',
+                romance: 'INFP (EII)',
+                benefit: 'ISTP (SLI)',
+                supervision: 'ENFJ (EIE)',
+                description: '实用主义的组织者，追求效率和结果。在Delta象限中，重视秩序和实际成果。'
+            },
+            'ESFP': {
+                type: 'SEE',
+                name: '政治家',
+                quadra: 'Gamma',
+                romance: 'INTJ (ILI)',
+                benefit: 'ISFJ (ESI)',
+                supervision: 'ENTJ (LIE)',
+                description: '热情的表演者，善于把握机会。在Gamma象限中，追求实际利益和影响力。'
+            },
+            'ESFJ': {
+                type: 'ESE',
+                name: '热情者',
+                quadra: 'Alpha',
+                romance: 'INTP (LII)',
+                benefit: 'ISFP (SEI)',
+                supervision: 'ENTP (ILE)',
+                description: '群体活动的组织者，创造和谐氛围。在Alpha象限中，促进社交互动和情感交流。'
+            }
+        };
+
+        // 象限数据
+        const quadras = {
+            'Alpha': {
+                types: ['ENTP', 'INTP', 'ISFJ', 'ESFJ'],
+                description: '重视开放讨论、创新思维、舒适氛围。偏好逻辑分析和可能性探索，强调知识共享和和谐关系。'
+            },
+            'Beta': {
+                types: ['ESTP', 'ISTP', 'ENFJ', 'INFJ'],
+                description: '重视力量、意志力和集体行动。强调纪律、责任和社会变革，偏好果断决策和强力领导。'
+            },
+            'Gamma': {
+                types: ['ENTJ', 'INTJ', 'ESFP', 'ISFP'],
+                description: '注重效率和实际成果。追求目标达成和现实利益，重视个人成就和影响力。'
+            },
+            'Delta': {
+                types: ['ESTJ', 'ISTJ', 'ENFP', 'INFP'],
+                description: '追求稳定和渐进改革。重视道德价值和个人成长，注重实用性和可靠性。'
+            }
+        };
+
+        // 初始化选择框
+        function initializeSelect() {
+            const select = document.getElementById('mbti-select');
+            Object.entries(mbtiTypes).forEach(([type, data]) => {
+                const option = document.createElement('option');
+                option.value = type;
+                option.textContent = `${type} - ${data.name}`;
+                select.appendChild(option);
+            });
+        }
+
+        // 获取类型所属象限
+        function getQuadra(type) {
+            for (const [quadra, data] of Object.entries(quadras)) {
+                if (data.types.includes(type)) {
+                    return { name: quadra, ...data };
+                }
+            }
+            return null;
+        }
+
+        // 渲染认知功能堆栈
+        function renderFunctionStack(type) {
+            const stackContainer = document.querySelector('.function-stack');
+            stackContainer.innerHTML = '';
+
+            if (!type || !mbtiTypes[type]) return;
+
+            mbtiTypes[type].stack.forEach((func, index) => {
+                const functionItem = document.createElement('div');
+                functionItem.className = 'function-item';
+                
+                const funct = functionDescriptions[func]
+                functionItem.innerHTML = `
+                    <div class="function-code">${func}</div>
+                    <div class="function-details">
+                        <div class="function-description">${funct['name']} - ${funct['description']}</div>
+                        <div class="position-description">${positionDescriptions[index]}<br>●${funct['position'+(index+1)+'Desc'].join('<br>●')}</div>
+                    </div>
+                `;
+                stackContainer.appendChild(functionItem);
+            });
+        }
+        // 渲染Socionics信息
+        function renderSocionicsInfo(type) {
+            const socionicsContainer = document.querySelector('.socionics-info');
+            socionicsContainer.innerHTML = '';
+            console.log(type)
+            if (!type) return;
+
+            // const quadra = getQuadra(type);
+            // if (!quadra) return;
+
+            const socionicsType = socionicsTypes[type];
+            socionicsContainer.innerHTML = `
+                <p><strong>类型:</strong> ${socionicsType.type} (${socionicsType.name})</p>
+                <p><strong>象限:</strong> ${socionicsType.quadra}</p>
+                <p><strong>二元关系:</strong> ${socionicsType.romance}</p>
+                <p><strong>利益关系:</strong> ${socionicsType.benefit}</p>
+                <p><strong>监督关系:</strong> ${socionicsType.supervision}</p>
+                <p><strong>类型描述:</strong> ${socionicsType.description}</p>
+                <p><strong>说明:</strong> <h3>关系类型</h3><h4>二元关系(Duality Relations)</h4>
+                    <p>最理想的伴侣关系，互补性最强的配对。例如：INTP与ESFJ、INTJ与ESFP。</p>
+
+                    <h4>利益关系(Benefit Relations)</h4>
+                    <p>单向受益的关系，一方能帮助另一方成长。例如：ENFJ对INFJ有利益关系。</p>
+
+                    <h4>监督关系(Supervision Relations)</h4>
+                    <p>一方自然倾向于"监督"另一方，可能产生压力的关系。例如：ISFP对INTP有监督关系。</p> 
+                    <h3>关系动态</h3>
+                    <h4>同象限关系</h4>
+                    <p>成员之间容易理解彼此，共享相似的价值观和行为模式，通常能形成稳定的社交圈。</p>
+
+                    <h4>跨象限关系</h4>
+                    <p>可能存在价值观和行为方式的冲突，需要更多理解和包容，但也可能带来互补性的好处。</p></p>
+            `;
+        }
+        // 渲染象限信息
+        function renderQuadraInfo(type) {
+            const quadraContainer = document.querySelector('.quadra-info');
+            quadraContainer.innerHTML = '';
+
+            if (!type) return;
+
+            const quadra = getQuadra(type);
+            if (!quadra) return;
+
+            quadraContainer.innerHTML = `
+                <div class="quadra-title">${quadra.name}象限</div>
+                <div class="quadra-description">${quadra.description}</div>
+                <div class="type-list">
+                    <h4>同象限类型：</h4>
+                    ${quadra.types.map(t => `<span class="type-tag">${t} - ${mbtiTypes[t].name}</span>`).join('')}
+                </div>
+            `;
+        }
+
+        // 事件监听器设置
+        function setupEventListeners() {
+            // 类型选择更改
+            const select = document.getElementById('mbti-select');
+            select.addEventListener('change', (e) => {
+                const type = e.target.value;
+                renderFunctionStack(type);
+                renderSocionicsInfo(type)
+                renderQuadraInfo(type);
+            });
+
+            // 标签切换
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // 更新标签状态
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+
+                    // 更新内容显示
+                    const targetId = tab.dataset.tab;
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    document.getElementById(targetId).classList.add('active');
+                });
+            });
+        }
+
+        // 初始化应用
+        function initializeApp() {
+            initializeSelect();
+            setupEventListeners();
+        }
+
+        // 启动应用
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    </script>
+</body>
+</html>
