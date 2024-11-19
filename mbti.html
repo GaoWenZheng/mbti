@@ -10,6 +10,8 @@
             --border-color: #E5E7EB;
             --bg-gray: #F9FAFB;
             --text-gray: #6B7280;
+            --hover-color: #4338CA;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
         * {
@@ -25,13 +27,14 @@
             padding: 2rem;
             max-width: 1200px;
             margin: 0 auto;
+            background-color: #f3f4f6;
         }
 
         .container {
             background: white;
-            border-radius: 0.5rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: var(--card-shadow);
+            padding: 2rem;
         }
 
         .select-container {
@@ -40,11 +43,18 @@
 
         select {
             width: 100%;
-            padding: 0.5rem;
+            padding: 0.75rem;
             border: 1px solid var(--border-color);
-            border-radius: 0.375rem;
+            border-radius: 0.5rem;
             font-size: 1rem;
             margin-top: 0.5rem;
+            background-color: white;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        select:hover {
+            border-color: var(--primary-color);
         }
 
         .tabs {
@@ -52,22 +62,30 @@
             gap: 1rem;
             margin-bottom: 1.5rem;
             border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
         }
 
         .tab {
-            padding: 0.5rem 1rem;
+            padding: 0.75rem 1.5rem;
             cursor: pointer;
             border: none;
             background: none;
             color: var(--text-gray);
-            border-bottom: 2px solid transparent;
+            border-radius: 0.5rem 0.5rem 0 0;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .tab:hover {
+            color: var(--primary-color);
+            background-color: var(--bg-gray);
         }
 
         .tab.active {
             color: var(--primary-color);
-            border-bottom-color: var(--primary-color);
+            border-bottom: 3px solid var(--primary-color);
+            background-color: var(--bg-gray);
         }
-
         .tab-content {
             display: none;
         }
@@ -75,12 +93,10 @@
         .tab-content.active {
             display: block;
         }
-
         .function-stack {
             display: grid;
             gap: 1rem;
         }
-
         .function-item {
             display: flex;
             gap: 1rem;
@@ -107,12 +123,10 @@
         .function-description {
             margin-bottom: 0.25rem;
         }
-
         .position-description {
             font-size: 0.875rem;
             color: var(--text-gray);
         }
-
         .quadra-info {
             padding: 1rem;
             background: var(--bg-gray);
@@ -138,6 +152,107 @@
             border: 1px solid var(--border-color);
             border-radius: 0.25rem;
             font-size: 0.875rem;
+        }
+        /* Cognitive Functions Styling */
+        .cognitive-stack {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .cognitive-info h3 {
+            color: var(--primary-color);
+            margin: 2rem 0 1rem;
+            font-size: 1.5rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .function-cognitive {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s;
+        }
+
+        .function-cognitive:hover {
+            transform: translateY(-2px);
+        }
+
+        .function-cognitive h4 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .function-cognitive p {
+            margin: 0.5rem 0;
+            color: var(--text-gray);
+            line-height: 1.6;
+        }
+
+        /* Socionics Styling */
+        .socionics-info {
+            display: grid;
+            gap: 1.5rem;
+            padding: 1rem;
+        }
+
+        .socionics-card {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .socionics-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .socionics-card h4 {
+            color: var(--hover-color);
+            margin: 1rem 0 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .socionics-info p {
+            margin: 0.75rem 0;
+            line-height: 1.6;
+        }
+
+        .socionics-info strong {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .relationship-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .relationship-item {
+            background: var(--bg-gray);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tab-content {
+            animation: fadeIn 0.3s ease-out;
         }
         
     </style>
@@ -169,7 +284,7 @@
         </div>
         <div id="cognitive" class="tab-content">
         <div class="cognitive-info">
-            <div class="function-stack">
+            <div class="cognitive-stack">
                 <h3>主要功能</h3>
 
                 <div class="function-cognitive">
@@ -390,6 +505,7 @@
                 "position8Desc": ["极度排斥感官体验","对物质世界感到焦虑","难以应对实际情况","完全逃避现实活动","对身体活动感到恐惧"]
             }
         }
+        
         const typeDescriptions = {
             'INTP': '独立的思考者和创新者。擅长发现复杂问题的解决方案，热爱探索理论概念。重视逻辑和知识，追求理解事物的本质。可能显得疏离和沉默寡言，但内心充满想法和创造力。',
             'INTJ': '战略性思考者和规划者。有远见卓识，善于制定长期计划和系统性解决方案。追求效率和卓越，具有强烈的目标导向。独立自主，重视能力和智慧。',
@@ -621,38 +737,61 @@
         }
         // 渲染Socionics信息
         function renderSocionicsInfo(type) {
-            const socionicsContainer = document.querySelector('.socionics-info');
+        const socionicsContainer = document.querySelector('.socionics-info');
+        if (!type) {
             socionicsContainer.innerHTML = '';
-            console.log(type)
-            if (!type) return;
-
-            // const quadra = getQuadra(type);
-            // if (!quadra) return;
-
-            const socionicsType = socionicsTypes[type];
-            socionicsContainer.innerHTML = `
-                <p><strong>类型:</strong> ${socionicsType.type} (${socionicsType.name})</p>
-                <p><strong>象限:</strong> ${socionicsType.quadra}</p>
-                <p><strong>二元关系:</strong> ${socionicsType.romance}</p>
-                <p><strong>利益关系:</strong> ${socionicsType.benefit}</p>
-                <p><strong>监督关系:</strong> ${socionicsType.supervision}</p>
-                <p><strong>类型描述:</strong> ${socionicsType.description}</p>
-                <p><strong>说明:</strong> <h3>关系类型</h3><h4>二元关系(Duality Relations)</h4>
-                    <p>最理想的伴侣关系，互补性最强的配对。例如：INTP与ESFJ、INTJ与ESFP。</p>
-
-                    <h4>利益关系(Benefit Relations)</h4>
-                    <p>单向受益的关系，一方能帮助另一方成长。例如：ENFJ对INFJ有利益关系。</p>
-
-                    <h4>监督关系(Supervision Relations)</h4>
-                    <p>一方自然倾向于"监督"另一方，可能产生压力的关系。例如：ISFP对INTP有监督关系。</p> 
-                    <h3>关系动态</h3>
-                    <h4>同象限关系</h4>
-                    <p>成员之间容易理解彼此，共享相似的价值观和行为模式，通常能形成稳定的社交圈。</p>
-
-                    <h4>跨象限关系</h4>
-                    <p>可能存在价值观和行为方式的冲突，需要更多理解和包容，但也可能带来互补性的好处。</p></p>
-            `;
+            return;
         }
+
+        const socionicsType = socionicsTypes[type];
+        socionicsContainer.innerHTML = `
+            <div class="socionics-card">
+                <h3>类型信息</h3>
+                <p><strong>Socionics类型:</strong> ${socionicsType.type} (${socionicsType.name})</p>
+                <p><strong>所属象限:</strong> ${socionicsType.quadra}</p>
+                <p><strong>类型描述:</strong> ${socionicsType.description}</p>
+            </div>
+
+            <div class="socionics-card">
+                <h3>关系网络</h3>
+                <div class="relationship-grid">
+                    <div class="relationship-item">
+                        <h4>二元关系</h4>
+                        <p>${socionicsType.romance}</p>
+                    </div>
+                    <div class="relationship-item">
+                        <h4>利益关系</h4>
+                        <p>${socionicsType.benefit}</p>
+                    </div>
+                    <div class="relationship-item">
+                        <h4>监督关系</h4>
+                        <p>${socionicsType.supervision}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="socionics-card">
+                <h3>关系解释</h3>
+                <h4>二元关系(Duality Relations)</h4>
+                <p>最理想的伴侣关系，互补性最强的配对。在性格特质和认知功能上形成完美互补。</p>
+
+                <h4>利益关系(Benefit Relations)</h4>
+                <p>单向受益的关系，一方能帮助另一方成长。这种关系中，一方往往能更好地理解和支持另一方。</p>
+
+                <h4>监督关系(Supervision Relations)</h4>
+                <p>一方自然倾向于"监督"另一方，可能产生压力。需要双方有意识地平衡互动方式。</p>
+            </div>
+
+            <div class="socionics-card">
+                <h3>象限动态</h3>
+                <h4>同象限关系</h4>
+                <p>成员之间容易理解彼此，共享相似的价值观和行为模式。通常能形成稳定和谐的社交圈。</p>
+
+                <h4>跨象限关系</h4>
+                <p>可能存在价值观和行为方式的差异，需要更多理解和包容。但这种差异也可能带来互补性的好处。</p>
+            </div>
+        `;
+    }
         // 渲染象限信息
         function renderQuadraInfo(type) {
             const quadraContainer = document.querySelector('.quadra-info');
