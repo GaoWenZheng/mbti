@@ -1,4 +1,22 @@
-
+// MBTI类型数据
+const mbtiTypes = {
+    'INTP': { name: '逻辑学家', stack: ['Ti', 'Ne', 'Si', 'Fe', 'Te', 'Ni', 'Se', 'Fi'] },
+    'INTJ': { name: '建筑师', stack: ['Ni', 'Te', 'Fi', 'Se', 'Ne', 'Ti', 'Fe', 'Si'] },
+    'INFP': { name: '调停者', stack: ['Fi', 'Ne', 'Si', 'Te', 'Fe', 'Ni', 'Se', 'Ti'] },
+    'INFJ': { name: '提倡者', stack: ['Ni', 'Fe', 'Ti', 'Se', 'Ne', 'Fi', 'Te', 'Si'] },
+    'ISTP': { name: '鉴赏家', stack: ['Ti', 'Se', 'Ni', 'Fe', 'Te', 'Si', 'Ne', 'Fi'] },
+    'ISTJ': { name: '检查员', stack: ['Si', 'Te', 'Fi', 'Ne', 'Se', 'Ti', 'Fe', 'Ni'] },
+    'ISFP': { name: '探险家', stack: ['Fi', 'Se', 'Ni', 'Te', 'Fe', 'Si', 'Ne', 'Ti'] },
+    'ISFJ': { name: '守卫者', stack: ['Si', 'Fe', 'Ti', 'Ne', 'Se', 'Fi', 'Te', 'Ni'] },
+    'ENTP': { name: '辩论家', stack: ['Ne', 'Ti', 'Fe', 'Si', 'Ni', 'Te', 'Fi', 'Se'] },
+    'ENTJ': { name: '指挥官', stack: ['Te', 'Ni', 'Se', 'Fi', 'Ti', 'Ne', 'Si', 'Fe'] },
+    'ENFP': { name: '竞选者', stack: ['Ne', 'Fi', 'Te', 'Si', 'Ni', 'Fe', 'Ti', 'Se'] },
+    'ENFJ': { name: '主人公', stack: ['Fe', 'Ni', 'Se', 'Ti', 'Fi', 'Ne', 'Si', 'Te'] },
+    'ESTP': { name: '企业家', stack: ['Se', 'Ti', 'Fe', 'Ni', 'Si', 'Te', 'Fi', 'Ne'] },
+    'ESTJ': { name: '总管', stack: ['Te', 'Si', 'Ne', 'Fi', 'Ti', 'Se', 'Ni', 'Fe'] },
+    'ESFP': { name: '表演者', stack: ['Se', 'Fi', 'Te', 'Ni', 'Si', 'Fe', 'Ti', 'Ne'] },
+    'ESFJ': { name: '执政官', stack: ['Fe', 'Si', 'Ne', 'Ti', 'Fi', 'Se', 'Ni', 'Te'] }
+};
 
 
 // 测试问题数据
