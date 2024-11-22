@@ -1,0 +1,442 @@
+:root {
+    --primary-color: #4F46E5;
+    --border-color: #E5E7EB;
+    --bg-gray: #F9FAFB;
+    --text-gray: #6B7280;
+    --hover-color: #4338CA;
+    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.5;
+    color: #111827;
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #f3f4f6;
+}
+
+.container {
+    background: white;
+    border-radius: 1rem;
+    box-shadow: var(--card-shadow);
+    padding: 1.5rem;
+}
+
+.select-container {
+    margin-bottom: 2rem;
+}
+
+select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    margin-top: 0.5rem;
+    background-color: white;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+select:hover {
+    border-color: var(--primary-color);
+}
+
+.tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.tab {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: var(--text-gray);
+    border-radius: 0.5rem 0.5rem 0 0;
+    transition: all 0.2s;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.tab:hover {
+    color: var(--primary-color);
+    background-color: var(--bg-gray);
+}
+
+.tab.active {
+    color: var(--primary-color);
+    border-bottom: 3px solid var(--primary-color);
+    background-color: var(--bg-gray);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.function-stack {
+    display: grid;
+    gap: 1rem;
+}
+
+.function-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--bg-gray);
+    border-radius: 0.5rem;
+    align-items: start;
+}
+
+.function-code {
+    font-weight: bold;
+    font-size: 1.125rem;
+    min-width: 3rem;
+}
+
+.function-details {
+    flex: 1;
+}
+
+.function-description {
+    margin-bottom: 0.25rem;
+}
+
+.position-description {
+    font-size: 0.875rem;
+    color: var(--text-gray);
+}
+
+.quadra-info {
+    padding: 1rem;
+    background: var(--bg-gray);
+    border-radius: 0.5rem;
+}
+
+.quadra-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.type-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.type-tag {
+    padding: 0.25rem 0.75rem;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+}
+
+.cognitive-info {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.cognitive-info h3 {
+    color: var(--primary-color);
+    margin: 2rem 0 1rem;
+    font-size: 1.5rem;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.5rem;
+}
+
+.function-cognitive {
+    background: white;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--border-color);
+    transition: transform 0.2s;
+}
+
+.function-cognitive:hover {
+    transform: translateY(-2px);
+}
+
+.function-cognitive h4 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+.function-cognitive p {
+    margin: 0.5rem 0;
+    color: var(--text-gray);
+    line-height: 1.6;
+}
+
+.socionics-info {
+    display: grid;
+    gap: 1.5rem;
+    justify-content: center;
+}
+
+.socionics-card {
+    background: white;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--border-color);
+}
+
+.socionics-card h3 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.5rem;
+}
+
+.socionics-card h4 {
+    color: var(--hover-color);
+    margin: 1rem 0 0.5rem;
+    font-size: 1.1rem;
+}
+
+.socionics-info p {
+    margin: 0.75rem 0;
+    line-height: 1.6;
+}
+
+.socionics-info strong {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.relationship-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.relationship-item {
+    background: var(--bg-gray);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.comparison-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+@media (max-width: 768px) {
+    .comparison-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+.type-column {
+    background: white;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    box-shadow: var(--card-shadow);
+}
+
+.type-column h3 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.growth-card {
+    background: white;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    margin-top: 1rem;
+    box-shadow: var(--card-shadow);
+}
+
+.growth-card h3 {
+    color: var(--primary-color);
+    margin: 1.5rem 0 1rem;
+    font-size: 1.3rem;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.5rem;
+}
+
+.growth-card ul {
+    list-style-position: inside;
+    margin: 1rem 0;
+}
+
+.growth-card li {
+    margin: 0.5rem 0;
+    color: var(--text-gray);
+}
+
+.test-container {
+    background: white;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    margin-top: 1rem;
+    box-shadow: var(--card-shadow);
+}
+
+.question {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: var(--bg-gray);
+    border-radius: 0.5rem;
+}
+
+.question h3 {
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+.options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.option {
+    padding: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: white;
+}
+
+.option:hover {
+    background: var(--bg-gray);
+    border-color: var(--primary-color);
+}
+
+.option.selected {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.progress-bar {
+    width: 100%;
+    height: 0.5rem;
+    background: var(--bg-gray);
+    border-radius: 0.25rem;
+    margin: 1rem 0;
+    overflow: hidden;
+}
+
+.progress {
+    height: 100%;
+    background: var(--primary-color);
+    border-radius: 0.25rem;
+    transition: width 0.3s;
+    width: 0;
+}
+
+.result-card {
+    background: white;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    margin-top: 1rem;
+    display: none;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.result-card h3 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.result-details {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--bg-gray);
+    border-radius: 0.5rem;
+}
+
+.test-button {
+    display: block;
+    width: 100%;
+    padding: 1rem;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-top: 1rem;
+}
+
+.test-button:hover {
+    background: var(--hover-color);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.tab-content {
+    animation: fadeIn 0.3s ease-out;
+}
+
+.personality-label {
+    transition: all 0.2s;
+    user-select: none;
+}
+
+.personality-label:hover {
+    background: var(--primary-color) !important;
+    color: white !important;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.label-description {
+    transition: all 0.2s;
+    line-height: 1.6;
+    color: var(--text-gray);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
