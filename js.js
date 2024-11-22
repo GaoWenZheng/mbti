@@ -1993,7 +1993,7 @@ function getLongTermSupport(type1, type2) {
         supportAnalysis.push('建议结合双方优势，建立全面的支持系统');
     }
 
-    return supportAnalysis.join('\n');
+    return supportAnalysis.join('<br>');
 }
 
 function getPersonalRecovery(type1, type2) {
@@ -2053,7 +2053,7 @@ function getPersonalRecovery(type1, type2) {
             recoveryAnalysis.push(`- 思维恢复：${style1Think.methods.join('、')}`);
         }
 
-        recoveryAnalysis.push(`\n${type2}的恢复方式：`);
+        recoveryAnalysis.push(`<br>${type2}的恢复方式：`);
         recoveryAnalysis.push(`- 主要方法：${style2Main.methods.join('、')}`);
         recoveryAnalysis.push(`- 基本需求：${style2Main.needs.join('、')}`);
         if (style2Think) {
@@ -2063,13 +2063,13 @@ function getPersonalRecovery(type1, type2) {
 
     // 添加互补建议
     if (getMainStyle(type1) !== getMainStyle(type2)) {
-        recoveryAnalysis.push('\n互补恢复建议：');
+        recoveryAnalysis.push('<br>互补恢复建议：');
         recoveryAnalysis.push('- 尊重彼此的恢复方式和节奏');
         recoveryAnalysis.push('- 在需要时提供对方习惯的支持方式');
         recoveryAnalysis.push('- 建立兼顾双方需求的恢复环境');
     }
 
-    return recoveryAnalysis.join('\n');
+    return recoveryAnalysis.join('<br>');
 }
 
 function getJointRecovery(type1, type2) {
@@ -2110,13 +2110,13 @@ function getJointRecovery(type1, type2) {
     }
 
     // 添加平衡建议
-    recommendations.push('\n建议：');
+    recommendations.push('<br>建议：');
     recommendations.push('- 寻找双方都感兴趣的活动');
     recommendations.push('- 轮流选择恢复方式');
     recommendations.push('- 创造适合双方的活动节奏');
     recommendations.push('- 保持开放和理解的态度');
 
-    return recommendations.join('\n');
+    return recommendations.join('<br>');
 }
 
 function getRecoveryEnvironment(type1, type2) {
@@ -2173,13 +2173,13 @@ function getRecoveryEnvironment(type1, type2) {
     });
 
     // 添加整合建议
-    environmentSuggestions.push('\n环境营造建议：');
+    environmentSuggestions.push('<br>环境营造建议：');
     environmentSuggestions.push('- 创造具有灵活性的空间');
     environmentSuggestions.push('- 设置不同功能的区域');
     environmentSuggestions.push('- 平衡社交和独处需求');
     environmentSuggestions.push('- 兼顾实用性和舒适度');
 
-    return environmentSuggestions.join('\n');
+    return environmentSuggestions.join('<br>');
 }
 function getCommunicationStrategy(type1, type2) {
     // 定义沟通风格和策略
@@ -2302,10 +2302,10 @@ function getCommunicationStrategy(type1, type2) {
     strategies.push(`- 挑战：${style2.challenges.join('、')}`);
 
     // 生成互补建议
-    strategies.push('\n互补策略建议：');
+    strategies.push('<br>互补策略建议：');
     strategies = strategies.concat(generateComplementaryStrategies(type1, type2));
 
-    return strategies.join('\n');
+    return strategies.join('<br>');
 }
 
 function generateComplementaryStrategies(type1, type2) {
@@ -2340,7 +2340,7 @@ function generateComplementaryStrategies(type1, type2) {
     }
 
     // 添加通用建议
-    strategies.push('\n通用建议：');
+    strategies.push('<br>通用建议：');
     strategies.push('- 定期进行开放和诚实的沟通');
     strategies.push('- 尊重并接纳彼此的沟通方式');
     strategies.push('- 在冲突时注意倾听和理解');
@@ -2399,7 +2399,7 @@ function getTaskAllocation(type1, type2) {
     const style2Keys = getStyleKeys(type2);
 
     allocation.push('任务分配建议：');
-    allocation.push(`\n${type1}适合的任务领域：`);
+    allocation.push(`<br>${type1}适合的任务领域：`);
     style1Keys.forEach(key => {
         if (taskPreferences[key]) {
             allocation.push(`- 优势：${taskPreferences[key].strengths.join('、')}`);
@@ -2407,7 +2407,7 @@ function getTaskAllocation(type1, type2) {
         }
     });
 
-    allocation.push(`\n${type2}适合的任务领域：`);
+    allocation.push(`<br>${type2}适合的任务领域：`);
     style2Keys.forEach(key => {
         if (taskPreferences[key]) {
             allocation.push(`- 优势：${taskPreferences[key].strengths.join('、')}`);
@@ -2416,14 +2416,14 @@ function getTaskAllocation(type1, type2) {
     });
 
     // 添加协作建议
-    allocation.push('\n协作建议：');
+    allocation.push('<br>协作建议：');
     allocation.push('- 基于各自优势分配主要职责');
     allocation.push('- 在关键决策点结合双方视角');
     allocation.push('- 建立互补的工作流程');
     allocation.push('- 保持regular同步和沟通');
     allocation.push('- 相互支持和学习');
 
-    return allocation.join('\n');
+    return allocation.join('<br>');
 }
 
 function getConflictResolution(type1, type2) {
@@ -2483,7 +2483,7 @@ function getConflictResolution(type1, type2) {
     const style2Keys = getStyleKeys(type2);
 
     resolution.push('冲突处理风格分析：');
-    resolution.push(`\n${type1}的处理方式：`);
+    resolution.push(`<br>${type1}的处理方式：`);
     style1Keys.forEach(key => {
         if (conflictStyles[key]) {
             resolution.push(`- 方法：${conflictStyles[key].approach}`);
@@ -2492,7 +2492,7 @@ function getConflictResolution(type1, type2) {
         }
     });
 
-    resolution.push(`\n${type2}的处理方式：`);
+    resolution.push(`<br>${type2}的处理方式：`);
     style2Keys.forEach(key => {
         if (conflictStyles[key]) {
             resolution.push(`- 方法：${conflictStyles[key].approach}`);
@@ -2502,25 +2502,25 @@ function getConflictResolution(type1, type2) {
     });
 
     // 添加冲突解决建议
-    resolution.push('\n冲突解决建议：');
+    resolution.push('<br>冲突解决建议：');
     resolution.push('1. 预防策略：');
     resolution.push('- 建立清晰的沟通机制');
     resolution.push('- 定期进行期望对齐');
     resolution.push('- 保持开放和诚实的对话');
 
-    resolution.push('\n2. 处理策略：');
+    resolution.push('<br>2. 处理策略：');
     resolution.push('- 及时识别和承认冲突');
     resolution.push('- 各自表达观点和感受');
     resolution.push('- 共同寻找解决方案');
     resolution.push('- 达成可行的行动计划');
 
-    resolution.push('\n3. 后续跟进：');
+    resolution.push('<br>3. 后续跟进：');
     resolution.push('- 执行商定的解决方案');
     resolution.push('- 定期评估进展');
     resolution.push('- 及时调整和改进');
     resolution.push('- 强化积极的互动模式');
 
-    return resolution.join('\n');
+    return resolution.join('<br>');
 }
 function getRoutineComparison(type1, type2) {
     // 定义不同类型的日常习惯特征
@@ -2588,7 +2588,7 @@ function getRoutineComparison(type1, type2) {
 
     // 分析作息模式
     comparison.push('作息习惯比较：');
-    comparison.push(`\n${type1}的日常模式：`);
+    comparison.push(`<br>${type1}的日常模式：`);
     pattern1Keys.forEach(key => {
         if (routinePatterns[key]) {
             const pattern = routinePatterns[key];
@@ -2599,7 +2599,7 @@ function getRoutineComparison(type1, type2) {
         }
     });
 
-    comparison.push(`\n${type2}的日常模式：`);
+    comparison.push(`<br>${type2}的日常模式：`);
     pattern2Keys.forEach(key => {
         if (routinePatterns[key]) {
             const pattern = routinePatterns[key];
@@ -2611,10 +2611,10 @@ function getRoutineComparison(type1, type2) {
     });
 
     // 添加协调建议
-    comparison.push('\n作息协调建议：');
+    comparison.push('<br>作息协调建议：');
     comparison = comparison.concat(getRoutineHarmonizationTips(type1, type2));
 
-    return comparison.join('\n');
+    return comparison.join('<br>');
 }
 
 function getHabitComparison(type1, type2) {
@@ -2672,7 +2672,7 @@ function getHabitComparison(type1, type2) {
     const habit2Keys = getHabitKeys(type2);
 
     comparison.push('习惯模式分析：');
-    comparison.push(`\n${type1}的习惯特征：`);
+    comparison.push(`<br>${type1}的习惯特征：`);
     habit1Keys.forEach(key => {
         if (habitPatterns[key]) {
             const pattern = habitPatterns[key];
@@ -2682,7 +2682,7 @@ function getHabitComparison(type1, type2) {
         }
     });
 
-    comparison.push(`\n${type2}的习惯特征：`);
+    comparison.push(`<br>${type2}的习惯特征：`);
     habit2Keys.forEach(key => {
         if (habitPatterns[key]) {
             const pattern = habitPatterns[key];
@@ -2693,10 +2693,10 @@ function getHabitComparison(type1, type2) {
     });
 
     // 添加习惯协调建议
-    comparison.push('\n习惯协调建议：');
+    comparison.push('<br>习惯协调建议：');
     comparison = comparison.concat(getHabitHarmonizationTips(type1, type2));
 
-    return comparison.join('\n');
+    return comparison.join('<br>');
 }
 
 function getHabitHarmonization(type1, type2) {
@@ -2712,7 +2712,7 @@ function getHabitHarmonization(type1, type2) {
 
     // 基于感知/直觉维度的建议
     if (type1[1] !== type2[1]) {
-        harmonization.push('\n具体与抽象的平衡：');
+        harmonization.push('<br>具体与抽象的平衡：');
         harmonization.push(`- ${type1[1] === 'S' ? type1 : type2}关注实际细节和具体需求`);
         harmonization.push(`- ${type1[1] === 'N' ? type1 : type2}提供长远视角和创新想法`);
         harmonization.push('- 结合实际需求和发展愿景来安排生活');
@@ -2720,30 +2720,30 @@ function getHabitHarmonization(type1, type2) {
 
     // 基于思考/情感维度的建议
     if (type1[2] !== type2[2]) {
-        harmonization.push('\n逻辑与价值的平衡：');
+        harmonization.push('<br>逻辑与价值的平衡：');
         harmonization.push(`- ${type1[2] === 'T' ? type1 : type2}注重效率和逻辑安排`);
         harmonization.push(`- ${type1[2] === 'F' ? type1 : type2}关注情感需求和价值实现`);
         harmonization.push('- 在效率和人文关怀间找到平衡点');
     }
 
     // 通用建议
-    harmonization.push('\n通用协调建议：');
+    harmonization.push('<br>通用协调建议：');
     harmonization.push('1. 建立基本规律：');
     harmonization.push('- 确定共同的作息时间');
     harmonization.push('- 建立必要的生活规则');
     harmonization.push('- 保持适度的灵活性');
 
-    harmonization.push('\n2. respect个人空间：');
+    harmonization.push('<br>2. respect个人空间：');
     harmonization.push('- 尊重彼此的习惯差异');
     harmonization.push('- 保留个人调整的空间');
     harmonization.push('- 建立互不干扰的区域');
 
-    harmonization.push('\n3. 建立沟通机制：');
+    harmonization.push('<br>3. 建立沟通机制：');
     harmonization.push('- 定期讨论生活安排');
     harmonization.push('- 及时反馈不适感受');
     harmonization.push('- 共同调整和改进');
 
-    return harmonization.join('\n');
+    return harmonization.join('<br>');
 }
 
 function getRoutineHarmonizationTips(type1, type2) {
@@ -2759,25 +2759,25 @@ function getRoutineHarmonizationTips(type1, type2) {
 
     // 基于判断/知觉维度的建议
     if (type1[3] !== type2[3]) {
-        tips.push('\n日程安排：');
+        tips.push('<br>日程安排：');
         tips.push(`- ${type1[3] === 'J' ? type1 : type2}可以负责建立基本框架`);
         tips.push(`- ${type1[3] === 'P' ? type1 : type2}可以提供灵活调整的空间`);
         tips.push('- 在重要事项上保持计划性，日常事务保持弹性');
     }
 
     // 作息建议
-    tips.push('\n具体建议：');
+    tips.push('<br>具体建议：');
     tips.push('1. 时间管理：');
     tips.push('- 确定共同的核心时间');
     tips.push('- 建立灵活的日程安排');
     tips.push('- 预留调整的空间');
 
-    tips.push('\n2. 空间安排：');
+    tips.push('<br>2. 空间安排：');
     tips.push('- 划分个人活动区域');
     tips.push('- 创造共享空间');
     tips.push('- 保持环境整洁');
 
-    tips.push('\n3. 活动协调：');
+    tips.push('<br>3. 活动协调：');
     tips.push('- 平衡独处和互动时间');
     tips.push('- 尊重个人习惯');
     tips.push('- 建立共同活动');
@@ -2848,50 +2848,50 @@ function getHabitHarmonizationTips(type1, type2) {
             
             if (harmonizationTips[tipKey]) {
                 const tip = harmonizationTips[tipKey];
-                tips.push(`\n${tip.title}：`);
+                tips.push(`<br>${tip.title}：`);
                 tips.push('通用建议：');
                 tip.general.forEach(g => tips.push(`- ${g}`));
                 
-                tips.push(`\n${type1}的调整建议：`);
+                tips.push(`<br>${type1}的调整建议：`);
                 tip.specific[type1[i]].forEach(s => tips.push(`- ${s}`));
                 
-                tips.push(`\n${type2}的调整建议：`);
+                tips.push(`<br>${type2}的调整建议：`);
                 tip.specific[type2[i]].forEach(s => tips.push(`- ${s}`));
             }
         }
     }
 
     // 添加通用的习惯协调建议
-    tips.push('\n总体协调建议：');
+    tips.push('<br>总体协调建议：');
     tips.push('1. 时间管理：');
     tips.push('- 设定共同的核心时间');
     tips.push('- 保留个人自由时间');
     tips.push('- 定期同步和调整安排');
 
-    tips.push('\n2. 空间安排：');
+    tips.push('<br>2. 空间安排：');
     tips.push('- 明确各自的私人空间');
     tips.push('- 创造舒适的共享环境');
     tips.push('- 保持环境的整洁有序');
 
-    tips.push('\n3. 沟通机制：');
+    tips.push('<br>3. 沟通机制：');
     tips.push('- 建立定期沟通的习惯');
     tips.push('- 及时表达需求和困扰');
     tips.push('- 共同解决问题和改进');
 
-    tips.push('\n4. 习惯培养：');
+    tips.push('<br>4. 习惯培养：');
     tips.push('- 逐步建立共同习惯');
     tips.push('- 相互学习好的习惯');
     tips.push('- 保持开放和包容的态度');
 
     // 添加具体的日常建议
-    tips.push('\n日常实践建议：');
+    tips.push('<br>日常实践建议：');
     tips.push('1. 作息协调');
     tips = tips.concat(getDailyRoutineTips(type1, type2));
 
-    tips.push('\n2. 环境营造');
+    tips.push('<br>2. 环境营造');
     tips = tips.concat(getEnvironmentTips(type1, type2));
 
-    tips.push('\n3. 活动安排');
+    tips.push('<br>3. 活动安排');
     tips = tips.concat(getActivityTips(type1, type2));
 
     return tips;
@@ -3027,7 +3027,7 @@ function getNeedsAlignment(type1, type2) {
 
     // 分析核心需求
     alignment.push('核心需求分析：');
-    alignment.push(`\n${type1}的需求特征：`);
+    alignment.push(`<br>${type1}的需求特征：`);
     type1Keys.forEach(key => {
         if (coreNeeds[key]) {
             alignment.push(`- 主要需求：${coreNeeds[key].primary.join('、')}`);
@@ -3036,7 +3036,7 @@ function getNeedsAlignment(type1, type2) {
         }
     });
 
-    alignment.push(`\n${type2}的需求特征：`);
+    alignment.push(`<br>${type2}的需求特征：`);
     type2Keys.forEach(key => {
         if (coreNeeds[key]) {
             alignment.push(`- 主要需求：${coreNeeds[key].primary.join('、')}`);
@@ -3046,7 +3046,7 @@ function getNeedsAlignment(type1, type2) {
     });
 
     // 分析互补策略
-    alignment.push('\n需求协调策略：');
+    alignment.push('<br>需求协调策略：');
     type1Keys.forEach(key1 => {
         type2Keys.forEach(key2 => {
             const strategyKey = [key1, key2].sort().join('-');
@@ -3059,13 +3059,13 @@ function getNeedsAlignment(type1, type2) {
     // 添加具体建议
     alignment = alignment.concat(getNeedsHarmonizationTips(type1, type2));
 
-    return alignment.join('\n');
+    return alignment.join('<br>');
 }
 
 function getNeedsHarmonizationTips(type1, type2) {
     let tips = [];
     
-    tips.push('\n具体协调建议：');
+    tips.push('<br>具体协调建议：');
 
     // 基于外向/内向维度的建议
     if (type1[0] !== type2[0]) {
@@ -3077,7 +3077,7 @@ function getNeedsHarmonizationTips(type1, type2) {
 
     // 基于感知/直觉维度的建议
     if (type1[1] !== type2[1]) {
-        tips.push('\n2. 信息处理需求：');
+        tips.push('<br>2. 信息处理需求：');
         tips.push(`- ${type1[1] === 'S' ? type1 : type2}需要具体详实的信息`);
         tips.push(`- ${type1[1] === 'N' ? type1 : type2}需要概念性的理解`);
         tips.push('- 在沟通中兼顾细节和整体');
@@ -3085,7 +3085,7 @@ function getNeedsHarmonizationTips(type1, type2) {
 
     // 基于思考/情感维度的建议
     if (type1[2] !== type2[2]) {
-        tips.push('\n3. 决策方式需求：');
+        tips.push('<br>3. 决策方式需求：');
         tips.push(`- ${type1[2] === 'T' ? type1 : type2}需要逻辑和效率`);
         tips.push(`- ${type1[2] === 'F' ? type1 : type2}需要价值和和谐`);
         tips.push('- 在决策中平衡理性和情感');
@@ -3093,7 +3093,7 @@ function getNeedsHarmonizationTips(type1, type2) {
 
     // 基于判断/知觉维度的建议
     if (type1[3] !== type2[3]) {
-        tips.push('\n4. 生活方式需求：');
+        tips.push('<br>4. 生活方式需求：');
         tips.push(`- ${type1[3] === 'J' ? type1 : type2}需要计划和确定性`);
         tips.push(`- ${type1[3] === 'P' ? type1 : type2}需要灵活和可能性`);
         tips.push('- 在生活中保持适度的弹性');
@@ -3111,18 +3111,18 @@ function getNeedsHarmonizationTips(type1, type2) {
 function getStressManagementTips(type1, type2) {
     let tips = [];
     
-    tips.push('\n压力管理建议：');
+    tips.push('<br>压力管理建议：');
     tips.push('1. 识别压力信号：');
     tips.push('- 注意对方的压力表现');
     tips.push('- 理解不同的压力源');
     tips.push('- 及时沟通压力状况');
 
-    tips.push('\n2. 支持策略：');
+    tips.push('<br>2. 支持策略：');
     tips.push('- 提供对方需要的支持方式');
     tips.push('- 保持适度的界限感');
     tips.push('- 建立压力缓解机制');
 
-    tips.push('\n3. 恢复策略：');
+    tips.push('<br>3. 恢复策略：');
     tips.push('- 尊重各自的恢复方式');
     tips.push('- 创造有利的恢复环境');
     tips.push('- 保持健康的生活习惯');
@@ -3133,17 +3133,17 @@ function getStressManagementTips(type1, type2) {
 function getGrowthAlignmentTips(type1, type2) {
     let tips = [];
     
-    tips.push('\n共同成长建议：');
+    tips.push('<br>共同成长建议：');
     tips.push('1. 互补学习：');
     tips.push(`- ${type1}可以学习：${getGrowthAreas(type1, type2)}`);
     tips.push(`- ${type2}可以学习：${getGrowthAreas(type2, type1)}`);
 
-    tips.push('\n2. 发展方向：');
+    tips.push('<br>2. 发展方向：');
     tips.push('- 建立共同的成长目标');
     tips.push('- 支持彼此的个人发展');
     tips.push('- 创造学习和分享的机会');
 
-    tips.push('\n3. 长期规划：');
+    tips.push('<br>3. 长期规划：');
     tips.push('- 协调个人和共同目标');
     tips.push('- 定期回顾和调整方向');
     tips.push('- 保持开放和成长的心态');
@@ -3299,7 +3299,7 @@ function getStressBehaviors(type1, type2) {
     // 添加互动建议
     analysis = analysis.concat(getStressInteractionTips(type1, type2));
 
-    return analysis.join('\n');
+    return analysis.join('<br>');
 }
 
 function getStressInteractionTips(type1, type2) {
@@ -3309,7 +3309,7 @@ function getStressInteractionTips(type1, type2) {
 
     // 基于能量方向的建议（E/I）
     if (type1[0] !== type2[0]) {
-        tips.push('\n1. 能量管理：');
+        tips.push('<br>1. 能量管理：');
         tips.push(`- ${type1[0] === 'E' ? type1 : type2}压力下需要互动和表达`);
         tips.push(`- ${type1[0] === 'I' ? type1 : type2}压力下需要独处和内省`);
         tips.push('- 尊重彼此不同的压力释放方式');
@@ -3317,7 +3317,7 @@ function getStressInteractionTips(type1, type2) {
 
     // 基于信息处理的建议（S/N）
     if (type1[1] !== type2[1]) {
-        tips.push('\n2. 问题处理：');
+        tips.push('<br>2. 问题处理：');
         tips.push(`- ${type1[1] === 'S' ? type1 : type2}需要具体的解决方案`);
         tips.push(`- ${type1[1] === 'N' ? type1 : type2}需要探索可能性`);
         tips.push('- 结合实际和创新的解决思路');
@@ -3325,7 +3325,7 @@ function getStressInteractionTips(type1, type2) {
 
     // 基于决策方式的建议（T/F）
     if (type1[2] !== type2[2]) {
-        tips.push('\n3. 支持方式：');
+        tips.push('<br>3. 支持方式：');
         tips.push(`- ${type1[2] === 'T' ? type1 : type2}需要逻辑分析和解决方案`);
         tips.push(`- ${type1[2] === 'F' ? type1 : type2}需要情感支持和理解`);
         tips.push('- 平衡理性分析和情感支持');
@@ -3333,7 +3333,7 @@ function getStressInteractionTips(type1, type2) {
 
     // 基于生活方式的建议（J/P）
     if (type1[3] !== type2[3]) {
-        tips.push('\n4. 恢复策略：');
+        tips.push('<br>4. 恢复策略：');
         tips.push(`- ${type1[3] === 'J' ? type1 : type2}需要重建结构和控制`);
         tips.push(`- ${type1[3] === 'P' ? type1 : type2}需要保持灵活和开放`);
         tips.push('- 在结构和灵活性之间找到平衡');
@@ -3349,18 +3349,18 @@ function getStressInteractionTips(type1, type2) {
 function getStressPreventionTips(type1, type2) {
     let tips = [];
     
-    tips.push('\n压力预防策略：');
+    tips.push('<br>压力预防策略：');
     tips.push('1. 日常观察：');
     tips.push('- 关注对方的压力信号');
     tips.push('- 识别潜在的压力源');
     tips.push('- 保持开放的沟通');
 
-    tips.push('\n2. 环境调整：');
+    tips.push('<br>2. 环境调整：');
     tips.push('- 创造支持性环境');
     tips.push('- 减少已知的压力源');
     tips.push('- 维护健康的界限');
 
-    tips.push('\n3. 定期交流：');
+    tips.push('<br>3. 定期交流：');
     tips.push('- 分享压力状况');
     tips.push('- 讨论预防措施');
     tips.push('- 建立支持机制');
@@ -3371,18 +3371,18 @@ function getStressPreventionTips(type1, type2) {
 function getStressRecoveryTips(type1, type2) {
     let tips = [];
     
-    tips.push('\n压力恢复策略：');
+    tips.push('<br>压力恢复策略：');
     tips.push('1. 及时介入：');
     tips.push('- 识别严重程度');
     tips.push('- 提供适当支持');
     tips.push('- 尊重恢复节奏');
 
-    tips.push('\n2. 恢复方案：');
+    tips.push('<br>2. 恢复方案：');
     tips.push('- 建立恢复计划');
     tips.push('- 调整生活节奏');
     tips.push('- 寻求必要帮助');
 
-    tips.push('\n3. 长期预防：');
+    tips.push('<br>3. 长期预防：');
     tips.push('- 建立压力管理机制');
     tips.push('- 培养健康习惯');
     tips.push('- 增强心理韧性');
@@ -3498,7 +3498,7 @@ function getGrowthPotential(type1, type2) {
     [type1, type2].forEach(type => {
         const pattern = growthPatterns[type];
         if (pattern) {
-            potential.push(`\n${type}的发展特征：`);
+            potential.push(`<br>${type}的发展特征：`);
             potential.push(`- 核心优势：${pattern.strengths.join('、')}`);
             potential.push(`- 成长领域：${pattern.growth_areas.join('、')}`);
             potential.push(`- 发展路径：${pattern.development_path.join('、')}`);
@@ -3507,14 +3507,14 @@ function getGrowthPotential(type1, type2) {
     });
 
     // 添加互补成长建议
-    potential.push('\n互补成长机会：');
+    potential.push('<br>互补成长机会：');
     potential = potential.concat(getComplementaryGrowthTips(type1, type2));
 
     // 添加共同发展建议
-    potential.push('\n共同发展方向：');
+    potential.push('<br>共同发展方向：');
     potential = potential.concat(getSharedDevelopmentTips(type1, type2));
 
-    return potential.join('\n');
+    return potential.join('<br>');
 }
 
 function analyzePotentialCompatibility(type1, type2) {
@@ -3657,13 +3657,13 @@ function getSharedDevelopmentTips(type1, type2) {
     tips.push('- 领导力的培养');
     tips.push('- 创新思维的开发');
 
-    tips.push('\n2. 发展策略：');
+    tips.push('<br>2. 发展策略：');
     tips.push('- 定期进行成长对话');
     tips.push('- 共同参与学习活动');
     tips.push('- 互相提供建设性反馈');
     tips.push('- 建立成长支持系统');
 
-    tips.push('\n3. 长期目标：');
+    tips.push('<br>3. 长期目标：');
     tips.push('- 建立共同的价值观');
     tips.push('- 发展互补的能力');
     tips.push('- 创造协同效应');
@@ -3779,7 +3779,7 @@ function getGrowthOpportunities(type1, type2) {
     [type1, type2].forEach(type => {
         const growth = growthOpportunities[type];
         if (growth) {
-            opportunities.push(`\n${type}的成长方向：`);
+            opportunities.push(`<br>${type}的成长方向：`);
             opportunities.push(`- 个人发展：${growth.personal.join('、')}`);
             opportunities.push(`- 职业发展：${growth.professional.join('、')}`);
             opportunities.push(`- 关系发展：${growth.relationship.join('、')}`);
@@ -3788,18 +3788,18 @@ function getGrowthOpportunities(type1, type2) {
     });
 
     // 添加互补成长建议
-    opportunities.push('\n互补成长机会：');
+    opportunities.push('<br>互补成长机会：');
     opportunities = opportunities.concat(getComplementaryOpportunities(type1, type2));
 
     // 添加共同发展建议
-    opportunities.push('\n共同发展机会：');
+    opportunities.push('<br>共同发展机会：');
     opportunities = opportunities.concat(getSharedOpportunities(type1, type2));
 
     // 添加实践建议
-    opportunities.push('\n实践发展建议：');
+    opportunities.push('<br>实践发展建议：');
     opportunities = opportunities.concat(getPracticalDevelopmentTips(type1, type2));
 
-    return opportunities.join('\n');
+    return opportunities.join('<br>');
 }
 
 function getComplementaryOpportunities(type1, type2) {
@@ -3883,17 +3883,17 @@ function getPracticalDevelopmentTips(type1, type2) {
     tips.push('- 分享知识和经验');
     tips.push('- 互相提供反馈和建议');
 
-    tips.push('\n2. 能力提升：');
+    tips.push('<br>2. 能力提升：');
     tips.push('- 制定共同的发展目标');
     tips.push('- 相互激励和督促');
     tips.push('- 庆祝进步和成就');
 
-    tips.push('\n3. 关系发展：');
+    tips.push('<br>3. 关系发展：');
     tips.push('- 建立有效的沟通机制');
     tips.push('- 培养共同兴趣');
     tips.push('- 创造共享经验');
 
-    tips.push('\n4. 长期规划：');
+    tips.push('<br>4. 长期规划：');
     tips.push('- 设定共同的远景目标');
     tips.push('- 制定发展路线图');
     tips.push('- 定期评估和调整');
