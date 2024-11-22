@@ -468,6 +468,7 @@
             <button class="tab" data-tab="compare">类型比较</button>
             <button class="tab" data-tab="growth">成长建议</button>
             <button class="tab" data-tab="test">互动测试</button>
+            <button class="tab" data-tab="love">恋爱指南</button>
         </div>
 
         <div id="functions" class="tab-content active">
@@ -595,6 +596,9 @@
                 <div class="result-card"></div>
                 <button class="test-button" style="display: none;">重新开始测试</button>
             </div>
+        </div>
+        <div id="love" class="tab-content">
+            <div class="love-guide"></div>
         </div>
     </div>
     <script>
@@ -995,186 +999,111 @@
             // E vs I 外向/内向
             {
                 question: "在社交场合中，你更倾向于：",
-                options: [
-                    { text: "主动与人交谈，从互动中获得能量", type: "E" },
-                    { text: "保持安静观察，独处时感觉更自在", type: "I" }
-                ]
+                options: [{ text: "主动与人交谈，从互动中获得能量", type: "E" }, { text: "保持安静观察，独处时感觉更自在", type: "I" }]
             },
             {
                 question: "在遇到问题时，你更喜欢：",
-                options: [
-                    { text: "与他人讨论，通过交谈寻找解决方案", type: "E" },
-                    { text: "独自思考，在内心分析问题", type: "I" }
-                ]
+                options: [{ text: "与他人讨论，通过交谈寻找解决方案", type: "E" }, { text: "独自思考，在内心分析问题", type: "I" }]
             },
             {
                 question: "周末休息时，你更倾向于：",
-                options: [
-                    { text: "参加社交活动，与朋友聚会", type: "E" },
-                    { text: "待在家里，享受独处时光", type: "I" }
-                ]
+                options: [{ text: "参加社交活动，与朋友聚会", type: "E" }, { text: "待在家里，享受独处时光", type: "I" }]
             },
             {
                 question: "在团队中，你通常会：",
-                options: [
-                    { text: "积极发言，分享想法", type: "E" },
-                    { text: "先听取他人意见，仔细思考后再发言", type: "I" }
-                ]
+                options: [{ text: "积极发言，分享想法", type: "E" }, { text: "先听取他人意见，仔细思考后再发言", type: "I" }]
             },
             {
                 question: "你更容易从哪里获得能量：",
-                options: [
-                    { text: "与他人互动和交流", type: "E" },
-                    { text: "独处和自我反思", type: "I" }
-                ]
+                options: [{ text: "与他人互动和交流", type: "E" }, { text: "独处和自我反思", type: "I" }]
             },
 
             // S vs N 感知/直觉
             {
                 question: "在获取信息时，你更注重：",
-                options: [
-                    { text: "具体的事实和细节", type: "S" },
-                    { text: "概念和可能性", type: "N" }
-                ]
+                options: [{ text: "具体的事实和细节", type: "S" }, { text: "概念和可能性", type: "N" }]
             },
             {
                 question: "你更相信：",
-                options: [
-                    { text: "实际经验和具体事例", type: "S" },
-                    { text: "直觉和未来潜力", type: "N" }
-                ]
+                options: [{ text: "实际经验和具体事例", type: "S" }, { text: "直觉和未来潜力", type: "N" }]
             },
             {
                 question: "在解决问题时，你更倾向于：",
-                options: [
-                    { text: "遵循已证实有效的方法", type: "S" },
-                    { text: "尝试新的、创新的解决方案", type: "N" }
-                ]
+                options: [{ text: "遵循已证实有效的方法", type: "S" }, { text: "尝试新的、创新的解决方案", type: "N" }]
             },
             {
                 question: "你更关注：",
-                options: [
-                    { text: "当下的现实情况", type: "S" },
-                    { text: "未来的可能性", type: "N" }
-                ]
+                options: [{ text: "当下的现实情况", type: "S" }, { text: "未来的可能性", type: "N" }]
             },
             {
                 question: "在学习新事物时，你更喜欢：",
-                options: [
-                    { text: "循序渐进，掌握具体细节", type: "S" },
-                    { text: "先了解整体概念，再关注细节", type: "N" }
-                ]
+                options: [{ text: "循序渐进，掌握具体细节", type: "S" }, { text: "先了解整体概念，再关注细节", type: "N" }]
             },
 
             // T vs F 思考/情感
             {
                 question: "在做决定时，你更依赖：",
-                options: [
-                    { text: "逻辑分析和客观事实", type: "T" },
-                    { text: "个人价值观和感受", type: "F" }
-                ]
+                options: [{ text: "逻辑分析和客观事实", type: "T" }, { text: "个人价值观和感受", type: "F" }]
             },
             {
                 question: "在处理冲突时，你更看重：",
-                options: [
-                    { text: "找出问题的逻辑解决方案", type: "T" },
-                    { text: "维护人际关系的和谐", type: "F" }
-                ]
+                options: [{ text: "找出问题的逻辑解决方案", type: "T" }, { text: "维护人际关系的和谐", type: "F" }]
             },
             {
                 question: "你认为更重要的是：",
-                options: [
-                    { text: "保持客观公正", type: "T" },
-                    { text: "考虑他人感受", type: "F" }
-                ]
+                options: [{ text: "保持客观公正", type: "T" }, { text: "考虑他人感受", type: "F" }]
             },
             {
                 question: "在评价事物时，你更倾向于：",
-                options: [
-                    { text: "分析利弊，追求合理性", type: "T" },
-                    { text: "考虑对人的影响，追求和谐", type: "F" }
-                ]
+                options: [{ text: "分析利弊，追求合理性", type: "T" }, { text: "考虑对人的影响，追求和谐", type: "F" }]
             },
             {
                 question: "面对批评时，你更希望得到：",
-                options: [
-                    { text: "直接的、客观的反馈", type: "T" },
-                    { text: "温和的、体贴的建议", type: "F" }
-                ]
+                options: [{ text: "直接的、客观的反馈", type: "T" }, { text: "温和的、体贴的建议", type: "F" }]
             },
 
             // J vs P 判断/知觉
             {
                 question: "你更喜欢：",
-                options: [
-                    { text: "提前计划，按计划执行", type: "J" },
-                    { text: "保持灵活，随机应变", type: "P" }
-                ]
+                options: [{ text: "提前计划，按计划执行", type: "J" }, { text: "保持灵活，随机应变", type: "P" }]
             },
             {
                 question: "对待工作/学习任务时，你倾向于：",
-                options: [
-                    { text: "制定清晰的计划和期限", type: "J" },
-                    { text: "保持开放，视情况调整", type: "P" }
-                ]
+                options: [{ text: "制定清晰的计划和期限", type: "J" }, { text: "保持开放，视情况调整", type: "P" }]
             },
             {
                 question: "你更喜欢的工作环境是：",
-                options: [
-                    { text: "有明确的规则和结构", type: "J" },
-                    { text: "灵活自由，可以随时调整", type: "P" }
-                ]
+                options: [{ text: "有明确的规则和结构", type: "J" }, { text: "灵活自由，可以随时调整", type: "P" }]
             },
             {
                 question: "面对决定时，你更倾向于：",
-                options: [
-                    { text: "尽快做出决定并执行", type: "J" },
-                    { text: "保持开放，继续收集信息", type: "P" }
-                ]
+                options: [{ text: "尽快做出决定并执行", type: "J" }, { text: "保持开放，继续收集信息", type: "P" }]
             },
             {
                 question: "你的生活方式更接近：",
-                options: [
-                    { text: "有序、计划、可控", type: "J" },
-                    { text: "随性、适应、自然", type: "P" }
-                ]
+                options: [{ text: "有序、计划、可控", type: "J" }, { text: "随性、适应、自然", type: "P" }]
             },
 
             // 额外的深入性格特征问题
             {
                 question: "在团队项目中，你更看重：",
-                options: [
-                    { text: "效率和成果", type: "T" },
-                    { text: "团队氛围和合作", type: "F" }
-                ]
+                options: [{ text: "效率和成果", type: "T" }, { text: "团队氛围和合作", type: "F" }]
             },
             {
                 question: "你更容易记住：",
-                options: [
-                    { text: "具体的细节和事实", type: "S" },
-                    { text: "整体印象和联系", type: "N" }
-                ]
+                options: [{ text: "具体的细节和事实", type: "S" }, { text: "整体印象和联系", type: "N" }]
             },
             {
                 question: "压力下，你更倾向于：",
-                options: [
-                    { text: "制定计划，寻求控制", type: "J" },
-                    { text: "保持开放，寻找选项", type: "P" }
-                ]
+                options: [{ text: "制定计划，寻求控制", type: "J" }, { text: "保持开放，寻找选项", type: "P" }]
             },
             {
                 question: "在新环境中，你通常会：",
-                options: [
-                    { text: "主动寻找社交机会", type: "E" },
-                    { text: "等待他人来接近你", type: "I" }
-                ]
+                options: [{ text: "主动寻找社交机会", type: "E" }, { text: "等待他人来接近你", type: "I" }]
             },
             {
                 question: "你更喜欢的工作类型是：",
-                options: [
-                    { text: "有明确流程和规范的工作", type: "S" },
-                    { text: "需要创新和想象力的工作", type: "N" }
-                ]
+                options: [{ text: "有明确流程和规范的工作", type: "S" }, { text: "需要创新和想象力的工作", type: "N" }]
             }
         ];
         // 认知功能描述数据
@@ -1715,6 +1644,584 @@
 
             'ESFJ': '热心的社交者和关怀者。他们关注他人需求，重视和谐关系。具有强烈的责任感和服务精神，重视传统和社会价值。他们通常在社会服务、医疗保健、教育等需要人际交往和服务精神的领域表现优秀。'
         };
+        const loveGuides = {
+            'INTP': {
+                traits: [
+                    '重视智识交流的伴侣关系',
+                    '需要个人空间和独立思考的时间',
+                    '可能在情感表达上显得含蓄',
+                    '寻求深度的思想交流和理解',
+                    '重视伴侣的智力水平和逻辑思维'
+                ],
+                strengths: [
+                    '愿意进行深入的话题讨论',
+                    '尊重伴侣的独立性',
+                    '以理性方式解决问题',
+                    '忠诚且重视承诺',
+                    '愿意为关系提供创新解决方案'
+                ],
+                challenges: [
+                    '可能忽视伴侣的情感需求',
+                    '不擅长处理日常的情感交流',
+                    '可能过于理性化感情问题',
+                    '需要努力表达爱意和关心',
+                    '可能显得过于疏离'
+                ],
+                advice: [
+                    '学习识别和回应伴侣的情感需求',
+                    '培养定期表达关心的习惯',
+                    '保持开放和真诚的沟通',
+                    '在理性分析之外关注感受',
+                    '主动创造共处的温馨时刻'
+                ],
+                idealPartners: ['ENTJ', 'ESTJ', 'ENFJ', 'INFJ'],
+                compatibility: {
+                    best: ['ENTJ', 'ESTJ'],
+                    good: ['ENFJ', 'INFJ', 'ENTP', 'INTP'],
+                    challenging: ['ESFJ', 'ISFJ', 'ESFP', 'ISFP']
+                }
+            },
+            'INTJ': {
+                traits: [
+                    '追求深度和意义的关系',
+                    '重视智力契合和共同目标',
+                    '计划性强，注重未来发展',
+                    '保持独立性和个人空间',
+                    '期待高质量的思想交流'
+                ],
+                strengths: [
+                    '忠诚且投入',
+                    '善于制定长期规划',
+                    '注重个人和关系的成长',
+                    '理性处理问题',
+                    '尊重伴侣的独立性'
+                ],
+                challenges: [
+                    '可能过于完美主义',
+                    '情感表达可能不够直接',
+                    '有时显得过于独立',
+                    '可能忽视日常情感交流',
+                    '对伴侣期望较高'
+                ],
+                advice: [
+                    '学会适时表达温柔和关怀',
+                    '接纳不完美的时刻',
+                    '培养情感表达能力',
+                    '增加日常互动的温度',
+                    '保持开放和包容的心态'
+                ],
+                idealPartners: ['ENFP', 'ENTP', 'ENFJ', 'ENTJ'],
+                compatibility: {
+                    best: ['ENFP', 'ENTP'],
+                    good: ['ENFJ', 'ENTJ', 'INTJ', 'INFJ'],
+                    challenging: ['ESFJ', 'ISFJ', 'ESTP', 'ISTP']
+                }
+            },
+            'INFP': {
+                traits: [
+                    '追求理想和深刻的感情连接',
+                    '重视真诚和个人价值观',
+                    '富有同理心和理解力',
+                    '需要个人空间和独处时间',
+                    '向往浪漫和独特的爱情'
+                ],
+                strengths: [
+                    '深刻的情感理解能力',
+                    '富有创意的表达方式',
+                    '真诚且忠诚',
+                    '愿意为关系付出',
+                    '善于创造浪漫氛围'
+                ],
+                challenges: [
+                    '可能理想化关系',
+                    '过分敏感',
+                    '难以直接表达需求',
+                    '容易陷入情绪',
+                    '可能逃避冲突'
+                ],
+                advice: [
+                    '保持理想但接纳现实',
+                    '学会适时表达自己的需求',
+                    '培养处理冲突的能力',
+                    '建立健康的情绪界限',
+                    '平衡理想和现实的期待'
+                ],
+                idealPartners: ['ENFJ', 'ENTJ', 'INFJ', 'INTJ'],
+                compatibility: {
+                    best: ['ENFJ', 'ENTJ'],
+                    good: ['INFJ', 'INTJ', 'INFP', 'ENFP'],
+                    challenging: ['ESTP', 'ISTP', 'ESTJ', 'ISTJ']
+                }
+            },
+            'INFJ': {
+                traits: [
+                    '追求深刻和有意义的连接',
+                    '具有强烈的直觉和洞察力',
+                    '重视精神层面的契合',
+                    '需要真诚和深度的交流',
+                    '向往和谐且有深度的关系'
+                ],
+                strengths: [
+                    '深刻的理解力',
+                    '强烈的同理心',
+                    '富有创意的问题解决能力',
+                    '注重关系的长期发展',
+                    '善于营造情感联结'
+                ],
+                challenges: [
+                    '可能过分理想化',
+                    '容易承担过多责任',
+                    '有时过度敏感',
+                    '可能过分追求完美',
+                    '难以表达消极情绪'
+                ],
+                advice: [
+                    '学会设立健康的界限',
+                    '接纳不完美的现实',
+                    '培养直接表达的能力',
+                    '平衡付出和自我照顾',
+                    '保持独立性'
+                ],
+                idealPartners: ['ENFP', 'ENTP', 'INTJ', 'INFP'],
+                compatibility: {
+                    best: ['ENFP', 'ENTP'],
+                    good: ['INTJ', 'INFP', 'INFJ', 'ENFJ'],
+                    challenging: ['ESTP', 'ISTP', 'ESTJ', 'ISTJ']
+                }
+            },
+            'ISTP': {
+                traits: [
+                    '重视个人空间和自由',
+                    '实践导向的问题解决者',
+                    '直接且真实的表达方式',
+                    '注重当下的体验',
+                    '适应力强且灵活'
+                ],
+                strengths: [
+                    '诚实直接',
+                    '解决问题能力强',
+                    '尊重伴侣的独立性',
+                    '灵活且适应力强',
+                    '不会过分情绪化'
+                ],
+                challenges: [
+                    '可能显得过于疏离',
+                    '不擅长情感表达',
+                    '可能回避承诺',
+                    '难以规划长期关系',
+                    '可能忽视伴侣情感需求'
+                ],
+                advice: [
+                    '培养情感表达能力',
+                    '学会关注伴侣需求',
+                    '建立稳定的交流习惯',
+                    '适当规划未来',
+                    '增加情感投入'
+                ],
+                idealPartners: ['ESTJ', 'ENTJ', 'ESFJ', 'ENFJ'],
+                compatibility: {
+                    best: ['ESTJ', 'ENTJ'],
+                    good: ['ESFJ', 'ENFJ', 'ISTP', 'ESTP'],
+                    challenging: ['INFP', 'ENFP', 'INFJ', 'ENFJ']
+                }
+            },
+            'ISTJ': {
+                traits: [
+                    '重视责任和承诺',
+                    '注重传统和稳定性',
+                    '实际且可靠',
+                    '重视诚信和忠诚',
+                    '追求长期稳定的关系'
+                ],
+                strengths: [
+                    '忠诚可靠',
+                    '责任心强',
+                    '实际且稳定',
+                    '注重承诺',
+                    '善于维护关系'
+                ],
+                challenges: [
+                    '可能过于传统',
+                    '不善表达情感',
+                    '可能显得过于严肃',
+                    '适应变化较慢',
+                    '可能忽视浪漫需求'
+                ],
+                advice: [
+                    '培养情感表达能力',
+                    '增加关系的趣味性',
+                    '保持开放和灵活',
+                    '学习创造浪漫',
+                    '接纳新的相处方式'
+                ],
+                idealPartners: ['ESFP', 'ESTP', 'ENFP', 'ENTP'],
+                compatibility: {
+                    best: ['ESFP', 'ESTP'],
+                    good: ['ENFP', 'ENTP', 'ISTJ', 'ESTJ'],
+                    challenging: ['INFJ', 'INTJ', 'INFP', 'INTP']
+                }
+            },
+            'ISFP': {
+                traits: [
+                    '重视真实和自然的情感表达',
+                    '享受当下的相处时光',
+                    '富有艺术感和审美能力',
+                    '温和且富有同理心',
+                    '注重个人空间'
+                ],
+                strengths: [
+                    '真诚温和',
+                    '富有同理心',
+                    '善于创造美好时刻',
+                    '适应力强',
+                    '重视情感交流'
+                ],
+                challenges: [
+                    '可能过于被动',
+                    '难以做出长期规划',
+                    '不善于表达需求',
+                    '可能逃避问题',
+                    '决策能力需要提升'
+                ],
+                advice: [
+                    '学习主动表达需求',
+                    '培养规划能力',
+                    '增强决策能力',
+                    '建立健康的沟通模式',
+                    '平衡独处和相处时间'
+                ],
+                idealPartners: ['ENFJ', 'ESFJ', 'ESTJ', 'ENTJ'],
+                compatibility: {
+                    best: ['ENFJ', 'ESFJ'],
+                    good: ['ESTJ', 'ENTJ', 'ISFP', 'ESFP'],
+                    challenging: ['INTP', 'ENTP', 'INTJ', 'ENTJ']
+                }
+            },
+            'ISFJ': {
+                traits: [
+                    '富有同理心和照顾能力',
+                    '重视稳定和安全感',
+                    '注重细节和体贴',
+                    '追求和谐的关系',
+                    '重视传统价值观'
+                ],
+                strengths: [
+                    '体贴周到',
+                    '重视承诺',
+                    '善于营造温馨氛围',
+                    '注重细节',
+                    '富有同理心'
+                ],
+                challenges: [
+                    '可能过分在意他人需求',
+                    '难以表达个人需求',
+                    '可能过度保护',
+                    '不善于处理冲突',
+                    '可能压抑自我'
+                ],
+                advice: [
+                    '学会表达自己的需求',
+                    '建立健康的界限',
+                    '培养独立性',
+                    '增强处理冲突的能力',
+                    '平衡付出和自我照顾'
+                ],
+                idealPartners: ['ESFP', 'ESTP', 'ENFP', 'ENTP'],
+                compatibility: {
+                    best: ['ESFP', 'ESTP'],
+                    good: ['ENFP', 'ENTP', 'ISFJ', 'ESFJ'],
+                    challenging: ['INTJ', 'ENTJ', 'INTP', 'ENTP']
+                }
+            },
+            'ENTP': {
+                traits: [
+                    '思维活跃且富有创造力',
+                    '享受智力挑战和辩论',
+                    '重视思想交流',
+                    '适应力强且灵活',
+                    '追求新鲜和变化'
+                ],
+                strengths: [
+                    '思维敏捷',
+                    '善于沟通',
+                    '创意丰富',
+                    '幽默风趣',
+                    '适应力强'
+                ],
+                challenges: [
+                    '可能难以专注',
+                    '容易厌倦常规',
+                    '可能忽视情感需求',
+                    '难以做出承诺',
+                    '可能过于喜欢辩论'
+                ],
+                advice: [
+                    '培养持久的专注力',
+                    '平衡理性和感性',
+                    '学会倾听而非总是辩论',
+                    '增强情感敏感度',
+                    '建立稳定的相处模式'
+                ],
+                idealPartners: ['INFJ', 'INTJ', 'ENFJ', 'ENTJ'],
+                compatibility: {
+                    best: ['INFJ', 'INTJ'],
+                    good: ['ENFJ', 'ENTJ', 'ENTP', 'INTP'],
+                    challenging: ['ISFJ', 'ESFJ', 'ISTJ', 'ESTJ']
+                }
+            },
+            'ENTJ': {
+                traits: [
+                    '目标导向且有领导力',
+                    '重视效率和成就',
+                    '直接且坦诚',
+                    '追求卓越',
+                    '注重长期发展'
+                ],
+                strengths: [
+                    '决断力强',
+                    '有规划能力',
+                    '注重成长',
+                    '直接坦诚',
+                    '重视承诺'
+                ],
+                challenges: [
+                    '可能过于主导',
+                    '情感表达可能生硬',
+                    '可能过分追求完美',
+                    '可能忽视他人感受',
+                    '期望较高'
+                ],
+                advice: [
+                    '培养温和的表达方式',
+                    '增强情感敏感度',
+                    '学会放松和享受当下',
+                    '平衡工作与感情',
+                    '接纳他人的不完美'
+                ],
+                idealPartners: ['INFP', 'INTP', 'ENFP', 'ENTP'],
+                compatibility: {
+                    best: ['INFP', 'INTP'],
+                    good: ['ENFP', 'ENTP', 'ENTJ', 'INTJ'],
+                    challenging: ['ISFJ', 'ESFJ', 'ISFP', 'ESFP']
+                }
+            },
+            'ENFP': {
+                traits: [
+                    '热情活泼且富有创造力',
+                    '重视真实的情感连接',
+                    '追求成长和可能性',
+                    '善于理解他人',
+                    '享受新鲜体验'
+                ],
+                strengths: [
+                    '热情洋溢',
+                    '富有同理心',
+                    '创意十足',
+                    '善于交流',
+                    '适应力强'
+                ],
+                challenges: [
+                    '可能情绪波动大',
+                    '难以做出决定',
+                    '容易分散注意力',
+                    '可能过度理想化',
+                    '难以处理细节'
+                ],
+                advice: [
+                    '培养稳定性',
+                    '提高决策能力',
+                    '设立实际的期望',
+                    '关注细节',
+                    '平衡理想和现实'
+                ],
+                idealPartners: ['INTJ', 'INFJ', 'ENTJ', 'ENFJ'],
+                compatibility: {
+                    best: ['INTJ', 'INFJ'],
+                    good: ['ENTJ', 'ENFJ', 'ENFP', 'INFP'],
+                    challenging: ['ISTJ', 'ESTJ', 'ISFJ', 'ESFJ']
+                }
+            },
+            'ENFJ': {
+                traits: [
+                    '富有同理心且善解人意',
+                    '重视和谐关系',
+                    '有领导魅力',
+                    '注重个人成长',
+                    '追求深度连接'
+                ],
+                strengths: [
+                    '善于沟通',
+                    '富有同理心',
+                    '关心他人成长',
+                    '有责任心',
+                    '善于营造和谐'
+                ],
+                challenges: [
+                    '可能过分在意他人感受',
+                    '容易情绪耗竭',
+                    '可能忽视自身需求',
+                    '过分理想化',
+                    '难以说不'
+                ],
+                advice: [
+                    '学会设立界限',
+                    '平衡他人和自身需求',
+                    '接纳不完美',
+                    '培养自我关怀',
+                    '保持独立性'
+                ],
+                idealPartners: ['INFP', 'ISFP', 'INTP', 'ISTP'],
+                compatibility: {
+                    best: ['INFP', 'ISFP'],
+                    good: ['INTP', 'ISTP', 'ENFJ', 'INFJ'],
+                    challenging: ['ESTJ', 'ISTJ', 'ENTJ', 'INTJ']
+                }
+            },
+            'ESTP': {
+                traits: [
+                    '活力充沛且冒险精神强',
+                    '注重当下体验',
+                    '实用主义者',
+                    '适应力强',
+                    '直接坦率'
+                ],
+                strengths: [
+                    '行动力强',
+                    '善于解决问题',
+                    '适应力好',
+                    '坦诚直接',
+                    '富有魅力'
+                ],
+                challenges: [
+                    '可能缺乏长期规划',
+                    '难以承诺',
+                    '可能忽视情感需求',
+                    '容易冲动',
+                    '不擅长处理复杂情感'
+                ],
+                advice: [
+                    '培养长期规划意识',
+                    '增强情感敏感度',
+                    '学会深入交流',
+                    '提高承诺能力',
+                    '平衡冒险和稳定'
+                ],
+                idealPartners: ['ISFJ', 'ISTJ', 'ESFJ', 'ESTJ'],
+                compatibility: {
+                    best: ['ISFJ', 'ISTJ'],
+                    good: ['ESFJ', 'ESTJ', 'ESTP', 'ISTP'],
+                    challenging: ['INFJ', 'ENFJ', 'INFP', 'ENFP']
+                }
+            },
+            'ESTJ': {
+                traits: [
+                    '注重责任和秩序',
+                    '实际且有组织能力',
+                    '重视传统和规则',
+                    '直接坦率',
+                    '追求效率'
+                ],
+                strengths: [
+                    '责任心强',
+                    '可靠稳定',
+                    '组织能力强',
+                    '直接诚实',
+                    '重视承诺'
+                ],
+                challenges: [
+                    '可能过于固执',
+                    '情感表达可能生硬',
+                    '可能过于专制',
+                    '不够灵活',
+                    '可能忽视感受'
+                ],
+                advice: [
+                    '培养灵活性',
+                    '增强情感表达',
+                    '学会倾听和体谅',
+                    '接纳不同观点',
+                    '平衡理性和感性'
+                ],
+                idealPartners: ['ISFP', 'ISTP', 'ESFP', 'ESTP'],
+                compatibility: {
+                    best: ['ISFP', 'ISTP'],
+                    good: ['ESFP', 'ESTP', 'ESTJ', 'ISTJ'],
+                    challenging: ['INFJ', 'ENFJ', 'INFP', 'ENFP']
+                }
+            },
+            'ESFP': {
+                traits: [
+                    '热情活泼且富有魅力',
+                    '享受当下生活',
+                    '善于交际',
+                    '适应力强',
+                    '重视体验和乐趣'
+                ],
+                strengths: [
+                    '热情开朗',
+                    '富有魅力',
+                    '善于营造氛围',
+                    '适应力强',
+                    '乐于分享'
+                ],
+                challenges: [
+                    '可能缺乏规划',
+                    '容易冲动',
+                    '难以做出承诺',
+                    '可能过于依赖他人',
+                    '不擅长处理压力'
+                ],
+                advice: [
+                    '培养规划能力',
+                    '提高独立性',
+                    '学会深入思考',
+                    '增强承诺意识',
+                    '平衡娱乐和责任'
+                ],
+                idealPartners: ['ISTJ', 'ISFJ', 'ESTJ', 'ESFJ'],
+                compatibility: {
+                    best: ['ISTJ', 'ISFJ'],
+                    good: ['ESTJ', 'ESFJ', 'ESFP', 'ISFP'],
+                    challenging: ['INTJ', 'ENTJ', 'INTP', 'ENTP']
+                }
+            },
+            'ESFJ': {
+                traits: [
+                    '热心善良且重视和谐',
+                    '注重传统和责任',
+                    '善于照顾他人',
+                    '重视稳定关系',
+                    '追求温暖的家庭生活'
+                ],
+                strengths: [
+                    '关心体贴',
+                    '善于组织',
+                    '重视承诺',
+                    '善于营造氛围',
+                    '富有同理心'
+                ],
+                challenges: [
+                    '可能过分在意他人想法',
+                    '难以处理批评',
+                    '可能过度保护',
+                    '对变化适应较慢',
+                    '可能忽视自身需求'
+                ],
+                advice: [
+                    '培养独立性',
+                    '学会接受批评',
+                    '增强适应能力',
+                    '关注自身需求',
+                    '平衡付出和索取'
+                ],
+                idealPartners: ['ISTP', 'ISFP', 'ESTP', 'ESFP'],
+                compatibility: {
+                    best: ['ISTP', 'ISFP'],
+                    good: ['ESTP', 'ESFP', 'ESFJ', 'ISFJ'],
+                    challenging: ['INTJ', 'ENTJ', 'INTP', 'ENTP']
+                }
+            }
+        };
         // 位置说明
         const positionDescriptions = [
             '主导功能 - 最自然和熟练使用的功能',
@@ -1746,7 +2253,113 @@
                 description: '追求稳定和渐进改革。重视道德价值和个人成长，注重实用性和可靠性。'
             }
         };
-
+        const relationshipQuestions = [
+            {
+                question: "你希望伴侣在社交场合中表现如何？",
+                options: [
+                    { text: "活跃外向，善于交际", preference: "E", weight: 2 },
+                    { text: "安静内敛，选择性社交", preference: "I", weight: 2 }
+                ]
+            },
+            {
+                question: "在面对问题时，你更希望伴侣如何处理？",
+                options: [
+                    { text: "依据具体事实和经验", preference: "S", weight: 2 },
+                    { text: "依靠直觉和创新思维", preference: "N", weight: 2 }
+                ]
+            },
+            {
+                question: "你更欣赏伴侣的哪种决策方式？",
+                options: [
+                    { text: "理性分析，注重逻辑", preference: "T", weight: 2 },
+                    { text: "考虑感受，重视关系", preference: "F", weight: 2 }
+                ]
+            },
+            {
+                question: "你期望伴侣的生活方式是？",
+                options: [
+                    { text: "有计划，有条理", preference: "J", weight: 2 },
+                    { text: "灵活，随机应变", preference: "P", weight: 2 }
+                ]
+            },
+            {
+                question: "在闲暇时光，你希望与伴侣如何相处？",
+                options: [
+                    { text: "一起参加社交活动", preference: "E", weight: 1 },
+                    { text: "享受二人世界", preference: "I", weight: 1 }
+                ]
+            },
+            {
+                question: "你更希望伴侣关注什么？",
+                options: [
+                    { text: "实际的当下生活", preference: "S", weight: 1 },
+                    { text: "未来的可能性", preference: "N", weight: 1 }
+                ]
+            },
+            {
+                question: "在发生分歧时，你希望伴侣如何处理？",
+                options: [
+                    { text: "理性分析，寻找解决方案", preference: "T", weight: 1 },
+                    { text: "关注情感，寻求理解", preference: "F", weight: 1 }
+                ]
+            },
+            {
+                question: "对于约会，你更希望伴侣？",
+                options: [
+                    { text: "提前计划，按时赴约", preference: "J", weight: 1 },
+                    { text: "随性自然，保持新鲜", preference: "P", weight: 1 }
+                ]
+            },
+            {
+                question: "你希望伴侣如何表达爱意？",
+                options: [
+                    { text: "实际行动和具体帮助", preference: "S", weight: 1 },
+                    { text: "言语表达和情感交流", preference: "N", weight: 1 }
+                ]
+            },
+            {
+                question: "在关系中，你更看重伴侣的哪种特质？",
+                options: [
+                    { text: "独立自主，理性客观", preference: "T", weight: 1 },
+                    { text: "善解人意，情感丰富", preference: "F", weight: 1 }
+                ]
+            },
+            {
+                question: "你希望伴侣如何看待承诺？",
+                options: [
+                    { text: "明确且坚定", preference: "J", weight: 1 },
+                    { text: "自然而然的发展", preference: "P", weight: 1 }
+                ]
+            },
+            {
+                question: "你期望的交流方式是？",
+                options: [
+                    { text: "开放直接，表达明确", preference: "E", weight: 1 },
+                    { text: "深入内敛，重质不重量", preference: "I", weight: 1 }
+                ]
+            },
+            {
+                question: "在重要决定上，你希望伴侣？",
+                options: [
+                    { text: "依据经验和现实考虑", preference: "S", weight: 1 },
+                    { text: "考虑长远和创新可能", preference: "N", weight: 1 }
+                ]
+            },
+            {
+                question: "你更欣赏伴侣的哪种品质？",
+                options: [
+                    { text: "公平理性，追求真理", preference: "T", weight: 1 },
+                    { text: "重情重义，关心他人", preference: "F", weight: 1 }
+                ]
+            },
+            {
+                question: "对于未来，你希望伴侣？",
+                options: [
+                    { text: "有明确规划和目标", preference: "J", weight: 1 },
+                    { text: "保持开放和适应性", preference: "P", weight: 1 }
+                ]
+            }
+        ];
         // 初始化选择框
         function initializeSelect() {
             const select = document.getElementById('mbti-select');
@@ -2137,21 +2750,128 @@
         }
 
         // 测试相关函数
+        // 添加权重计算函数
+        function calculateWeightedPreference(preferences) {
+            const weightedScores = {
+                E: 0, I: 0,
+                S: 0, N: 0,
+                T: 0, F: 0,
+                J: 0, P: 0
+            };
+
+            preferences.forEach(pref => {
+                weightedScores[pref.type] += pref.weight;
+            });
+
+            return {
+                EI: weightedScores.E > weightedScores.I ? 'E' : 'I',
+                SN: weightedScores.S > weightedScores.N ? 'S' : 'N',
+                TF: weightedScores.T > weightedScores.F ? 'T' : 'F',
+                JP: weightedScores.J > weightedScores.P ? 'J' : 'P'
+            };
+        }
+
+        // 补充理想类型匹配逻辑
+        function calculateIdealTypes(preferences) {
+            const baseType = Object.values(preferences).join('');
+            const idealTypes = [];
+
+            // 获取主要匹配类型
+            idealTypes.push(baseType);
+
+            // 获取次要匹配类型（改变一个维度）
+            const dimensions = ['EI', 'SN', 'TF', 'JP'];
+            dimensions.forEach(dim => {
+                const newType = [...baseType];
+                const idx = dim === 'EI' ? 0 : dim === 'SN' ? 1 : dim === 'TF' ? 2 : 3;
+                newType[idx] = newType[idx] === preferences[dim] ?
+                    (preferences[dim] === dim[0] ? dim[1] : dim[0]) :
+                    preferences[dim];
+                idealTypes.push(newType.join(''));
+            });
+
+            return idealTypes;
+        }
+        // 在渲染测试页面的代码中添加测试类型选择
+        function renderTestSelection() {
+    const container = document.querySelector('.test-container');
+    container.innerHTML = `
+        <div class="test-type-selection" style="
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        ">
+            <button class="test-type-button active" data-test="personality" style="
+                flex: 1;
+                padding: 1rem;
+                border: none;
+                border-radius: 0.5rem;
+                background: var(--primary-color);
+                color: white;
+                cursor: pointer;
+                transition: all 0.2s;
+            ">性格类型测试</button>
+            <button class="test-type-button" data-test="relationship" style="
+                flex: 1;
+                padding: 1rem;
+                border: none;
+                border-radius: 0.5rem;
+                background: var(--bg-gray);
+                color: var(--text-gray);
+                cursor: pointer;
+                transition: all 0.2s;
+            ">理想恋爱对象测试</button>
+        </div>
+        <div class="progress-bar">
+            <div class="progress"></div>
+        </div>
+        <div class="question-container"></div>
+        <div class="result-card"></div>
+        <button class="test-button" style="display: none;">重新开始测试</button>
+    `;
+
+    // 添加测试类型切换事件
+    const buttons = container.querySelectorAll('.test-type-button');
+    buttons.forEach(button => {
+        button.addEventListener('click', () => {
+            buttons.forEach(b => {
+                b.classList.remove('active');
+                b.style.background = 'var(--bg-gray)';
+                b.style.color = 'var(--text-gray)';
+            });
+            button.classList.add('active');
+            button.style.background = 'var(--primary-color)';
+            button.style.color = 'white';
+            currentTestType = button.dataset.test;
+            startTest();
+        });
+    });
+
+    // 初始启动测试
+    startTest();
+}
+        let currentTestType = 'personality';
         let currentQuestion = 0;
         let answers = {
-            E: 0, I: 0,
-            S: 0, N: 0,
-            T: 0, F: 0,
-            J: 0, P: 0
+            personality: {
+                E: 0, I: 0,
+                S: 0, N: 0,
+                T: 0, F: 0,
+                J: 0, P: 0
+            },
+            relationship: []
         };
 
         function startTest() {
             currentQuestion = 0;
             answers = {
-                E: 0, I: 0,
-                S: 0, N: 0,
-                T: 0, F: 0,
-                J: 0, P: 0
+                personality: {
+                    E: 0, I: 0,
+                    S: 0, N: 0,
+                    T: 0, F: 0,
+                    J: 0, P: 0
+                },
+                relationship: []
             };
             renderQuestion();
             document.querySelector('.result-card').style.display = 'none';
@@ -2160,18 +2880,21 @@
 
         function renderQuestion() {
             const container = document.querySelector('.question-container');
-            if (currentQuestion >= testQuestions.length) {
+            const questions = currentTestType === 'personality' ? testQuestions : relationshipQuestions;
+
+            if (currentQuestion >= questions.length) {
                 showResults();
                 return;
             }
 
-            const question = testQuestions[currentQuestion];
+            const question = questions[currentQuestion];
             container.innerHTML = `
         <div class="question">
             <h3>${question.question}</h3>
             <div class="options">
                 ${question.options.map((opt, idx) => `
-                    <div class="option" data-type="${opt.type}">
+                    <div class="option" data-type="${currentTestType === 'personality' ? opt.type : opt.preference}" 
+                         data-weight="${opt.weight || 1}">
                         ${opt.text}
                     </div>
                 `).join('')}
@@ -2181,49 +2904,191 @@
 
             // 更新进度条
             const progress = document.querySelector('.progress');
-            progress.style.width = `${(currentQuestion + 1) / testQuestions.length * 100}%`;
+            progress.style.width = `${(currentQuestion + 1) / questions.length * 100}%`;
         }
 
         function showResults() {
-            const result = calculateType();
             const resultCard = document.querySelector('.result-card');
             resultCard.style.display = 'block';
-            resultCard.innerHTML = `
-        <h3>你的MBTI类型可能是：</h3>
-        <div class="result-details">
-            <p><strong>${result}</strong> - ${mbtiTypes[result].name}</p>
-            <p>这个结果仅供参考，建议进行更详细的专业测试。</p>
-        </div>
-    `;
+
+            if (currentTestType === 'personality') {
+                const type = calculateType();
+                resultCard.innerHTML = `
+            <h3>你的MBTI类型可能是：</h3>
+            <div class="result-details">
+                <p><strong>${type}</strong> - ${mbtiTypes[type].name}</p>
+                <p>这个结果仅供参考，建议进行更详细的专业测试。</p>
+            </div>
+        `;
+            } else {
+                const preferences = calculateWeightedPreference(answers.relationship);
+                const idealTypes = calculateIdealTypes(preferences);
+
+                resultCard.innerHTML = `
+            <h3>你的理想伴侣类型可能是：</h3>
+            <div class="result-details">
+                <div style="margin-bottom: 1rem;">
+                    <strong>首选类型：</strong>
+                    <p>${idealTypes[0]} - ${mbtiTypes[idealTypes[0]].name}</p>
+                    <div style="
+                        background: var(--bg-gray);
+                        padding: 1rem;
+                        border-radius: 0.5rem;
+                        margin-top: 0.5rem;
+                        color: var(--text-gray);
+                    ">
+                        ${typeDescriptions[idealTypes[0]]}
+                    </div>
+                </div>
+                
+                <div style="margin-top: 1.5rem;">
+                    <strong>其他潜在匹配类型：</strong>
+                    <div style="
+                        display: grid;
+                        gap: 0.5rem;
+                        margin-top: 0.5rem;
+                    ">
+                        ${idealTypes.slice(1).map(type => `
+                            <div style="
+                                background: var(--bg-gray);
+                                padding: 0.5rem;
+                                border-radius: 0.5rem;
+                                color: var(--text-gray);
+                            ">
+                                ${type} - ${mbtiTypes[type].name}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                
+                <p style="
+                    margin-top: 1.5rem;
+                    padding: 1rem;
+                    background: var(--bg-gray);
+                    border-radius: 0.5rem;
+                    color: var(--text-gray);
+                ">注意：这个结果仅供参考。真实的感情关系还需要双方的用心经营和相互理解。</p>
+            </div>
+        `;
+            }
 
             document.querySelector('.test-button').style.display = 'block';
             document.querySelector('.question-container').innerHTML = '';
         }
 
         function calculateType() {
+            const personalityAnswers = answers.personality;
             const type = [
-                answers.E > answers.I ? 'E' : 'I',
-                answers.S > answers.N ? 'S' : 'N',
-                answers.T > answers.F ? 'T' : 'F',
-                answers.J > answers.P ? 'J' : 'P'
+                personalityAnswers.E > personalityAnswers.I ? 'E' : 'I',
+                personalityAnswers.S > personalityAnswers.N ? 'S' : 'N',
+                personalityAnswers.T > personalityAnswers.F ? 'T' : 'F',
+                personalityAnswers.J > personalityAnswers.P ? 'J' : 'P'
             ].join('');
             return type;
         }
+        function renderLoveGuide(type) {
+            const container = document.querySelector('.love-guide');
+            if (!type || !loveGuides[type]) {
+                container.innerHTML = '';
+                return;
+            }
 
+            const guide = loveGuides[type];
+            container.innerHTML = `
+        <div style="background: white; border-radius: 1rem; padding: 2rem; margin-bottom: 2rem; box-shadow: var(--card-shadow);">
+            <h3 style="color: var(--primary-color); margin-bottom: 1.5rem;">恋爱特质</h3>
+            <div style="display: grid; gap: 1rem;">
+                ${guide.traits.map(trait => `
+                    <div style="
+                        background: var(--bg-gray);
+                        padding: 1rem;
+                        border-radius: 0.5rem;
+                        color: var(--text-gray);
+                    ">${trait}</div>
+                `).join('')}
+            </div>
+        </div>
+
+        <div style="background: white; border-radius: 1rem; padding: 2rem; margin-bottom: 2rem; box-shadow: var(--card-shadow);">
+            <h3 style="color: var(--primary-color); margin-bottom: 1.5rem;">关系优势</h3>
+            <div style="display: grid; gap: 1rem;">
+                ${guide.strengths.map(strength => `
+                    <div style="
+                        background: var(--bg-gray);
+                        padding: 1rem;
+                        border-radius: 0.5rem;
+                        color: var(--text-gray);
+                    ">${strength}</div>
+                `).join('')}
+            </div>
+        </div>
+
+        <div style="background: white; border-radius: 1rem; padding: 2rem; margin-bottom: 2rem; box-shadow: var(--card-shadow);">
+            <h3 style="color: var(--primary-color); margin-bottom: 1.5rem;">潜在挑战</h3>
+            <div style="display: grid; gap: 1rem;">
+                ${guide.challenges.map(challenge => `
+                    <div style="
+                        background: var(--bg-gray);
+                        padding: 1rem;
+                        border-radius: 0.5rem;
+                        color: var(--text-gray);
+                    ">${challenge}</div>
+                `).join('')}
+            </div>
+        </div>
+
+        <div style="background: white; border-radius: 1rem; padding: 2rem; margin-bottom: 2rem; box-shadow: var(--card-shadow);">
+            <h3 style="color: var(--primary-color); margin-bottom: 1.5rem;">成长建议</h3>
+            <div style="display: grid; gap: 1rem;">
+                ${guide.advice.map(advice => `
+                    <div style="
+                        background: var(--bg-gray);
+                        padding: 1rem;
+                        border-radius: 0.5rem;
+                        color: var(--text-gray);
+                    ">${advice}</div>
+                `).join('')}
+            </div>
+        </div>
+
+        <div style="background: white; border-radius: 1rem; padding: 2rem; margin-bottom: 2rem; box-shadow: var(--card-shadow);">
+            <h3 style="color: var(--primary-color); margin-bottom: 1.5rem;">类型匹配</h3>
+            <div style="display: grid; gap: 1rem;">
+                <div style="background: var(--bg-gray); padding: 1rem; border-radius: 0.5rem;">
+                    <strong style="color: var(--primary-color);">最佳匹配：</strong>
+                    <div style="color: var(--text-gray);">${guide.compatibility.best.join(', ')}</div>
+                </div>
+                <div style="background: var(--bg-gray); padding: 1rem; border-radius: 0.5rem;">
+                    <strong style="color: var(--primary-color);">良好匹配：</strong>
+                    <div style="color: var(--text-gray);">${guide.compatibility.good.join(', ')}</div>
+                </div>
+                <div style="background: var(--bg-gray); padding: 1rem; border-radius: 0.5rem;">
+                    <strong style="color: var(--primary-color);">具有挑战：</strong>
+                    <div style="color: var(--text-gray);">${guide.compatibility.challenging.join(', ')}</div>
+                </div>
+            </div>
+        </div>
+    `;
+        }
         // 事件监听器设置
         function setupEventListeners() {
             // MBTI类型选择
             const select = document.getElementById('mbti-select');
+            const compareSelect = document.getElementById('compare-select');
             select.addEventListener('change', (e) => {
                 const type = e.target.value;
                 renderFunctionStack(type);
                 renderSocionicsInfo(type);
                 renderQuadraInfo(type);
                 renderGrowthAdvice(type);
+                renderLoveGuide(type);
+                if (compareSelect.value) {
+                    renderComparison(select.value, compareSelect.value);
+                }
             });
 
             // 比较类型选择
-            const compareSelect = document.getElementById('compare-select');
+
             compareSelect.addEventListener('change', (e) => {
                 const mainType = select.value;
                 const compareType = e.target.value;
@@ -2250,10 +3115,17 @@
             });
 
             // 测试选项点击
-            document.querySelector('.question-container').addEventListener('click', (e) => {
+            document.querySelector('.test-container').addEventListener('click', (e) => {
                 if (e.target.classList.contains('option')) {
-                    const type = e.target.dataset.type;
-                    answers[type]++;
+                    if (currentTestType === 'personality') {
+                        const type = e.target.dataset.type;
+                        answers.personality[type]++;
+                    } else {
+                        answers.relationship.push({
+                            type: e.target.dataset.type,
+                            weight: parseInt(e.target.dataset.weight)
+                        });
+                    }
                     currentQuestion++;
                     renderQuestion();
                 }
@@ -2267,6 +3139,7 @@
         function initializeApp() {
             initializeSelect();
             setupEventListeners();
+            renderTestSelection();
         }
 
         // 启动应用
