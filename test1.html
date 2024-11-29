@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>诗词MBTI测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .progress-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .progress-text {
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            color: #666;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #eee;
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: #4CAF50;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question {
+            margin: 20px 0;
+        }
+
+        .question-text {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .option:hover {
+            background: #f0f0f0;
+            border-color: #4CAF50;
+        }
+
+        .poem {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .source {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .nav-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background: #4CAF50;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .nav-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #45a049;
+        }
+
+        .result {
+            display: none;
+            text-align: center;
+        }
+
+        .result h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .mbti-type {
+            font-size: 2em;
+            color: #4CAF50;
+            margin: 20px 0;
+        }
+
+        .dimension-bars {
+            margin: 20px 0;
+        }
+
+        .dimension-bar {
+            margin: 20px 0;
+        }
+
+        .bar-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            position: relative;
+        }
+
+        .bar-container {
+            height: 24px;
+            background: #eee;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bar-left {
+            height: 100%;
+            background: #4CAF50;
+            position: absolute;
+            left: 0;
+            transition: width 0.3s ease;
+        }
+
+        .bar-right {
+            height: 100%;
+            background: #2196F3;
+            position: absolute;
+            right: 0;
+            transition: width 0.3s ease;
+        }
+
+        .percentage {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.9em;
+            color: white;
+            z-index: 1;
+        }
+
+        .percentage-left {
+            left: 10px;
+        }
+
+        .percentage-right {
+            right: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+
+            .question-text {
+                font-size: 1.1em;
+            }
+
+            .option {
+                padding: 12px;
+            }
+        }
+    </style>
+    <script src="questions copy.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>诗词MBTI性格测试</h1>
+            <p>通过古诗词选择，探索你的性格特质</p>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-text">
+                进度：<span id="current-number">1</span>/100题
+            </div>
+            <div class="progress-bar">
+                <div class="progress" id="progress"></div>
+            </div>
+        </div>
+        
+        <div id="question-container">
+            <div class="question">
+                <div class="question-text" id="question-text"></div>
+                <div class="options" id="options"></div>
+            </div>
+            <div class="navigation">
+                <button id="prev-button" class="nav-button" onclick="previousQuestion()" disabled>上一题</button>
+                <button id="next-button" class="nav-button" disabled>下一题</button>
+            </div>
+        </div>
+
+        <div id="result" class="result">
+            <h2>你的MBTI性格类型是：</h2>
+            <div class="mbti-type" id="mbti-type"></div>
+            <div class="dimension-bars" id="dimension-bars"></div>
+        </div>
+    </div>
+
+    <script>
+        // 用户答案历史记录
+        let userAnswers = [];
+        let currentQuestion = 0;
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / allQuestions.length) * 100;
+            document.getElementById('progress').style.width = `${progress}%`;
+            document.getElementById('current-number').textContent = currentQuestion + 1;
+            
+            // 更新导航按钮状态
+            document.getElementById('prev-button').disabled = currentQuestion === 0;
+            document.getElementById('next-button').disabled = !userAnswers[currentQuestion];
+        }
+
+        function showQuestion() {
+            const questionContainer = document.getElementById('question-container');
+            const questionText = document.getElementById('question-text');
+            const optionsContainer = document.getElementById('options');
+            
+            if (currentQuestion >= allQuestions.length) {
+                showResult();
+                return;
+            }
+
+            const question = allQuestions[currentQuestion];
+            questionText.textContent = question[0];
+            optionsContainer.innerHTML = '';
+
+            // 显示选项
+            for (let i = 1; i < question.length; i++) {
+                const option = question[i];
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                optionDiv.innerHTML = `
+                    <div class="poem">${option[0]}</div>
+                    <div class="source">${option[1]}</div>
+                `;
+                optionDiv.onclick = () => selectOption(option[2], i-1);
+                
+                // 如果该题已答过，显示选中状态
+                if (userAnswers[currentQuestion] && 
+                    userAnswers[currentQuestion].optionIndex === i-1) {
+                    optionDiv.style.borderColor = '#4CAF50';
+                    optionDiv.style.background = '#f0f0f0';
+                }
+                
+                optionsContainer.appendChild(optionDiv);
+            }
+
+            updateProgress();
+        }
+
+        function selectOption(scoreString, optionIndex) {
+            // 保存或更新用户答案
+            userAnswers[currentQuestion] = {
+                scoreString: scoreString,
+                optionIndex: optionIndex
+            };
+            
+            document.getElementById('next-button').disabled = false;
+            
+            // 重新计算所有得分
+            recalculateScores();
+            
+            // 显示下一题
+            if (currentQuestion < allQuestions.length - 1) {
+                currentQuestion++;
+                showQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                showQuestion();
+            }
+        }
+
+        function recalculateScores() {
+            // 重置所有分数
+            scores = {
+                E: 0, I: 0,
+                S: 0, N: 0,
+                T: 0, F: 0,
+                J: 0, P: 0
+            };
+            
+            // 重新计算所有已答题的分数
+            userAnswers.forEach(answer => {
+                if (answer) {
+                    const scoresPairs = answer.scoreString.split(',');
+                    scoresPairs.forEach(pair => {
+                        const [type, value] = pair.split(':');
+                        scores[type] += parseFloat(value);
+                    });
+                }
+            });
+        }
+
+        function calculatePercentage(type1, type2) {
+            const total = scores[type1] + scores[type2];
+            return (scores[type1] / total) * 100;
+        }
+
+        function showResult() {
+            document.getElementById('question-container').style.display = 'none';
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+
+            const mbtiType = calculateMBTI();
+            document.getElementById('mbti-type').textContent = mbtiType;
+
+            const dimensionBars = document.getElementById('dimension-bars');
+            dimensionBars.innerHTML = '';
+            
+            const dimensions = [
+                ['E', 'I'],
+                ['S', 'N'],
+                ['T', 'F'],
+                ['J', 'P']
+            ];
+
+            dimensions.forEach(([type1, type2]) => {
+                const percentage1 = calculatePercentage(type1, type2);
+                const percentage2 = 100 - percentage1;
+                
+                const dimensionBar = document.createElement('div');
+                dimensionBar.className = 'dimension-bar';
+                dimensionBar.innerHTML = `
+                    <div class="bar-label">
+                        <span>${type1}</span>
+                        <span>${type2}</span>
+                    </div>
+                    <div class="bar-container">
+                        <div class="bar-left" style="width: ${percentage1}%">
+                            <span class="percentage percentage-left">${Math.round(percentage1)}%</span>
+                        </div>
+                        <div class="bar-right" style="width: ${percentage2}%">
+                            <span class="percentage percentage-right">${Math.round(percentage2)}%</span>
+                        </div>
+                    </div>
+                `;
+                dimensionBars.appendChild(dimensionBar);
+            });
+        }
+
+        function calculateMBTI() {
+            const types = [
+                scores.E > scores.I ? 'E' : 'I',
+                scores.S > scores.N ? 'S' : 'N',
+                scores.T > scores.F ? 'T' : 'F',
+                scores.J > scores.P ? 'J' : 'P'
+            ];
+            return types.join('');
+        }
+
+        // 开始测试
+        showQuestion();
+    </script>
+</body>
+</html>
