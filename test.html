@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MBTI 性格测试 - 诗句版</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+    #container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    h1, h2, h3 {
+      text-align: center;
+    }
+    .progress-bar {
+      width: 100%;
+      background-color: #e0e0e0;
+      border-radius: 10px;
+      margin: 20px 0;
+      height: 20px;
+      overflow: hidden;
+    }
+    .progress-bar-inner {
+      height: 100%;
+      background-color: #4caf50;
+      width: 0%;
+      transition: width 0.3s;
+    }
+    .question {
+      margin: 20px 0;
+    }
+    .options button {
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    .options button:hover {
+      background-color: #4caf50;
+      color: #fff;
+    }
+    #navigation {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+    #navigation button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      transition: background-color 0.3s;
+    }
+    #navigation button:hover {
+      background-color: #0056b3;
+    }
+    #results {
+      display: none;
+      text-align: center;
+    }
+    .result-bar {
+      margin: 15px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      height: 25px;
+      background: #e0e0e0;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    .result-bar .bar-left {
+      height: 100%;
+      background-color: #4caf50;
+      text-align: right;
+      white-space: nowrap;
+      overflow: hidden;
+      color: white;
+      line-height: 25px;
+    }
+    .result-bar .bar-right {
+      height: 100%;
+      background-color: #f44336;
+      text-align: left;
+      white-space: nowrap;
+      overflow: hidden;
+      color: white;
+      line-height: 25px;
+    }
+    .result-label {
+      text-align: center;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <h1>MBTI 性格测试 - 诗句版</h1>
+    <div class="progress-bar">
+      <div class="progress-bar-inner"></div>
+    </div>
+    <div id="question-container">
+      <h2 id="question"></h2>
+      <div class="options">
+        <button id="option1" onclick="selectOption(0)"></button>
+        <button id="option2" onclick="selectOption(1)"></button>
+      </div>
+    </div>
+    <div id="navigation">
+      <button id="prev-btn" onclick="prevQuestion()" disabled>上一题</button>
+      <button id="next-btn" onclick="nextQuestion()">下一题</button>
+    </div>
+    <div id="results">
+      <h2>结果分析</h2>
+      <div>
+        <div class="result-bar">
+          <div class="bar-left" id="eBar"></div>
+          <div class="bar-right" id="iBar"></div>
+        </div>
+        <p class="result-label">E/I: <span id="ePercent"></span>% / <span id="iPercent"></span>%</p>
+      </div>
+      <div>
+        <div class="result-bar">
+          <div class="bar-left" id="sBar"></div>
+          <div class="bar-right" id="nBar"></div>
+        </div>
+        <p class="result-label">S/N: <span id="sPercent"></span>% / <span id="nPercent"></span>%</p>
+      </div>
+      <div>
+        <div class="result-bar">
+          <div class="bar-left" id="tBar"></div>
+          <div class="bar-right" id="fBar"></div>
+        </div>
+        <p class="result-label">T/F: <span id="tPercent"></span>% / <span id="fPercent"></span>%</p>
+      </div>
+      <div>
+        <div class="result-bar">
+          <div class="bar-left" id="jBar"></div>
+          <div class="bar-right" id="pBar"></div>
+        </div>
+        <p class="result-label">J/P: <span id="jPercent"></span>% / <span id="pPercent"></span>%</p>
+      </div>
+      <h3>你的 MBTI 类型是：<span id="mbtiResult"></span></h3>
+    </div>
+  </div>
+
+  <script>
+        const questions = [
+            {
+                question: "你更喜欢以下哪句诗？", options: [
+                    { text: "人生得意须尽欢，莫使金樽空对月。", type: "E" },
+                    { text: "采菊东篱下，悠然见南山。", type: "I" }
+                ]
+            },
+            {
+                question: "你更倾向于以下哪种生活态度？", options: [
+                    { text: "两岸猿声啼不住，轻舟已过万重山。", type: "S" },
+                    { text: "天生我材必有用，千金散尽还复来。", type: "N" }
+                ]
+            },
+            {
+                question: "面对困难时，你会选择？", options: [
+                    { text: "长风破浪会有时，直挂云帆济沧海。", type: "T" },
+                    { text: "桃花潭水深千尺，不及汪伦送我情。", type: "F" }
+                ]
+            },
+            {
+                question: "以下哪句诗最能表达你的心境？", options: [
+                    { text: "黑云压城城欲摧，甲光向日金鳞开。", type: "J" },
+                    { text: "竹杖芒鞋轻胜马，谁怕？一蓑烟雨任平生。", type: "P" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种旅行的意境？", options: [
+                    { text: "孤帆远影碧空尽，唯见长江天际流。", type: "I" },
+                    { text: "劝君更尽一杯酒，西出阳关无故人。", type: "E" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种表达方式？", options: [
+                    { text: "欲穷千里目，更上一层楼。", type: "J" },
+                    { text: "行到水穷处，坐看云起时。", type: "P" }
+                ]
+            },
+            {
+                question: "你更倾向于哪种心态？", options: [
+                    { text: "春风得意马蹄疾，一日看尽长安花。", type: "E" },
+                    { text: "随风潜入夜，润物细无声。", type: "I" }
+                ]
+            },
+            {
+                question: "面对未来，你更认同哪句诗？", options: [
+                    { text: "路漫漫其修远兮，吾将上下而求索。", type: "N" },
+                    { text: "千里之行，始于足下。", type: "S" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种情感表达？", options: [
+                    { text: "海内存知己，天涯若比邻。", type: "F" },
+                    { text: "会当凌绝顶，一览众山小。", type: "T" }
+                ]
+            },
+            {
+                question: "你更欣赏哪种诗意？", options: [
+                    { text: "大鹏一日同风起，扶摇直上九万里。", type: "E" },
+                    { text: "野旷天低树，江清月近人。", type: "I" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种生活画面？", options: [
+                    { text: "明月松间照，清泉石上流。", type: "I" },
+                    { text: "黄河之水天上来，奔流到海不复回。", type: "E" }
+                ]
+            },
+            {
+                question: "你更倾向于哪种表达？", options: [
+                    { text: "宠辱不惊，闲看庭前花开花落。", type: "P" },
+                    { text: "苟利国家生死以，岂因祸福避趋之。", type: "J" }
+                ]
+            },
+            {
+                question: "以下哪句诗更能打动你？", options: [
+                    { text: "莫愁前路无知己，天下谁人不识君。", type: "E" },
+                    { text: "江畔独步寻花，黄四娘家花满蹊。", type: "I" }
+                ]
+            },
+            {
+                question: "以下哪句诗更符合你的心境？", options: [
+                    { text: "天街小雨润如酥，草色遥看近却无。", type: "S" },
+                    { text: "星垂平野阔，月涌大江流。", type: "N" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种感受？", options: [
+                    { text: "落红不是无情物，化作春泥更护花。", type: "F" },
+                    { text: "人生如逆旅，我亦是行人。", type: "T" }
+                ]
+            },
+            {
+                question: "以下哪种意境更吸引你？", options: [
+                    { text: "千山鸟飞绝，万径人踪灭。", type: "I" },
+                    { text: "会当凌绝顶，一览众山小。", type: "E" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪句诗？", options: [
+                    { text: "春宵一刻值千金，花有清香月有阴。", type: "S" },
+                    { text: "醉卧沙场君莫笑，古来征战几人回。", type: "N" }
+                ]
+            },
+            {
+                question: "你对以下哪句诗感触更多？", options: [
+                    { text: "人生自古谁无死，留取丹心照汗青。", type: "J" },
+                    { text: "天长地久有时尽，此恨绵绵无绝期。", type: "P" }
+                ]
+            },
+            {
+                question: "以下哪句诗更符合你的个性？", options: [
+                    { text: "直挂云帆济沧海。", type: "E" },
+                    { text: "月下独酌，举杯邀明月。", type: "I" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种场景？", options: [
+                    { text: "天涯共此时。", type: "F" },
+                    { text: "千锤万凿出深山，烈火焚烧若等闲。", type: "T" }
+                ]
+            },
+            {
+                question: "以下哪句诗更符合你的思维方式？", options: [
+                    { text: "落霞与孤鹜齐飞，秋水共长天一色。", type: "S" },
+                    { text: "醉里挑灯看剑，梦回吹角连营。", type: "N" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种意境？", options: [
+                    { text: "明月别枝惊鹊，清风半夜鸣蝉。", type: "I" },
+                    { text: "十步杀一人，千里不留行。", type: "E" }
+                ]
+            },
+            {
+                question: "以下哪句诗更符合你的价值观？", options: [
+                    { text: "横眉冷对千夫指，俯首甘为孺子牛。", type: "J" },
+                    { text: "此心安处是吾乡。", type: "P" }
+                ]
+            },
+            {
+                question: "你更认同以下哪种人生哲学？", options: [
+                    { text: "莫道桑榆晚，为霞尚满天。", type: "S" },
+                    { text: "我欲乘风归去，又恐琼楼玉宇。", type: "N" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种生活态度？", options: [
+                    { text: "僵卧孤村不自哀，尚思为国戍轮台。", type: "T" },
+                    { text: "春水碧于天，画船听雨眠。", type: "F" }
+                ]
+            },
+            {
+                question: "以下哪句诗更能打动你？", options: [
+                    { text: "白日放歌须纵酒，青春作伴好还乡。", type: "E" },
+                    { text: "人闲桂花落，夜静春山空。", type: "I" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种行动方式？", options: [
+                    { text: "会当凌绝顶，一览众山小。", type: "J" },
+                    { text: "随遇而安，天命无忧。", type: "P" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种情感表达？", options: [
+                    { text: "江南好，风景旧曾谙。", type: "F" },
+                    { text: "问苍茫大地，谁主沉浮？", type: "T" }
+                ]
+            },
+            {
+                question: "以下哪句诗更符合你的思维方式？", options: [
+                    { text: "千淘万漉虽辛苦，吹尽狂沙始到金。", type: "S" },
+                    { text: "仰天长啸，壮怀激烈。", type: "N" }
+                ]
+            },
+            {
+                question: "你更欣赏以下哪种情感？", options: [
+                    { text: "相见时难别亦难，东风无力百花残。", type: "F" },
+                    { text: "人生如梦，一尊还酹江月。", type: "T" }
+                ]
+            },
+            {
+                question: "以下哪句诗更符合你的生活态度？", options: [
+                    { text: "千磨万击还坚劲，任尔东西南北风。", type: "J" },
+                    { text: "落花无言，人淡如菊。", type: "P" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种意境？", options: [
+                    { text: "夕阳西下，断肠人在天涯。", type: "I" },
+                    { text: "天生我材必有用，千金散尽还复来。", type: "E" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种人生目标？", options: [
+                    { text: "春种一粒粟，秋收万颗子。", type: "S" },
+                    { text: "俱怀逸兴壮思飞，欲上青天揽明月。", type: "N" }
+                ]
+            },
+            {
+                question: "以下哪句诗更能打动你的心？", options: [
+                    { text: "花间一壶酒，独酌无相亲。", type: "I" },
+                    { text: "海阔凭鱼跃，天高任鸟飞。", type: "E" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种表达？", options: [
+                    { text: "不畏浮云遮望眼，自缘身在最高层。", type: "J" },
+                    { text: "人生若只如初见，何事秋风悲画扇。", type: "P" }
+                ]
+            },
+            {
+                question: "以下哪句诗更符合你的性格？", options: [
+                    { text: "山重水复疑无路，柳暗花明又一村。", type: "S" },
+                    { text: "飞流直下三千尺，疑是银河落九天。", type: "N" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种情感？", options: [
+                    { text: "相思相见知何日？此时此夜难为情。", type: "F" },
+                    { text: "壮志饥餐胡虏肉，笑谈渴饮匈奴血。", type: "T" }
+                ]
+            },
+            {
+                question: "以下哪句诗更符合你的生活追求？", options: [
+                    { text: "人生得意须尽欢，莫使金樽空对月。", type: "E" },
+                    { text: "采菊东篱下，悠然见南山。", type: "I" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种意境？", options: [
+                    { text: "小楼昨夜又东风，故国不堪回首月明中。", type: "I" },
+                    { text: "天子呼来不上船，自称臣是酒中仙。", type: "E" }
+                ]
+            },
+            {
+                question: "以下哪句诗更符合你的生活态度？", options: [
+                    { text: "春风又绿江南岸，明月何时照我还？", type: "S" },
+                    { text: "夜阑卧听风吹雨，铁马冰河入梦来。", type: "N" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种表达？", options: [
+                    { text: "桃花潭水深千尺，不及汪伦送我情。", type: "F" },
+                    { text: "王师北定中原日，家祭无忘告乃翁。", type: "T" }
+                ]
+            },
+            {
+                question: "以下哪句诗更能代表你的心境？", options: [
+                    { text: "千山鸟飞绝，万径人踪灭。", type: "I" },
+                    { text: "大鹏一日同风起，扶摇直上九万里。", type: "E" }
+                ]
+            },
+            {
+                question: "以下哪句诗更符合你的个性？", options: [
+                    { text: "欲穷千里目，更上一层楼。", type: "J" },
+                    { text: "行到水穷处，坐看云起时。", type: "P" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种情感表达？", options: [
+                    { text: "此情可待成追忆，只是当时已惘然。", type: "F" },
+                    { text: "生当作人杰，死亦为鬼雄。", type: "T" }
+                ]
+            },
+            {
+                question: "以下哪句诗更符合你的生活态度？", options: [
+                    { text: "落红不是无情物，化作春泥更护花。", type: "S" },
+                    { text: "举世皆浊我独清，众人皆醉我独醒。", type: "N" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种意境？", options: [
+                    { text: "人闲桂花落，夜静春山空。", type: "I" },
+                    { text: "大江东去，浪淘尽，千古风流人物。", type: "E" }
+                ]
+            },
+            {
+                question: "你更倾向于以下哪种表达？", options: [
+                    { text: "醉里挑灯看剑，梦回吹角连营。", type: "N" },
+                    { text: "千里之行，始于足下。", type: "S" }
+                ]
+            },
+            {
+                question: "以下哪句诗更符合你的情感？", options: [
+                    { text: "衣带渐宽终不悔，为伊消得人憔悴。", type: "F" },
+                    { text: "人生在世不称意，明朝散发弄扁舟。", type: "T" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种生活方式？", options: [
+                    { text: "采菊东篱下，悠然见南山。", type: "I" },
+                    { text: "长风破浪会有时，直挂云帆济沧海。", type: "E" }
+                ]
+            },
+            {
+                question: "你更认同以下哪种人生哲理？", options: [
+                    { text: "莫愁前路无知己，天下谁人不识君。", type: "E" },
+                    { text: "剪不断，理还乱，是离愁。", type: "I" }
+                ]
+            },
+            {
+                question: "以下哪句诗更能打动你？", options: [
+                    { text: "随风潜入夜，润物细无声。", type: "S" },
+                    { text: "我欲乘风归去，又恐琼楼玉宇。", type: "N" }
+                ]
+            },
+            {
+                question: "你更倾向于以下哪种思维方式？", options: [
+                    { text: "千磨万击还坚劲，任尔东西南北风。", type: "J" },
+                    { text: "宠辱不惊，闲看庭前花开花落。", type: "P" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种表达？", options: [
+                    { text: "桃花潭水深千尺，不及汪伦送我情。", type: "F" },
+                    { text: "不畏浮云遮望眼，自缘身在最高层。", type: "T" }
+                ]
+            },
+            {
+                question: "以下哪句诗更符合你的性格？", options: [
+                    { text: "会当凌绝顶，一览众山小。", type: "E" },
+                    { text: "明月松间照，清泉石上流。", type: "I" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种情感？", options: [
+                    { text: "相见时难别亦难，东风无力百花残。", type: "F" },
+                    { text: "仰天大笑出门去，我辈岂是蓬蒿人。", type: "T" }
+                ]
+            },
+            {
+                question: "以下哪句诗更能表达你的生活态度？", options: [
+                    { text: "千里之行，始于足下。", type: "S" },
+                    { text: "俱怀逸兴壮思飞，欲上青天揽明月。", type: "N" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种意境？", options: [
+                    { text: "人闲桂花落，夜静春山空。", type: "I" },
+                    { text: "黄河之水天上来，奔流到海不复回。", type: "E" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪一种感受？", options: [
+                    { text: "落红不是无情物，化作春泥更护花。", type: "F" },
+                    { text: "人生如逆旅，我亦是行人。", type: "T" }
+                ]
+            },
+            {
+                question: "你更倾向于哪种表达方式？", options: [
+                    { text: "宠辱不惊，闲看庭前花开花落。", type: "P" },
+                    { text: "苟利国家生死以，岂因祸福避趋之。", type: "J" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种情感表达？", options: [
+                    { text: "红豆生南国，春来发几枝。", type: "F" },
+                    { text: "天下谁人不识君。", type: "T" }
+                ]
+            },
+            {
+                question: "你更认同以下哪句诗的意境？", options: [
+                    { text: "浮云游子意，落日故人情。", type: "F" },
+                    { text: "会挽雕弓如满月，西北望，射天狼。", type: "T" }
+                ]
+            },
+            {
+                question: "以下哪句诗更符合你的生活态度？", options: [
+                    { text: "纸上得来终觉浅，绝知此事要躬行。", type: "S" },
+                    { text: "天生我材必有用，千金散尽还复来。", type: "N" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种生活方式？", options: [
+                    { text: "竹杖芒鞋轻胜马，谁怕？一蓑烟雨任平生。", type: "P" },
+                    { text: "长风破浪会有时，直挂云帆济沧海。", type: "J" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种情感表达？", options: [
+                    { text: "此情无计可消除，才下眉头，却上心头。", type: "F" },
+                    { text: "天下兴亡，匹夫有责。", type: "T" }
+                ]
+            },
+            {
+                question: "以下哪句诗更符合你的性格？", options: [
+                    { text: "孤舟蓑笠翁，独钓寒江雪。", type: "I" },
+                    { text: "大鹏一日同风起，扶摇直上九万里。", type: "E" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种意境？", options: [
+                    { text: "野旷天低树，江清月近人。", type: "I" },
+                    { text: "醉卧沙场君莫笑，古来征战几人回。", type: "E" }
+                ]
+            },
+            {
+                question: "以下哪句诗更符合你的心境？", options: [
+                    { text: "天街小雨润如酥，草色遥看近却无。", type: "S" },
+                    { text: "会挽雕弓如满月，西北望，射天狼。", type: "N" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种描写？", options: [
+                    { text: "桃花潭水深千尺，不及汪伦送我情。", type: "F" },
+                    { text: "路漫漫其修远兮，吾将上下而求索。", type: "T" }
+                ]
+            },
+            {
+                question: "以下哪句诗更符合你的生活态度？", options: [
+                    { text: "莫愁前路无知己，天下谁人不识君。", type: "E" },
+                    { text: "采菊东篱下，悠然见南山。", type: "I" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种意境？", options: [
+                    { text: "长河落日圆。", type: "S" },
+                    { text: "举杯邀明月，对影成三人。", type: "N" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种情感表达？", options: [
+                    { text: "天涯地角有穷时，只有相思无尽处。", type: "F" },
+                    { text: "生当作人杰，死亦为鬼雄。", type: "T" }
+                ]
+            },
+            {
+                question: "以下哪句诗更符合你的生活方式？", options: [
+                    { text: "青山一道同云雨，明月何曾是两乡。", type: "E" },
+                    { text: "疏影横斜水清浅，暗香浮动月黄昏。", type: "I" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种哲学？", options: [
+                    { text: "千里之行，始于足下。", type: "S" },
+                    { text: "俱怀逸兴壮思飞，欲上青天揽明月。", type: "N" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种场景？", options: [
+                    { text: "兴尽晚回舟，误入藕花深处。", type: "P" },
+                    { text: "春风得意马蹄疾，一日看尽长安花。", type: "J" }
+                ]
+            },
+            {
+                question: "以下哪句诗更符合你的思维方式？", options: [
+                    { text: "春种一粒粟，秋收万颗子。", type: "S" },
+                    { text: "天生我材必有用，千金散尽还复来。", type: "N" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种情感表达？", options: [
+                    { text: "问君能有几多愁？恰似一江春水向东流。", type: "F" },
+                    { text: "王师北定中原日，家祭无忘告乃翁。", type: "T" }
+                ]
+            },
+            {
+                question: "以下哪句诗更符合你的性格？", options: [
+                    { text: "小舟从此逝，江海寄余生。", type: "I" },
+                    { text: "会挽雕弓如满月，西北望，射天狼。", type: "E" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种人生态度？", options: [
+                    { text: "采菊东篱下，悠然见南山。", type: "I" },
+                    { text: "人生得意须尽欢，莫使金樽空对月。", type: "E" }
+                ]
+            },
+            {
+                question: "以下哪句诗更符合你的生活态度？", options: [
+                    { text: "纸上得来终觉浅，绝知此事要躬行。", type: "S" },
+                    { text: "醉里挑灯看剑，梦回吹角连营。", type: "N" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种意境？", options: [
+                    { text: "野旷天低树，江清月近人。", type: "I" },
+                    { text: "黄河远上白云间，一片孤城万仞山。", type: "E" }
+                ]
+            },
+            {
+                question: "以下哪句诗更能打动你？", options: [
+                    { text: "夕阳无限好，只是近黄昏。", type: "F" },
+                    { text: "会当凌绝顶，一览众山小。", type: "T" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种生活场景？", options: [
+                    { text: "山气日夕佳，飞鸟相与还。", type: "I" },
+                    { text: "会挽雕弓如满月，西北望，射天狼。", type: "E" }
+                ]
+            },
+            {
+                question: "以下哪句诗更符合你的内心世界？", options: [
+                    { text: "人闲桂花落，夜静春山空。", type: "I" },
+                    { text: "长风破浪会有时，直挂云帆济沧海。", type: "E" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种行动方式？", options: [
+                    { text: "宠辱不惊，闲看庭前花开花落。", type: "P" },
+                    { text: "长风破浪会有时，直挂云帆济沧海。", type: "J" }
+                ]
+            },
+            {
+                question: "以下哪句诗更符合你的思维方式？", options: [
+                    { text: "随风潜入夜，润物细无声。", type: "S" },
+                    { text: "仰天大笑出门去，我辈岂是蓬蒿人。", type: "N" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种情感表达？", options: [
+                    { text: "同是天涯沦落人，相逢何必曾相识。", type: "F" },
+                    { text: "男儿何不带吴钩，收取关山五十州。", type: "T" }
+                ]
+            },
+            {
+                question: "以下哪句诗更符合你的生活态度？", options: [
+                    { text: "问渠那得清如许，为有源头活水来。", type: "S" },
+                    { text: "天生我材必有用，千金散尽还复来。", type: "N" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种意境？", options: [
+                    { text: "江流天地外，山色有无中。", type: "I" },
+                    { text: "黄沙百战穿金甲，不破楼兰终不还。", type: "E" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种场景？", options: [
+                    { text: "明月松间照，清泉石上流。", type: "P" },
+                    { text: "欲穷千里目，更上一层楼。", type: "J" }
+                ]
+            },
+            {
+                question: "以下哪句诗更符合你的情感？", options: [
+                    { text: "此情无计可消除，才下眉头，却上心头。", type: "F" },
+                    { text: "路漫漫其修远兮，吾将上下而求索。", type: "T" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种表达方式？", options: [
+                    { text: "浮云游子意，落日故人情。", type: "F" },
+                    { text: "醉里挑灯看剑，梦回吹角连营。", type: "T" }
+                ]
+            },
+            {
+                question: "以下哪句诗更符合你的性格？", options: [
+                    { text: "孤舟蓑笠翁，独钓寒江雪。", type: "I" },
+                    { text: "仰天长啸，壮怀激烈。", type: "E" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种情境？", options: [
+                    { text: "小楼昨夜又东风，故国不堪回首月明中。", type: "I" },
+                    { text: "天生我材必有用，千金散尽还复来。", type: "E" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种情感表达？", options: [
+                    { text: "红豆生南国，春来发几枝。", type: "F" },
+                    { text: "天下兴亡，匹夫有责。", type: "T" }
+                ]
+            },
+            {
+                question: "以下哪句诗更能代表你的内心世界？", options: [
+                    { text: "春风又绿江南岸，明月何时照我还？", type: "S" },
+                    { text: "俱怀逸兴壮思飞，欲上青天揽明月。", type: "N" }
+                ]
+            },
+            {
+                question: "你更喜欢以下哪种行动方式？", options: [
+                    { text: "宠辱不惊，闲看庭前花开花落。", type: "P" },
+                    { text: "长风破浪会有时，直挂云帆济沧海。", type: "J" }
+                ]
+            },
+            {
+                question: "以下哪句诗更符合你的性格？", options: [
+                    { text: "江畔独步寻花，黄四娘家花满蹊。", type: "I" },
+                    { text: "仰天长啸，壮怀激烈。", type: "E" }
+                ]
+            }
+            // 剩余的题目请重复相同结构继续编写，直到总数达到 100。
+        ];
+
+
+    let currentQuestionIndex = 0;
+    let answers = [];
+    let scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+
+    const questionElement = document.getElementById("question");
+    const option1Button = document.getElementById("option1");
+    const option2Button = document.getElementById("option2");
+    const prevButton = document.getElementById("prev-btn");
+    const nextButton = document.getElementById("next-btn");
+    const progressBarInner = document.querySelector(".progress-bar-inner");
+    const resultsElement = document.getElementById("results");
+
+    function loadQuestion() {
+      const question = questions[currentQuestionIndex];
+      questionElement.textContent = question.question;
+      option1Button.textContent = question.options[0].text;
+      option2Button.textContent = question.options[1].text;
+      updateProgress();
+      updateNavigation();
+    }
+
+    function updateProgress() {
+      const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+      progressBarInner.style.width = `${progress}%`;
+    }
+
+    function updateNavigation() {
+      prevButton.disabled = currentQuestionIndex === 0;
+      nextButton.disabled = currentQuestionIndex === questions.length - 1;
+    }
+
+    function selectOption(optionIndex) {
+      const selected = questions[currentQuestionIndex].options[optionIndex].type;
+      answers[currentQuestionIndex] = selected;
+      currentQuestionIndex++;
+      if (currentQuestionIndex < questions.length) {
+        loadQuestion();
+      } else {
+        calculateResults();
+      }
+    }
+
+    function prevQuestion() {
+      if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        loadQuestion();
+      }
+    }
+
+    function calculateResults() {
+      resultsElement.style.display = "block";
+      for (const answer of answers) {
+        scores[answer] = (scores[answer] || 0) + 1;
+      }
+      const totalE = scores.E + scores.I;
+      const totalS = scores.S + scores.N;
+      const totalT = scores.T + scores.F;
+      const totalJ = scores.J + scores.P;
+
+      const percentages = {
+        E: ((scores.E || 0) / totalE * 100).toFixed(1),
+        I: ((scores.I || 0) / totalE * 100).toFixed(1),
+        S: ((scores.S || 0) / totalS * 100).toFixed(1),
+        N: ((scores.N || 0) / totalS * 100).toFixed(1),
+        T: ((scores.T || 0) / totalT * 100).toFixed(1),
+        F: ((scores.F || 0) / totalT * 100).toFixed(1),
+        J: ((scores.J || 0) / totalJ * 100).toFixed(1),
+        P: ((scores.P || 0) / totalJ * 100).toFixed(1),
+      };
+
+      document.getElementById("eBar").style.width = `${percentages.E}%`;
+      document.getElementById("iBar").style.width = `${percentages.I}%`;
+      document.getElementById("sBar").style.width = `${percentages.S}%`;
+      document.getElementById("nBar").style.width = `${percentages.N}%`;
+      document.getElementById("tBar").style.width = `${percentages.T}%`;
+      document.getElementById("fBar").style.width = `${percentages.F}%`;
+      document.getElementById("jBar").style.width = `${percentages.J}%`;
+      document.getElementById("pBar").style.width = `${percentages.P}%`;
+
+      document.getElementById("ePercent").textContent = percentages.E;
+      document.getElementById("iPercent").textContent = percentages.I;
+      document.getElementById("sPercent").textContent = percentages.S;
+      document.getElementById("nPercent").textContent = percentages.N;
+      document.getElementById("tPercent").textContent = percentages.T;
+      document.getElementById("fPercent").textContent = percentages.F;
+      document.getElementById("jPercent").textContent = percentages.J;
+      document.getElementById("pPercent").textContent = percentages.P;
+
+      const mbti = `${percentages.E > percentages.I ? "E" : "I"}${percentages.S > percentages.N ? "S" : "N"}${percentages.T > percentages.F ? "T" : "F"}${percentages.J > percentages.P ? "J" : "P"}`;
+      document.getElementById("mbtiResult").textContent = mbti;
+    }
+
+    loadQuestion();
+  </script>
+</body>
+</html>
