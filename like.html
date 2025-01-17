@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人喜好测试</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .intro {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .question-group {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .question {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .options {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .option-label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .score-guide {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .score-level {
+            margin: 5px 0;
+            padding: 5px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #result {
+            margin-top: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .dimension-score {
+            margin: 10px 0;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .progress-bar {
+            background: #e9ecef;
+            height: 20px;
+            border-radius: 10px;
+            margin-top: 5px;
+        }
+
+        .progress {
+            background: #4CAF50;
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease-in-out;
+        }
+
+        .analysis {
+            margin-top: 10px;
+            padding: 10px;
+            background: #fff;
+            border-left: 4px solid #4CAF50;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="intro">
+        <h1>个人喜好测试</h1>
+        <h2>测试说明</h2>
+        <p>本测试旨在帮助您更好地了解自己的喜好特征，共包含21个问题，分为7个维度。每个问题都有1-5分的选项：</p>
+        <div class="score-guide">
+            <div class="score-level">1分 = 完全不同意</div>
+            <div class="score-level">2分 = 比较不同意</div>
+            <div class="score-level">3分 = 一般/中立</div>
+            <div class="score-level">4分 = 比较同意</div>
+            <div class="score-level">5分 = 完全同意</div>
+        </div>
+        <p>测试维度说明：</p>
+        <ol>
+            <li><strong>情感层面</strong>：评估您对喜好事物的情感反应强度</li>
+            <li><strong>认知和兴趣</strong>：衡量您对喜好事物的认知投入程度</li>
+            <li><strong>生理机制</strong>：测量喜好带来的生理反应</li>
+            <li><strong>社会和文化影响</strong>：评估外部因素对您喜好的影响程度</li>
+            <li><strong>心理和哲学思考</strong>：探索您对喜好的深层思考</li>
+            <li><strong>动态性和变化</strong>：了解您的喜好变化特征</li>
+            <li><strong>教育和成长</strong>：评估喜好对个人发展的影响</li>
+        </ol>
+    </div>
+
+    <form id="preferenceForm">
+        <button type="submit">提交测试</button>
+    </form>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('preferenceForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const dimensions = {
+                '情感层面': [1, 2, 3],
+                '认知和兴趣': [4, 5, 6],
+                '生理机制': [7, 8, 9],
+                '社会和文化影响': [10, 11, 12],
+                '心理和哲学思考': [13, 14, 15],
+                '动态性和变化': [16, 17, 18],
+                '教育和成长': [19, 20, 21]
+            };
+
+            const scores = {};
+            const maxScore = 15; // 每个维度最高分（3个问题×5分）
+
+            for (let dimension in dimensions) {
+                const questionNumbers = dimensions[dimension];
+                let sum = 0;
+                questionNumbers.forEach(num => {
+                    const value = parseInt(document.querySelector(`input[name="q${num}"]:checked`)?.value || 0);
+                    sum += value;
+                });
+                scores[dimension] = (sum / maxScore) * 100;
+            }
+
+            // 分析结果函数
+            function analyzeScore(dimension, score) {
+                const analyses = {
+                    '情感层面': {
+                        high: "您对喜好事物有很强的情感联结，容易被喜欢的事物触动情感。",
+                        medium: "您对喜好事物有正常的情感反应。",
+                        low: "您对喜好事物的情感反应较为平淡。"
+                    },
+                    '认知和兴趣': {
+                        high: "您对喜好的事物有强烈的求知欲和探索精神。",
+                        medium: "您会适度关注和了解喜好的事物。",
+                        low: "您对喜好事物的认知投入较少。"
+                    },
+                    '生理机制': {
+                        high: "您的身体对喜好事物有明显的生理反应。",
+                        medium: "您对喜好事物有适度的生理反应。",
+                        low: "您较少出现对喜好事物的生理反应。"
+                    },
+                    '社会和文化影响': {
+                        high: "您的喜好受外部环境影响较大。",
+                        medium: "您的喜好适度受到社会文化影响。",
+                        low: "您的喜好较少受外部因素影响。"
+                    },
+                    '心理和哲学思考': {
+                        high: "您经常深入思考喜好背后的意义。",
+                        medium: "您会适度思考喜好的深层含义。",
+                        low: "您较少思考喜好的哲学意义。"
+                    },
+                    '动态性和变化': {
+                        high: "您的喜好较为灵活，容易随环境改变。",
+                        medium: "您的喜好有一定的可塑性。",
+                        low: "您的喜好相对稳定。"
+                    },
+                    '教育和成长': {
+                        high: "您的喜好对个人成长有显著促进作用。",
+                        medium: "您的喜好对个人发展有一定帮助。",
+                        low: "您的喜好对个人发展影响较小。"
+                    }
+                };
+
+                if (score >= 80) return analyses[dimension].high;
+                if (score >= 50) return analyses[dimension].medium;
+                return analyses[dimension].low;
+            }
+
+            // 显示结果
+            let resultHTML = '<h2>测试结果</h2>';
+            for (let dimension in scores) {
+                resultHTML += `
+                    <div class="dimension-score">
+                        <h3>${dimension}</h3>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: ${scores[dimension]}%"></div>
+                        </div>
+                        <p>得分：${scores[dimension].toFixed(1)}%</p>
+                        <div class="analysis">
+                            <p>${analyzeScore(dimension, scores[dimension])}</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // 添加总体分析
+            let totalScore = Object.values(scores).reduce((a, b) => a + b, 0) / 7;
+            resultHTML += `
+                <div class="dimension-score">
+                    <h3>总体分析</h3>
+                    <p>平均得分：${totalScore.toFixed(1)}%</p>
+                    <div class="analysis">
+                        <p>${totalScore >= 80 ?
+                    "您对喜好事物有着深刻的理解和强烈的情感投入，喜好对您的生活和成长有重要影响。" :
+                    totalScore >= 50 ?
+                        "您对喜好事物有着正常的认知和情感投入，能够适度平衡喜好与其他生活方面。" :
+                        "您对喜好事物的投入相对较少，可能更注重生活的其他方面。"
+                }</p>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('result').innerHTML = resultHTML;
+        });
+
+        // 动态生成所有问题的代码（与之前相同）
+        const questions = [
+            "当我看到我喜欢的东西时，我会感到非常开心。",
+            "我喜欢的事物能给我带来愉悦的感觉。",
+            "与我喜欢的事物在一起时，我感到放松和愉快。",
+            "我对喜欢的事物有浓厚的兴趣，愿意花时间去了解。",
+            "我喜欢的事物能激发我的好奇心和探索欲。",
+            "我认为喜欢的事物与我的个人偏好和价值观相符。",
+            "当我接触到我喜欢的事物时，我会感到心跳加速。",
+            "我喜欢的事物让我感觉精力充沛。",
+            "与我喜欢的事物互动时，我身体会感到愉悦的反应。",
+            "我的喜好受到朋友或家人的影响。",
+            "我喜欢的事物反映了我所在文化的某些方面。",
+            "社会环境对我喜欢的事物有一定影响。",
+            "我认为喜欢的事物能反映我的内心需求。",
+            "我喜欢的事物与我的自我实现有关。",
+            "我常常思考我喜欢的事物背后的意义。",
+            "我发现自己的喜好会随着时间而改变。",
+            "我喜欢的事物会受到新经历的影响而变化。",
+            "我对某些事物的喜欢程度会随着时间和经历而波动。",
+            "我通过学习和教育培养了对某些事物的喜欢。",
+            "我喜欢的事物促进了我的个人成长和创造力。",
+            "我认为培养喜欢的事物有助于全面发展。"
+        ];
+
+        const dimensions = [
+            "情感层面",
+            "认知和兴趣",
+            "生理机制",
+            "社会和文化影响",
+            "心理和哲学思考",
+            "动态性和变化",
+            "教育和成长"
+        ];
+
+        let currentDimension = 0;
+        let questionHTML = '';
+
+        questions.forEach((question, index) => {
+            if (index % 3 === 0) {
+                if (index > 0) {
+                    questionHTML += '</div>';
+                }
+                questionHTML += `
+                    <div class="question-group">
+                        <h2>${index / 3 + 1}. ${dimensions[currentDimension]}</h2>
+                `;
+                currentDimension++;
+            }
+
+            questionHTML += `
+                <div class="question">
+                    <p>${index + 1}. ${question}</p>
+                    <div class="options">
+                        <label class="option-label"><input type="radio" name="q${index + 1}" value="1" required>1分</label>
+                        <label class="option-label"><input type="radio" name="q${index + 1}" value="2">2分</label>
+                        <label class="option-label"><input type="radio" name="q${index + 1}" value="3">3分</label>
+                        <label class="option-label"><input type="radio" name="q${index + 1}" value="4">4分</label>
+                        <label class="option-label"><input type="radio" name="q${index + 1}" value="5">5分</label>
+                    </div>
+                </div>
+            `;
+
+            if (index === questions.length - 1) {
+                questionHTML += '</div>';
+            }
+        });
+
+        document.getElementById('preferenceForm').insertBefore(
+            document.createRange().createContextualFragment(questionHTML),
+            document.querySelector('button')
+        );
+    </script>
+</body>
+
+</html>
