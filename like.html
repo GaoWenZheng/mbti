@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>个人喜好测试</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: system-ui, -apple-system, sans-serif;
@@ -110,6 +112,72 @@
             background: #fff;
             border-left: 4px solid #4CAF50;
         }
+
+        .report-button {
+            background-color: #2196F3;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 20px 0;
+        }
+
+        .report-button:hover {
+            background-color: #1976D2;
+        }
+
+        #reportContent {
+            display: none;
+            padding: 40px;
+            background: white;
+            margin: 20px 0;
+        }
+
+        .report-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .report-section {
+            margin: 20px 0;
+            padding: 15px;
+            border-left: 3px solid #4CAF50;
+        }
+
+        .report-chart {
+            margin: 20px 0;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .export-buttons {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .export-buttons button {
+            margin: 0 10px;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+
+            #reportContent,
+            #reportContent * {
+                visibility: visible;
+            }
+
+            #reportContent {
+                position: absolute;
+                left: 0;
+                top: 0;
+                display: block;
+            }
+        }
     </style>
 </head>
 
@@ -141,117 +209,37 @@
         <button type="submit">提交测试</button>
     </form>
     <div id="result"></div>
+    <div id="reportContent">
+        <div class="report-header">
+            <h1>个人喜好特征分析报告</h1>
+            <p>测试日期：<span id="reportDate"></span></p>
+        </div>
+        <div class="report-section">
+            <h2>测试概述</h2>
+            <p>本报告基于七个维度的21个问题评估，全面分析了您的个人喜好特征。每个维度反映了不同层面的喜好表现，帮助您更深入地了解自己的偏好模式。</p>
+        </div>
+        <div id="reportResults"></div>
+        <div class="report-section">
+            <h2>维度得分图表</h2>
+            <div class="report-chart">
+                <canvas id="dimensionChart"></canvas>
+            </div>
+        </div>
+        <div class="report-section">
+            <h2>个性化建议</h2>
+            <div id="reportRecommendations"></div>
+        </div>
+        <div class="report-section">
+            <h2>发展方向</h2>
+            <div id="reportDevelopment"></div>
+        </div>
+        <div class="export-buttons">
+            <button onclick="exportToImage()" class="report-button">导出为图片</button>
+            <button onclick="window.print()" class="report-button">打印报告</button>
+        </div>
+    </div>
 
     <script>
-        document.getElementById('preferenceForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            const dimensions = {
-                '情感层面': [1, 2, 3],
-                '认知和兴趣': [4, 5, 6],
-                '生理机制': [7, 8, 9],
-                '社会和文化影响': [10, 11, 12],
-                '心理和哲学思考': [13, 14, 15],
-                '动态性和变化': [16, 17, 18],
-                '教育和成长': [19, 20, 21]
-            };
-
-            const scores = {};
-            const maxScore = 15; // 每个维度最高分（3个问题×5分）
-
-            for (let dimension in dimensions) {
-                const questionNumbers = dimensions[dimension];
-                let sum = 0;
-                questionNumbers.forEach(num => {
-                    const value = parseInt(document.querySelector(`input[name="q${num}"]:checked`)?.value || 0);
-                    sum += value;
-                });
-                scores[dimension] = (sum / maxScore) * 100;
-            }
-
-            // 分析结果函数
-            function analyzeScore(dimension, score) {
-                const analyses = {
-                    '情感层面': {
-                        high: "您对喜好事物有很强的情感联结，容易被喜欢的事物触动情感。",
-                        medium: "您对喜好事物有正常的情感反应。",
-                        low: "您对喜好事物的情感反应较为平淡。"
-                    },
-                    '认知和兴趣': {
-                        high: "您对喜好的事物有强烈的求知欲和探索精神。",
-                        medium: "您会适度关注和了解喜好的事物。",
-                        low: "您对喜好事物的认知投入较少。"
-                    },
-                    '生理机制': {
-                        high: "您的身体对喜好事物有明显的生理反应。",
-                        medium: "您对喜好事物有适度的生理反应。",
-                        low: "您较少出现对喜好事物的生理反应。"
-                    },
-                    '社会和文化影响': {
-                        high: "您的喜好受外部环境影响较大。",
-                        medium: "您的喜好适度受到社会文化影响。",
-                        low: "您的喜好较少受外部因素影响。"
-                    },
-                    '心理和哲学思考': {
-                        high: "您经常深入思考喜好背后的意义。",
-                        medium: "您会适度思考喜好的深层含义。",
-                        low: "您较少思考喜好的哲学意义。"
-                    },
-                    '动态性和变化': {
-                        high: "您的喜好较为灵活，容易随环境改变。",
-                        medium: "您的喜好有一定的可塑性。",
-                        low: "您的喜好相对稳定。"
-                    },
-                    '教育和成长': {
-                        high: "您的喜好对个人成长有显著促进作用。",
-                        medium: "您的喜好对个人发展有一定帮助。",
-                        low: "您的喜好对个人发展影响较小。"
-                    }
-                };
-
-                if (score >= 80) return analyses[dimension].high;
-                if (score >= 50) return analyses[dimension].medium;
-                return analyses[dimension].low;
-            }
-
-            // 显示结果
-            let resultHTML = '<h2>测试结果</h2>';
-            for (let dimension in scores) {
-                resultHTML += `
-                    <div class="dimension-score">
-                        <h3>${dimension}</h3>
-                        <div class="progress-bar">
-                            <div class="progress" style="width: ${scores[dimension]}%"></div>
-                        </div>
-                        <p>得分：${scores[dimension].toFixed(1)}%</p>
-                        <div class="analysis">
-                            <p>${analyzeScore(dimension, scores[dimension])}</p>
-                        </div>
-                    </div>
-                `;
-            }
-
-            // 添加总体分析
-            let totalScore = Object.values(scores).reduce((a, b) => a + b, 0) / 7;
-            resultHTML += `
-                <div class="dimension-score">
-                    <h3>总体分析</h3>
-                    <p>平均得分：${totalScore.toFixed(1)}%</p>
-                    <div class="analysis">
-                        <p>${totalScore >= 80 ?
-                    "您对喜好事物有着深刻的理解和强烈的情感投入，喜好对您的生活和成长有重要影响。" :
-                    totalScore >= 50 ?
-                        "您对喜好事物有着正常的认知和情感投入，能够适度平衡喜好与其他生活方面。" :
-                        "您对喜好事物的投入相对较少，可能更注重生活的其他方面。"
-                }</p>
-                    </div>
-                </div>
-            `;
-
-            document.getElementById('result').innerHTML = resultHTML;
-        });
-
-        // 动态生成所有问题的代码（与之前相同）
         const questions = [
             "当我看到我喜欢的东西时，我会感到非常开心。",
             "我喜欢的事物能给我带来愉悦的感觉。",
@@ -323,6 +311,514 @@
             document.createRange().createContextualFragment(questionHTML),
             document.querySelector('button')
         );
+
+        function generateReport(scores) {
+            // 删除 JSON.stringify 生成的空格
+            const scoresWithoutSpaces = JSON.stringify(scores, null, 0).replace(/\s+/g, '');
+
+            // 设置报告日期
+            document.getElementById('reportDate').textContent = new Date().toLocaleDateString();
+
+            // 生成结果详情
+            let resultsHTML = '<div class="report-section"><h2>详细分析</h2>';
+            for (let dimension in scores) {
+                const score = scores[dimension];
+                resultsHTML += `
+            <div class="dimension-analysis">
+                <h3>${dimension}</h3>
+                <p>得分：${score.toFixed(1)}%</p>
+                <p>${generateDetailedAnalysis(dimension, score)}</p>
+            </div>
+        `;
+            }
+            resultsHTML += '</div>';
+            document.getElementById('reportResults').innerHTML = resultsHTML;
+
+            // 生成建议
+            let recommendations = generateRecommendations(scores);
+            document.getElementById('reportRecommendations').innerHTML = recommendations;
+
+            // 生成发展方向
+            let development = generateDevelopmentPlan(scores);
+            document.getElementById('reportDevelopment').innerHTML = development;
+
+            // 显示报告内容
+            document.getElementById('reportContent').style.display = 'block';
+
+            // 生成图表
+            generateChart(scores);
+
+            // 更新生成报告按钮的 onclick 事件，确保传递的 scores 没有空格
+            const reportButton = document.querySelector('.report-button');
+            if (reportButton) {
+                reportButton.setAttribute('onclick', `generateReport(${scoresWithoutSpaces})`);
+            }
+        }
+
+        function generateChart(scores) {
+            const ctx = document.getElementById('dimensionChart').getContext('2d');
+            const chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(scores),
+                    datasets: [{
+                        label: '维度得分',
+                        data: Object.values(scores),
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        function exportToImage() {
+            const element = document.getElementById('reportContent');
+
+            html2canvas(element, {
+                scale: 2, // 提高图片清晰度
+                useCORS: true, // 允许跨域资源
+                logging: true, // 启用日志（可选）
+            }).then((canvas) => {
+                const imgData = canvas.toDataURL('image/png'); // 将 canvas 转换为图片数据
+
+                // 创建一个下载链接
+                const link = document.createElement('a');
+                link.href = imgData;
+                link.download = '个人喜好特征分析报告.png'; // 设置下载文件名
+                document.body.appendChild(link);
+                link.click(); // 触发下载
+                document.body.removeChild(link); // 移除链接
+            }).catch((error) => {
+                console.error('导出图片失败:', error);
+            });
+        }
+
+        function generateDetailedAnalysis(dimension, score) {
+            const analysisDetails = {
+                '情感层面': {
+                    high: "您展现出极强的情感敏感度和丰富的情感体验。这种特质使您能够深刻感受喜好带来的愉悦，并从中获得强烈的情感满足。建议您善用这种情感优势，但也要注意平衡情感投入。",
+                    medium: "您具有健康的情感表达能力，能够适度享受喜好带来的愉悦感。这种平衡的情感状态有助于您稳定地培养和发展个人兴趣。",
+                    low: "您对喜好的情感反应较为克制。这种特质可能让您在决策时更理性，但也可能限制了您体验快乐的程度。建议尝试更开放地体验情感。"
+                },
+                '认知和兴趣': {
+                    high: "您对喜好事物表现出强烈的求知欲和探索精神。这种特质使您能够深入了解感兴趣的领域，并从中获得知识满足感。您的认知投入可能会带来显著的个人成长。",
+                    medium: "您表现出适度的求知欲和探索意愿，能够在需要时深入了解感兴趣的事物。这种平衡的认知态度有助于您在不同领域间灵活切换。",
+                    low: "您对喜好事物的认知投入相对较少。这可能表明您更偏好直觉性的体验，或者当前的兴趣领域还未充分激发您的求知欲。"
+                },
+                '生理机制': {
+                    high: "您对喜好事物有着明显的生理反应，如心跳加速、精力充沛等。这种强烈的身体反应表明您与喜好事物有着深度的身心连接。",
+                    medium: "您对喜好事物表现出适度的生理反应，能够感受到身体的正面变化。这种适度的生理唤醒有助于保持健康的兴趣体验。",
+                    low: "您较少出现对喜好事物的生理反应。这可能意味着您的体验更偏向心理层面，或者需要更强烈的刺激才能引发明显的生理反应。"
+                },
+                '社会和文化影响': {
+                    high: "您的喜好明显受到社会环境和文化背景的影响。这表明您善于吸收外部影响，并能将其转化为个人兴趣。建议保持这种开放态度的同时，也要发展独特的个人品味。",
+                    medium: "您能够平衡社会文化影响和个人偏好，在接受外部影响的同时保持自己的独特品味。这种平衡有助于形成健康的兴趣发展模式。",
+                    low: "您的喜好较少受外部因素影响，更多依赖个人判断。这种独立性有助于形成独特的品味，但也要适度关注外部世界的精彩之处。"
+                },
+                '心理和哲学思考': {
+                    high: "您经常深入思考喜好的内在意义，展现出强烈的哲学思考倾向。这种深度思考有助于您建立起个人价值体系，使喜好与个人发展紧密结合。",
+                    medium: "您会适度思考喜好的深层含义，能够在实践与反思之间取得平衡。这种思考模式有助于稳健的个人成长。",
+                    low: "您较少对喜好进行哲学层面的思考，可能更注重直接体验。建议适当增加对喜好意义的思考，可能会发现新的个人发展方向。"
+                },
+                '动态性和变化': {
+                    high: "您的喜好表现出很强的可塑性，能够随环境和经历快速调整。这种适应性使您能够不断发现新的兴趣点，但也要注意保持一些核心兴趣的稳定性。",
+                    medium: "您的喜好既有稳定性也有适度的变化，能够在保持核心兴趣的同时接纳新的可能。这种平衡有助于持续的个人成长。",
+                    low: "您的喜好相对稳定，不易受环境变化影响。这种稳定性有助于深耕特定领域，但也要适当保持对新事物的开放态度。"
+                },
+                '教育和成长': {
+                    high: "您的喜好与个人成长紧密相连，能够通过兴趣爱好获得显著的能力提升。这种特质使您的兴趣培养往往能转化为个人竞争力。",
+                    medium: "您能够适度将喜好与个人发展结合，在享受兴趣的同时获得成长。这种平衡的态度有助于可持续的发展。",
+                    low: "您的喜好与个人发展的关联度较低，可能更注重纯粹的兴趣体验。建议尝试将兴趣爱好与个人成长更好地结合起来。"
+                }
+            };
+
+            if (score >= 80) return analysisDetails[dimension].high;
+            if (score >= 50) return analysisDetails[dimension].medium;
+            return analysisDetails[dimension].low;
+        }
+
+        function generateRecommendations(scores) {
+            let recommendations = '<ul>';
+            let avgScore = Object.values(scores).reduce((a, b) => a + b, 0) / 7;
+
+            if (avgScore >= 80) {
+                recommendations += `
+                    <li>充分利用您对喜好的强烈感知能力，可以考虑将兴趣发展为专业技能</li>
+                    <li>注意平衡情感投入，避免过度沉浸影响其他生活领域</li>
+                    <li>尝试将您的经验分享给他人，可以考虑成为相关领域的指导者</li>
+                `;
+            } else if (avgScore >= 50) {
+                recommendations += `
+                    <li>继续保持当前的平衡状态，适度发展个人兴趣爱好</li>
+                    <li>可以尝试探索新的兴趣领域，扩展个人视野</li>
+                    <li>建立规律的兴趣培养计划，促进持续发展</li>
+                `;
+            } else {
+                recommendations += `
+                    <li>尝试更开放地接触新事物，培养对喜好的感知能力</li>
+                    <li>可以从小范围开始，逐步培养对感兴趣事物的投入</li>
+                    <li>寻找适合自己的表达方式，增加与喜好相关的正向体验</li>
+                `;
+            }
+            recommendations += '</ul>';
+            return recommendations;
+        }
+
+        function generateDevelopmentPlan(scores) {
+            let plan = '<div class="development-plans">';
+
+            const developmentPlans = {
+                '情感层面': {
+                    title: '情感体验提升计划',
+                    high: {
+                        description: "您的情感体验非常丰富，建议进一步深化情感表达和管理能力。",
+                        actions: [
+                            '尝试通过艺术创作（如绘画、写作）表达情感',
+                            '参与情感管理课程，学习如何平衡情感投入',
+                            '与心理咨询师交流，探索更深层次的情感需求'
+                        ]
+                    },
+                    medium: {
+                        description: "您的情感体验较为平衡，建议进一步提升情感感知和表达能力。",
+                        actions: [
+                            '每天记录一件让自己感到开心的事物',
+                            '尝试用文字或艺术形式表达对喜好事物的感受',
+                            '与朋友或家人分享情感体验'
+                        ]
+                    },
+                    low: {
+                        description: "您的情感体验较为克制，建议尝试更开放地体验和表达情感。",
+                        actions: [
+                            '每天记录一件让自己感到开心的事物',
+                            '尝试通过冥想或深呼吸练习增强情感感知',
+                            '参与社交活动，增加情感交流机会'
+                        ]
+                    }
+                },
+                '认知和兴趣': {
+                    title: '认知深化计划',
+                    high: {
+                        description: "您对喜好事物有强烈的求知欲，建议进一步深化认知和探索能力。",
+                        actions: [
+                            '每周选择一个感兴趣的主题深入研究',
+                            '建立个人知识管理系统，整理学习内容',
+                            '参加相关领域的线上或线下课程'
+                        ]
+                    },
+                    medium: {
+                        description: "您对喜好事物有一定的认知投入，建议进一步提升探索能力。",
+                        actions: [
+                            '每月阅读一本与兴趣相关的书籍',
+                            '参加兴趣小组或社群活动',
+                            '尝试将所学知识应用到实践中'
+                        ]
+                    },
+                    low: {
+                        description: "您对喜好事物的认知投入较少，建议逐步培养探索兴趣。",
+                        actions: [
+                            '每周花1-2小时了解一个新领域',
+                            '尝试参加一次兴趣相关的讲座或活动',
+                            '记录自己对不同事物的兴趣变化'
+                        ]
+                    }
+                },
+                '生理机制': {
+                    title: '身心协调计划',
+                    high: {
+                        description: "您对喜好事物有明显的生理反应，建议进一步优化身心协调能力。",
+                        actions: [
+                            '定期进行身体放松练习，如瑜伽或冥想',
+                            '记录与喜好相关的生理反应，分析其规律',
+                            '尝试通过运动增强身体感知能力'
+                        ]
+                    },
+                    medium: {
+                        description: "您对喜好事物有适度的生理反应，建议进一步提升身心协调能力。",
+                        actions: [
+                            '每天进行10分钟的深呼吸练习',
+                            '记录与喜好相关的身体感受',
+                            '尝试通过运动增强身体活力'
+                        ]
+                    },
+                    low: {
+                        description: "您较少出现对喜好事物的生理反应，建议逐步增强身体感知能力。",
+                        actions: [
+                            '每天进行5分钟的深呼吸练习',
+                            '记录与喜好相关的身体感受',
+                            '尝试通过运动增强身体活力'
+                        ]
+                    }
+                },
+                '社会和文化影响': {
+                    title: '社会互动提升计划',
+                    high: {
+                        description: "您的喜好明显受社会和文化影响，建议进一步拓展社交圈和文化视野。",
+                        actions: [
+                            '参与相关兴趣社群或俱乐部活动',
+                            '主动了解不同文化背景下的相关表现形式',
+                            '尝试组织小型兴趣分享会'
+                        ]
+                    },
+                    medium: {
+                        description: "您的喜好适度受社会和文化影响，建议进一步提升社交和文化体验。",
+                        actions: [
+                            '每月参加一次兴趣相关的社交活动',
+                            '阅读与兴趣相关的文化书籍',
+                            '与不同背景的人交流兴趣体验'
+                        ]
+                    },
+                    low: {
+                        description: "您的喜好较少受社会和文化影响，建议逐步增加社交和文化体验。",
+                        actions: [
+                            '每月参加一次兴趣相关的活动',
+                            '阅读与兴趣相关的文化书籍',
+                            '与朋友分享兴趣体验'
+                        ]
+                    }
+                },
+                '心理和哲学思考': {
+                    title: '深度思考培养计划',
+                    high: {
+                        description: "您经常深入思考喜好的内在意义，建议进一步深化哲学思考能力。",
+                        actions: [
+                            '定期思考并记录喜好对个人成长的影响',
+                            '阅读相关哲学或心理学著作，拓展思维维度',
+                            '与他人讨论喜好背后的深层意义'
+                        ]
+                    },
+                    medium: {
+                        description: "您会适度思考喜好的深层含义，建议进一步提升哲学思考能力。",
+                        actions: [
+                            '每月阅读一本哲学或心理学书籍',
+                            '记录自己对喜好的思考和感悟',
+                            '与朋友讨论喜好的深层意义'
+                        ]
+                    },
+                    low: {
+                        description: "您较少对喜好进行哲学层面的思考，建议逐步培养深度思考能力。",
+                        actions: [
+                            '每周花10分钟思考喜好的意义',
+                            '阅读一篇与兴趣相关的哲学文章',
+                            '记录自己对喜好的简单思考'
+                        ]
+                    }
+                },
+                '动态性和变化': {
+                    title: '适应性发展计划',
+                    high: {
+                        description: "您的喜好表现出很强的可塑性，建议进一步优化适应性能力。",
+                        actions: [
+                            '定期尝试接触新的事物或体验',
+                            '记录个人喜好的变化过程和原因',
+                            '在保持核心兴趣的同时拓展新领域'
+                        ]
+                    },
+                    medium: {
+                        description: "您的喜好既有稳定性也有适度的变化，建议进一步提升适应性能力。",
+                        actions: [
+                            '每月尝试一次新的事物或体验',
+                            '记录个人喜好的变化过程和原因',
+                            '在保持核心兴趣的同时拓展新领域'
+                        ]
+                    },
+                    low: {
+                        description: "您的喜好相对稳定，建议逐步培养对变化的开放态度。",
+                        actions: [
+                            '每季度尝试一次新的事物或体验',
+                            '记录个人喜好的变化过程和原因',
+                            '在保持核心兴趣的同时拓展新领域'
+                        ]
+                    }
+                },
+                '教育和成长': {
+                    title: '个人成长整合计划',
+                    high: {
+                        description: "您的喜好与个人成长紧密相连，建议进一步优化成长规划。",
+                        actions: [
+                            '制定将兴趣转化为技能的学习计划',
+                            '寻找喜好与职业发展的结合点',
+                            '参与相关的培训或认证项目'
+                        ]
+                    },
+                    medium: {
+                        description: "您能够适度将喜好与个人发展结合，建议进一步提升成长规划能力。",
+                        actions: [
+                            '每月制定一个小型学习计划',
+                            '寻找喜好与职业发展的结合点',
+                            '参与相关的培训或认证项目'
+                        ]
+                    },
+                    low: {
+                        description: "您的喜好与个人发展的关联度较低，建议逐步培养成长规划能力。",
+                        actions: [
+                            '每季度制定一个小型学习计划',
+                            '寻找喜好与职业发展的结合点',
+                            '参与相关的培训或认证项目'
+                        ]
+                    }
+                }
+            };
+
+            plan += '<h3>个性化发展计划</h3>';
+
+            for (let dimension in scores) {
+                let score = scores[dimension];
+                let level = score >= 80 ? 'high' : score >= 50 ? 'medium' : 'low';
+                let dimensionPlan = developmentPlans[dimension][level];
+
+                plan += `<div class="plan-section">`;
+                plan += `<h4>${developmentPlans[dimension].title}</h4>`;
+                plan += `<p class="plan-description">${dimensionPlan.description}</p>`;
+                plan += `<ul class="action-list">`;
+                dimensionPlan.actions.forEach(action => {
+                    plan += `<li>${action}</li>`;
+                });
+                plan += `</ul>`;
+                plan += `</div>`;
+            }
+
+            // 添加整体时间规划建议
+            plan += `
+        <div class="time-planning">
+            <h4>时间规划建议</h4>
+            <ul>
+                <li>短期（1-3个月）：专注于得分低于60分的维度，打好基础</li>
+                <li>中期（3-6个月）：关注得分在60-80分之间的维度，谋求突破</li>
+                <li>长期（6个月以上）：维持高分维度的优势，追求卓越</li>
+            </ul>
+        </div>
+
+        <div class="progress-tracking">
+            <h4>进展追踪建议</h4>
+            <ul>
+                <li>每周记录投入时间和具体行动</li>
+                <li>每月进行一次小结和调整</li>
+                <li>每三个月进行一次全面评估</li>
+                <li>建议定期重新进行本测试，追踪发展变化</li>
+            </ul>
+        </div>
+    `;
+
+            plan += '</div>';
+            return plan;
+        }
+        document.getElementById('preferenceForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const dimensions = {
+                '情感层面': [1, 2, 3],
+                '认知和兴趣': [4, 5, 6],
+                '生理机制': [7, 8, 9],
+                '社会和文化影响': [10, 11, 12],
+                '心理和哲学思考': [13, 14, 15],
+                '动态性和变化': [16, 17, 18],
+                '教育和成长': [19, 20, 21]
+            };
+
+            const scores = {};
+            const maxScore = 15;
+
+            for (let dimension in dimensions) {
+                const questionNumbers = dimensions[dimension];
+                let sum = 0;
+                questionNumbers.forEach(num => {
+                    const value = parseInt(document.querySelector(`input[name="q${num}"]:checked`)?.value || 0);
+                    sum += value;
+                });
+                scores[dimension] = (sum / maxScore) * 100;
+            }
+
+            function analyzeScore(dimension, score) {
+                const analyses = {
+                    '情感层面': {
+                        high: "您对喜好事物有很强的情感联结，容易被喜欢的事物触动情感。",
+                        medium: "您对喜好事物有正常的情感反应。",
+                        low: "您对喜好事物的情感反应较为平淡。"
+                    },
+                    '认知和兴趣': {
+                        high: "您对喜好的事物有强烈的求知欲和探索精神。",
+                        medium: "您会适度关注和了解喜好的事物。",
+                        low: "您对喜好事物的认知投入较少。"
+                    },
+                    '生理机制': {
+                        high: "您的身体对喜好事物有明显的生理反应。",
+                        medium: "您对喜好事物有适度的生理反应。",
+                        low: "您较少出现对喜好事物的生理反应。"
+                    },
+                    '社会和文化影响': {
+                        high: "您的喜好受外部环境影响较大。",
+                        medium: "您的喜好适度受到社会文化影响。",
+                        low: "您的喜好较少受外部因素影响。"
+                    },
+                    '心理和哲学思考': {
+                        high: "您经常深入思考喜好背后的意义。",
+                        medium: "您会适度思考喜好的深层含义。",
+                        low: "您较少思考喜好的哲学意义。"
+                    },
+                    '动态性和变化': {
+                        high: "您的喜好较为灵活，容易随环境改变。",
+                        medium: "您的喜好有一定的可塑性。",
+                        low: "您的喜好相对稳定。"
+                    },
+                    '教育和成长': {
+                        high: "您的喜好对个人成长有显著促进作用。",
+                        medium: "您的喜好对个人发展有一定帮助。",
+                        low: "您的喜好对个人发展影响较小。"
+                    }
+                };
+
+                if (score >= 80) return analyses[dimension].high;
+                if (score >= 50) return analyses[dimension].medium;
+                return analyses[dimension].low;
+            }
+
+            let resultHTML = '<h2>测试结果</h2>';
+            for (let dimension in scores) {
+                resultHTML += `
+                    <div class="dimension-score">
+                        <h3>${dimension}</h3>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: ${scores[dimension]}%"></div>
+                        </div>
+                        <p>得分：${scores[dimension].toFixed(1)}%</p>
+                        <div class="analysis">
+                            <p>${analyzeScore(dimension, scores[dimension])}</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            let totalScore = Object.values(scores).reduce((a, b) => a + b, 0) / 7;
+            resultHTML += `
+                <div class="dimension-score">
+                    <h3>总体分析</h3>
+                    <p>平均得分：${totalScore.toFixed(1)}%</p>
+                    <div class="analysis">
+                        <p>${totalScore >= 80 ?
+                    "您对喜好事物有着深刻的理解和强烈的情感投入，喜好对您的生活和成长有重要影响。" :
+                    totalScore >= 50 ?
+                        "您对喜好事物有着正常的认知和情感投入，能够适度平衡喜好与其他生活方面。" :
+                        "您对喜好事物的投入相对较少，可能更注重生活的其他方面。"
+                }</p>
+                    </div>
+                </div>
+            `;
+            resultHTML += `
+                <button onclick='generateReport(${JSON.stringify(scores, null, 0)})' class='report-button'>
+                    生成详细报告
+                </button>
+            `;
+            document.getElementById('result').innerHTML = resultHTML;
+        });
     </script>
 </body>
 
