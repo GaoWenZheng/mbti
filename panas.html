@@ -230,7 +230,9 @@
         <div id="questionnaire"></div>
         <button onclick="submitForm()">提交</button>
         <button onclick="exportData()">导出数据</button>
+        <button onclick="importData()">导入数据</button>
         <button onclick="clearHistory()">清除记录</button>
+
         <div id="history"></div>
     </div>
 
@@ -363,7 +365,104 @@
             // 更新分析说明
             updateChartExplanation(records);
         }
+        // 导出数据为CSV
+        function exportData() {
+            const records = JSON.parse(localStorage.getItem('panasRecords') || '[]');
+            if (records.length === 0) {
+                alert('没有可导出的数据');
+                return;
+            }
 
+            // 创建CSV内容
+            let csv = '时间戳,PA总分,NA总分,各题答案\n';
+            records.forEach(record => {
+                csv += `${record.timestamp},${record.PA},${record.NA},"${record.answers.join(',')}"\n`;
+            });
+
+            // 创建下载链接
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `panas_data_${new Date().toISOString().slice(0, 10)}.csv`;
+            link.click();
+        }
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.csv';
+
+            input.onchange = function (event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    try {
+                        const csvData = e.target.result;
+                        const records = parseCSV(csvData);
+
+                        if (!validateRecords(records)) {
+                            alert('文件格式不正确，请选择导出的CSV文件');
+                            return;
+                        }
+
+                        // 合并数据并去重
+                        const existingRecords = JSON.parse(localStorage.getItem('panasRecords') || '[]');
+                        const newRecords = mergeRecords(existingRecords, records);
+
+                        localStorage.setItem('panasRecords', JSON.stringify(newRecords));
+                        showHistory();
+                        alert(`成功导入${records.length}条记录`);
+                    } catch (error) {
+                        console.error(error);
+                        alert('文件解析失败，请检查文件格式');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        // CSV解析函数
+        function parseCSV(csv) {
+            const rows = csv.split('\n').slice(1); // 跳过标题行
+            return rows.filter(row => row.trim()).map(row => {
+                const [timestamp, PA, NA, answersStr] = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                return {
+                    timestamp: timestamp.replace(/"/g, ''),
+                    PA: parseInt(PA),
+                    NA: parseInt(NA),
+                    answers: answersStr.replace(/"/g, '').split(',').map(Number)
+                };
+            });
+        }
+
+        // 数据验证函数
+        function validateRecords(records) {
+            return records.every(record =>
+                record.timestamp &&
+                !isNaN(record.PA) &&
+                !isNaN(record.NA) &&
+                Array.isArray(record.answers) &&
+                record.answers.length === 20
+            );
+        }
+
+        // 数据合并去重函数
+        function mergeRecords(existing, incoming) {
+            const existingMap = new Map(existing.map(r => [r.timestamp, r]));
+            incoming.forEach(r => existingMap.set(r.timestamp, r));
+            return Array.from(existingMap.values()).sort((a, b) =>
+                new Date(a.timestamp) - new Date(b.timestamp)
+            );
+        }
+        // 清除记录
+        function clearHistory() {
+            if (confirm('确定清除所有记录吗？')) {
+                localStorage.removeItem('panasRecords');
+                showHistory();
+            }
+        }
         function updateChartExplanation(records) {
             if (records.length < 2) {
                 document.getElementById('chart-explanation').innerHTML = '需要至少两次测评才能进行趋势分析。';
