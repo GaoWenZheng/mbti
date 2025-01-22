@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>PANAS量表电子版</title>
+    <style>
+        .container { max-width: 800px; margin: 20px auto; padding: 20px; }
+        .question-group { margin: 15px 0; border-bottom: 1px solid #eee; padding: 10px; }
+        .options { display: flex; justify-content: space-between; margin-top: 5px; }
+        .option-label { flex: 1; text-align: center; }
+        button { margin: 10px; padding: 8px 15px; }
+        #history { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>PANAS量表</h2>
+        <div id="questionnaire"></div>
+        <button onclick="submitForm()">提交</button>
+        <button onclick="exportData()">导出数据</button>
+        <button onclick="clearHistory()">清除记录</button>
+        <div id="history"></div>
+    </div>
+
+<script>
+// PANAS量表结构
+const panasItems = [
+    { type: 'PA', text: '兴奋的' },
+    { type: 'PA', text: '自豪的' },
+    { type: 'PA', text: '充满热情的' },
+    { type: 'PA', text: '警觉的' },
+    { type: 'PA', text: '坚定的' },
+    { type: 'PA', text: '受鼓舞的' },
+    { type: 'PA', text: '专注的' },
+    { type: 'PA', text: '主动的' },
+    { type: 'PA', text: '坚强的' },
+    { type: 'PA', text: '感兴趣的' },
+    { type: 'NA', text: '恐惧的' },
+    { type: 'NA', text: '敌意的' },
+    { type: 'NA', text: '羞愧的' },
+    { type: 'NA', text: '紧张的' },
+    { type: 'NA', text: '愤怒的' },
+    { type: 'NA', text: '内疚的' },
+    { type: 'NA', text: '不安的' },
+    { type: 'NA', text: '烦躁的' },
+    { type: 'NA', text: '害怕的' },
+    { type: 'NA', text: '悲伤的' }
+];
+
+// 初始化问卷
+function initQuestionnaire() {
+    const container = document.getElementById('questionnaire');
+    panasItems.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = 'question-group';
+        div.innerHTML = `
+            <div>${index+1}. ${item.text}</div>
+            <div class="options">
+                <label class="option-label">
+                    <input type="radio" name="q${index}" value="1"> 非常轻微
+                </label>
+                <label class="option-label">
+                    <input type="radio" name="q${index}" value="2"> 轻微
+                </label>
+                <label class="option-label">
+                    <input type="radio" name="q${index}" value="3"> 中等
+                </label>
+                <label class="option-label">
+                    <input type="radio" name="q${index}" value="4"> 较强
+                </label>
+                <label class="option-label">
+                    <input type="radio" name="q${index}" value="5"> 极强
+                </label>
+            </div>
+        `;
+        container.appendChild(div);
+    });
+}
+
+// 保存到LocalStorage
+function saveRecord(data) {
+    const records = JSON.parse(localStorage.getItem('panasRecords') || '[]');
+    records.push(data);
+    localStorage.setItem('panasRecords', JSON.stringify(records));
+    showHistory();
+}
+
+// 提交表单
+function submitForm() {
+    const answers = [];
+    let paTotal = 0, naTotal = 0;
+    
+    panasItems.forEach((item, index) => {
+        const selected = document.querySelector(`input[name="q${index}"]:checked`);
+        if (!selected) {
+            alert('请完成所有题目！');
+            return;
+        }
+        const value = parseInt(selected.value);
+        answers.push(value);
+        
+        if (item.type === 'PA') paTotal += value;
+        if (item.type === 'NA') naTotal += value;
+    });
+
+    const record = {
+        timestamp: new Date().toISOString(),
+        answers: answers,
+        PA: paTotal,
+        NA: naTotal
+    };
+    
+    saveRecord(record);
+}
+
+// 显示历史记录
+function showHistory() {
+    const records = JSON.parse(localStorage.getItem('panasRecords') || '[]');
+    const historyDiv = document.getElementById('history');
+    historyDiv.innerHTML = '<h3>历史记录</h3>';
+    
+    records.forEach(record => {
+        const date = new Date(record.timestamp).toLocaleString();
+        historyDiv.innerHTML += `
+            <div>${date} - PA: ${record.PA} | NA: ${record.NA}</div>
+        `;
+    });
+}
+
+// 导出数据为CSV
+function exportData() {
+    const records = JSON.parse(localStorage.getItem('panasRecords') || '[]');
+    if (records.length === 0) {
+        alert('没有可导出的数据');
+        return;
+    }
+    
+    // 创建CSV内容
+    let csv = '时间戳,PA总分,NA总分,各题答案\n';
+    records.forEach(record => {
+        csv += `${record.timestamp},${record.PA},${record.NA},"${record.answers.join(',')}"\n`;
+    });
+    
+    // 创建下载链接
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `panas_data_${new Date().toISOString().slice(0,10)}.csv`;
+    link.click();
+}
+
+// 清除记录
+function clearHistory() {
+    if (confirm('确定清除所有记录吗？')) {
+        localStorage.removeItem('panasRecords');
+        showHistory();
+    }
+}
+
+// 初始化
+initQuestionnaire();
+showHistory();
+</script>
+</body>
+</html>
