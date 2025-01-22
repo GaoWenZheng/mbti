@@ -1,20 +1,175 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <title>PANAS量表电子版</title>
     <style>
-        .container { max-width: 800px; margin: 20px auto; padding: 20px; }
-        .question-group { margin: 15px 0; border-bottom: 1px solid #eee; padding: 10px; }
-        .options { display: flex; justify-content: space-between; margin-top: 5px; }
-        .option-label { flex: 1; text-align: center; }
-        button { margin: 10px; padding: 8px 15px; }
-        #history { margin-top: 20px; }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+
+        .question-group {
+            margin: 15px 0;
+            border-bottom: 1px solid #eee;
+            padding: 10px;
+        }
+
+        .options {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+        }
+
+        .option-label {
+            flex: 1;
+            text-align: center;
+        }
+
+        button {
+            margin: 10px;
+            padding: 8px 15px;
+        }
+
+        #history {
+            margin-top: 20px;
+        }
+
+        /* New styles */
+        .info-section {
+            margin: 20px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .info-header {
+            padding: 10px;
+            background: #f5f5f5;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .info-content {
+            padding: 15px;
+            display: none;
+        }
+
+        .info-content.active {
+            display: block;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 300px;
+            margin: 20px 0;
+        }
+
+        .arrow {
+            transition: transform 0.3s;
+        }
+
+        .arrow.active {
+            transform: rotate(180deg);
+        }
+
+        .score-explanation {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 4px;
+        }
+
+        /* 新增历史记录折叠面板样式 */
+        .history-item {
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .history-header {
+            padding: 10px;
+            background: #f5f5f5;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .history-details {
+            padding: 15px;
+            display: none;
+        }
+
+        .answer-detail {
+            margin: 5px 0;
+            padding: 8px;
+            background: #f9f9f9;
+            border-radius: 4px;
+        }
+
+        .analysis-section {
+            margin-top: 15px;
+            padding: 10px;
+            background: #fff3e0;
+            border-radius: 4px;
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h2>PANAS量表</h2>
+
+        <!-- PA/NA说明部分 -->
+        <div class="info-section">
+            <div class="info-header" onclick="toggleInfo('pa-info')">
+                <span>积极情感(PA)说明</span>
+                <span class="arrow">▼</span>
+            </div>
+            <div id="pa-info" class="info-content">
+                <p>积极情感(PA)反映了一个人感到热情、活跃和警觉的程度。高PA表现为精力充沛、全神贯注和愉快参与；低PA则表现为悲伤和倦怠。</p>
+                <div class="score-explanation">
+                    <strong>分数解释：</strong><br>
+                    10-20分：极低PA水平<br>
+                    21-30分：低PA水平<br>
+                    31-40分：中等PA水平<br>
+                    41-50分：高PA水平
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <div class="info-header" onclick="toggleInfo('na-info')">
+                <span>消极情感(NA)说明</span>
+                <span class="arrow">▼</span>
+            </div>
+            <div id="na-info" class="info-content">
+                <p>消极情感(NA)反映了主观痛苦和不愉快参与的程度。高NA表现为愤怒、轻蔑、厌恶、内疚、恐惧和紧张；低NA则表现为平静和安宁。</p>
+                <div class="score-explanation">
+                    <strong>分数解释：</strong><br>
+                    10-20分：低NA水平<br>
+                    21-30分：中低NA水平<br>
+                    31-40分：中高NA水平<br>
+                    41-50分：高NA水平
+                </div>
+            </div>
+        </div>
+
+        <!-- 趋势分析图 -->
+        <div class="info-section">
+            <div class="info-header" onclick="toggleInfo('trend-analysis')">
+                <span>情感趋势分析</span>
+                <span class="arrow">▼</span>
+            </div>
+            <div id="trend-analysis" class="info-content">
+                <canvas id="trendChart" class="chart-container"></canvas>
+                <div id="chart-explanation" class="score-explanation"></div>
+            </div>
+        </div>
+
         <div id="questionnaire"></div>
         <button onclick="submitForm()">提交</button>
         <button onclick="exportData()">导出数据</button>
@@ -22,39 +177,38 @@
         <div id="history"></div>
     </div>
 
-<script>
-// PANAS量表结构
-const panasItems = [
-    { type: 'PA', text: '兴奋的' },
-    { type: 'PA', text: '自豪的' },
-    { type: 'PA', text: '充满热情的' },
-    { type: 'PA', text: '警觉的' },
-    { type: 'PA', text: '坚定的' },
-    { type: 'PA', text: '受鼓舞的' },
-    { type: 'PA', text: '专注的' },
-    { type: 'PA', text: '主动的' },
-    { type: 'PA', text: '坚强的' },
-    { type: 'PA', text: '感兴趣的' },
-    { type: 'NA', text: '恐惧的' },
-    { type: 'NA', text: '敌意的' },
-    { type: 'NA', text: '羞愧的' },
-    { type: 'NA', text: '紧张的' },
-    { type: 'NA', text: '愤怒的' },
-    { type: 'NA', text: '内疚的' },
-    { type: 'NA', text: '不安的' },
-    { type: 'NA', text: '烦躁的' },
-    { type: 'NA', text: '害怕的' },
-    { type: 'NA', text: '悲伤的' }
-];
-
-// 初始化问卷
-function initQuestionnaire() {
-    const container = document.getElementById('questionnaire');
-    panasItems.forEach((item, index) => {
-        const div = document.createElement('div');
-        div.className = 'question-group';
-        div.innerHTML = `
-            <div>${index+1}. ${item.text}</div>
+    <script>
+        // 原有的PANAS量表结构代码保持不变
+        const panasItems = [
+            { type: 'PA', text: '兴奋的' },
+            { type: 'PA', text: '自豪的' },
+            { type: 'PA', text: '充满热情的' },
+            { type: 'PA', text: '警觉的' },
+            { type: 'PA', text: '坚定的' },
+            { type: 'PA', text: '受鼓舞的' },
+            { type: 'PA', text: '专注的' },
+            { type: 'PA', text: '主动的' },
+            { type: 'PA', text: '坚强的' },
+            { type: 'PA', text: '感兴趣的' },
+            { type: 'NA', text: '恐惧的' },
+            { type: 'NA', text: '敌意的' },
+            { type: 'NA', text: '羞愧的' },
+            { type: 'NA', text: '紧张的' },
+            { type: 'NA', text: '愤怒的' },
+            { type: 'NA', text: '内疚的' },
+            { type: 'NA', text: '不安的' },
+            { type: 'NA', text: '烦躁的' },
+            { type: 'NA', text: '害怕的' },
+            { type: 'NA', text: '悲伤的' }
+        ];
+        // 初始化问卷
+        function initQuestionnaire() {
+            const container = document.getElementById('questionnaire');
+            panasItems.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'question-group';
+                div.innerHTML = `
+            <div>${index + 1}. ${item.text}</div>
             <div class="options">
                 <label class="option-label">
                     <input type="radio" name="q${index}" value="1"> 非常轻微
@@ -73,93 +227,272 @@ function initQuestionnaire() {
                 </label>
             </div>
         `;
-        container.appendChild(div);
-    });
-}
-
-// 保存到LocalStorage
-function saveRecord(data) {
-    const records = JSON.parse(localStorage.getItem('panasRecords') || '[]');
-    records.push(data);
-    localStorage.setItem('panasRecords', JSON.stringify(records));
-    showHistory();
-}
-
-// 提交表单
-function submitForm() {
-    const answers = [];
-    let paTotal = 0, naTotal = 0;
-    
-    panasItems.forEach((item, index) => {
-        const selected = document.querySelector(`input[name="q${index}"]:checked`);
-        if (!selected) {
-            alert('请完成所有题目！');
-            return;
+                container.appendChild(div);
+            });
         }
-        const value = parseInt(selected.value);
-        answers.push(value);
-        
-        if (item.type === 'PA') paTotal += value;
-        if (item.type === 'NA') naTotal += value;
-    });
+        // 保存到LocalStorage
+        function saveRecord(data) {
+            const records = JSON.parse(localStorage.getItem('panasRecords') || '[]');
+            records.push(data);
+            localStorage.setItem('panasRecords', JSON.stringify(records));
+            showHistory();
+        }
+        // 切换信息显示
+        function toggleInfo(id) {
+            const content = document.getElementById(id);
+            const arrow = content.previousElementSibling.querySelector('.arrow');
+            content.classList.toggle('active');
+            arrow.classList.toggle('active');
+        }
 
-    const record = {
-        timestamp: new Date().toISOString(),
-        answers: answers,
-        PA: paTotal,
-        NA: naTotal
-    };
-    
-    saveRecord(record);
-}
+        // 绘制趋势图
+        function drawChart() {
+            const records = JSON.parse(localStorage.getItem('panasRecords') || '[]');
+            if (records.length === 0) return;
 
-// 显示历史记录
-function showHistory() {
-    const records = JSON.parse(localStorage.getItem('panasRecords') || '[]');
-    const historyDiv = document.getElementById('history');
-    historyDiv.innerHTML = '<h3>历史记录</h3>';
-    
-    records.forEach(record => {
-        const date = new Date(record.timestamp).toLocaleString();
-        historyDiv.innerHTML += `
-            <div>${date} - PA: ${record.PA} | NA: ${record.NA}</div>
+            const canvas = document.getElementById('trendChart');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+
+            // 清空画布
+            ctx.clearRect(0, 0, width, height);
+
+            // 设置图表边距
+            const margin = 40;
+            const chartWidth = width - 2 * margin;
+            const chartHeight = height - 2 * margin;
+
+            // 找出PA和NA的最大值和最小值
+            let maxScore = 50;
+            let minScore = 10;
+
+            // 绘制坐标轴
+            ctx.beginPath();
+            ctx.moveTo(margin, margin);
+            ctx.lineTo(margin, height - margin);
+            ctx.lineTo(width - margin, height - margin);
+            ctx.stroke();
+
+            // 绘制PA曲线
+            ctx.beginPath();
+            ctx.strokeStyle = '#2196F3';
+            records.forEach((record, index) => {
+                const x = margin + (index * chartWidth / (records.length - 1));
+                const y = height - margin - ((record.PA - minScore) * chartHeight / (maxScore - minScore));
+                if (index === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+
+            // 绘制NA曲线
+            ctx.beginPath();
+            ctx.strokeStyle = '#F44336';
+            records.forEach((record, index) => {
+                const x = margin + (index * chartWidth / (records.length - 1));
+                const y = height - margin - ((record.NA - minScore) * chartHeight / (maxScore - minScore));
+                if (index === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+
+            // 添加图例
+            ctx.font = '12px Arial';
+            ctx.fillStyle = '#2196F3';
+            ctx.fillText('PA', width - margin - 50, margin + 20);
+            ctx.fillStyle = '#F44336';
+            ctx.fillText('NA', width - margin - 50, margin + 40);
+
+            // 更新分析说明
+            updateChartExplanation(records);
+        }
+
+        function updateChartExplanation(records) {
+            if (records.length < 2) {
+                document.getElementById('chart-explanation').innerHTML = '需要至少两次测评才能进行趋势分析。';
+                return;
+            }
+
+            const latestPA = records[records.length - 1].PA;
+            const latestNA = records[records.length - 1].NA;
+            const prevPA = records[records.length - 2].PA;
+            const prevNA = records[records.length - 2].NA;
+
+            let explanation = '<strong>最新趋势分析：</strong><br>';
+            explanation += `PA: ${getPATrend(latestPA, prevPA)}<br>`;
+            explanation += `NA: ${getNATrend(latestNA, prevNA)}`;
+
+            document.getElementById('chart-explanation').innerHTML = explanation;
+        }
+
+        function getPATrend(current, previous) {
+            if (current > previous) return '积极情感呈上升趋势，表明情绪状态有所改善';
+            if (current < previous) return '积极情感呈下降趋势，可能需要多关注积极体验';
+            return '积极情感保持稳定';
+        }
+
+        function getNATrend(current, previous) {
+            if (current > previous) return '消极情感呈上升趋势，建议关注压力管理';
+            if (current < previous) return '消极情感呈下降趋势，表明负面情绪有所缓解';
+            return '消极情感保持稳定';
+        }
+
+        // 修改提交表单函数
+        function submitForm() {
+            const answers = [];
+            let paTotal = 0, naTotal = 0;
+
+            panasItems.forEach((item, index) => {
+                const selected = document.querySelector(`input[name="q${index}"]:checked`);
+                if (!selected) {
+                    alert('请完成所有题目！');
+                    return;
+                }
+                const value = parseInt(selected.value);
+                answers.push(value);
+
+                if (item.type === 'PA') paTotal += value;
+                if (item.type === 'NA') naTotal += value;
+            });
+
+            const record = {
+                timestamp: new Date().toISOString(),
+                answers: answers,
+                PA: paTotal,
+                NA: naTotal
+            };
+
+            saveRecord(record);
+            // 提交后更新图表
+            drawChart();
+        }
+
+        function showHistory() {
+            const records = JSON.parse(localStorage.getItem('panasRecords') || '[]');
+            const historyDiv = document.getElementById('history');
+            historyDiv.innerHTML = '<h3>历史记录（点击展开详情）</h3>';
+
+            records.forEach((record, index) => {
+                const date = new Date(record.timestamp).toLocaleString();
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'history-item';
+                itemDiv.innerHTML = `
+                    <div class="history-header" onclick="toggleHistoryDetails(${index})">
+                        <span>${date} - PA: ${record.PA} | NA: ${record.NA}</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div id="history-detail-${index}" class="history-details" style="display: none;"></div>
+                `;
+                historyDiv.appendChild(itemDiv);
+                populateHistoryDetails(index, record);
+            });
+            drawChart();
+        }
+
+        // 新增函数：填充历史记录详情
+        function populateHistoryDetails(index, record) {
+            const detailDiv = document.getElementById(`history-detail-${index}`);
+            let detailsHtml = '<div class="analysis-section"><strong>详细分析：</strong>';
+
+            // PA分析
+            detailsHtml += `<div>积极情感(PA)分析：${getPAScoreExplanation(record.PA)}</div>`;
+            // NA分析
+            detailsHtml += `<div>消极情感(NA)分析：${getNAScoreExplanation(record.NA)}</div></div>`;
+
+            // 显示每个问题的回答
+            detailsHtml += '<div><strong>详细回答：</strong>';
+            panasItems.forEach((item, qIndex) => {
+                const answer = record.answers[qIndex];
+                const optionText = getOptionText(answer);
+                detailsHtml += `
+                    <div class="answer-detail">
+                        ${qIndex + 1}. ${item.text} ➔ ${optionText} (得分: ${answer})
+                    </div>
+                `;
+            });
+            detailsHtml += '</div>';
+
+            // 趋势分析（如果有前次记录）
+            if (index > 0) {
+                const prevRecord = JSON.parse(localStorage.getItem('panasRecords'))[index - 1];
+                detailsHtml += `
+                    <div class="analysis-section">
+                        <strong>趋势对比：</strong>
+                        <div>PA趋势：${getPATrend(record.PA, prevRecord.PA)}</div>
+                        <div>NA趋势：${getNATrend(record.NA, prevRecord.NA)}</div>
+                    </div>
+                `;
+            }
+
+            detailDiv.innerHTML = detailsHtml;
+        }
+
+        // 新增辅助函数
+        function toggleHistoryDetails(index) {
+            const detailDiv = document.getElementById(`history-detail-${index}`);
+            const arrow = detailDiv.previousElementSibling.querySelector('.arrow');
+            detailDiv.style.display = detailDiv.style.display === 'none' ? 'block' : 'none';
+            arrow.classList.toggle('active');
+        }
+
+        function getOptionText(value) {
+            const options = {
+                1: '非常轻微',
+                2: '轻微',
+                3: '中等',
+                4: '较强',
+                5: '极强'
+            };
+            return options[value] || '未选择';
+        }
+
+        function getPAScoreExplanation(score) {
+            if (score <= 20) return '极低PA水平（可能表现为悲伤和倦怠）';
+            if (score <= 30) return '低PA水平（建议增加积极活动）';
+            if (score <= 40) return '中等PA水平（保持良好状态）';
+            return '高PA水平（表现出良好的积极情绪）';
+        }
+
+        function getNAScoreExplanation(score) {
+            if (score <= 20) return '低NA水平（处于平静状态）';
+            if (score <= 30) return '中低NA水平（有轻微负面情绪）';
+            if (score <= 40) return '中高NA水平（需要关注情绪调节）';
+            return '高NA水平（建议寻求专业支持）';
+        }
+
+        // 修改后的PA/NA说明部分（在原有基础上增强）
+        const enhancedPAExplanation = `
+            <p>积极情感(PA)包含以下10个项目：兴奋的、自豪的、充满热情的、警觉的、坚定的、受鼓舞的、专注的、主动的、坚强的、感兴趣的。</p>
+            <p>每个项目得分1-5分，总分范围10-50分。建议通过以下方式提升PA：
+            <ul>
+                <li>进行有氧运动</li>
+                <li>参与社交活动</li>
+                <li>设定并完成小目标</li>
+            </ul>
+            </p>
         `;
-    });
-}
 
-// 导出数据为CSV
-function exportData() {
-    const records = JSON.parse(localStorage.getItem('panasRecords') || '[]');
-    if (records.length === 0) {
-        alert('没有可导出的数据');
-        return;
-    }
-    
-    // 创建CSV内容
-    let csv = '时间戳,PA总分,NA总分,各题答案\n';
-    records.forEach(record => {
-        csv += `${record.timestamp},${record.PA},${record.NA},"${record.answers.join(',')}"\n`;
-    });
-    
-    // 创建下载链接
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `panas_data_${new Date().toISOString().slice(0,10)}.csv`;
-    link.click();
-}
+        const enhancedNAExplanation = `
+            <p>消极情感(NA)包含以下10个项目：恐惧的、敌意的、羞愧的、紧张的、愤怒的、内疚的、不安的、烦躁的、害怕的、悲伤的。</p>
+            <p>每个项目得分1-5分，总分范围10-50分。建议通过以下方式降低NA：
+            <ul>
+                <li>练习正念冥想</li>
+                <li>进行情绪日记记录</li>
+                <li>寻求社会支持</li>
+            </ul>
+            </p>
+        `;
 
-// 清除记录
-function clearHistory() {
-    if (confirm('确定清除所有记录吗？')) {
-        localStorage.removeItem('panasRecords');
+        // 在页面初始化时更新说明内容
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('pa-info').innerHTML += enhancedPAExplanation;
+            document.getElementById('na-info').innerHTML += enhancedNAExplanation;
+        });
+
+        // 初始化
+        initQuestionnaire();
         showHistory();
-    }
-}
-
-// 初始化
-initQuestionnaire();
-showHistory();
-</script>
+    </script>
 </body>
+
 </html>
