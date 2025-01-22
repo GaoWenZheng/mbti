@@ -122,7 +122,64 @@
 <body>
     <div class="container">
         <h2>PANAS量表</h2>
+        <div class="info-section">
+            <div class="info-header" onclick="toggleInfo('instructions')">
+                <span>📝 使用说明（首次使用必读）</span>
+                <span class="arrow">▼</span>
+            </div>
+            <div id="instructions" class="info-content">
+                <div class="score-explanation">
+                    <h4>一、工具简介</h4>
+                    <p>本量表基于Watson等人开发的PANAS（积极与消极情感量表），用于测量您当前的情绪状态。包含20个情感词汇，分为：</p>
+                    <ul>
+                        <li>积极情感(PA)：10个项目，反映精力充沛程度</li>
+                        <li>消极情感(NA)：10个项目，反映主观困扰程度</li>
+                    </ul>
 
+                    <h4>二、操作指南</h4>
+                    <ol>
+                        <li>请根据<strong>此时此刻</strong>的真实感受作答</li>
+                        <li>每个题目从"非常轻微"到"极强"有5个选项：
+                            <div class="options" style="justify-content:start;gap:15px;margin:10px 0">
+                                <span>1→非常轻微</span>
+                                <span>3→中等</span>
+                                <span>5→极强</span>
+                            </div>
+                        </li>
+                        <li>完成所有20题后点击【提交】生成报告</li>
+                        <li>可随时通过【导出数据】备份记录</li>
+                    </ol>
+
+                    <h4>三、注意事项</h4>
+                    <ul>
+                        <li>❗ 数据存储在浏览器本地，清空缓存会丢失记录</li>
+                        <li>⏱ 建议在固定时间段（如每周一上午）定期测量</li>
+                        <li>💡 查看历史趋势可点击<em>情感趋势分析</em></li>
+                        <li>🔄 重新作答前请先提交当前记录</li>
+                    </ul>
+
+                    <h4>四、结果解读</h4>
+                    <div class="analysis-section">
+                        <p>典型得分模式示例：</p>
+                        <table border="1" style="width:100%;border-collapse:collapse;margin:10px 0">
+                            <tr>
+                                <th style="padding:8px">PA/NA组合</th>
+                                <th style="padding:8px">情绪状态</th>
+                            </tr>
+                            <tr>
+                                <td style="padding:8px">高PA + 低NA</td>
+                                <td style="padding:8px">最佳状态，充满活力</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:8px">低PA + 高NA</td>
+                                <td style="padding:8px">需要关注情绪健康</td>
+                            </tr>
+                        </table>
+                        <p>详细解释请展开<em>PA/NA说明</em>查看各分数段建议</p>
+                    </div>
+                </div>
+            </div>
+        </div>
         <!-- PA/NA说明部分 -->
         <div class="info-section">
             <div class="info-header" onclick="toggleInfo('pa-info')">
