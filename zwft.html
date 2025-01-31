@@ -1,0 +1,366 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>紫微斗数反推时辰</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f0f2f5;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .reference {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .reference ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .reference li {
+            margin-bottom: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #4a90e2;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #357abd;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .selected-stars {
+            margin-top: 10px;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>紫微斗数反推时辰</h1>
+        <!-- <div class="reference">
+            <ul>
+                <li>甲：廉破武阳</li>
+                <li>乙：机梁紫阴</li>
+                <li>丙：同机昌廉</li>
+                <li>丁：阴同机巨</li>
+                <li>戊：贪阴弼机</li>
+                <li>己：武贪梁曲</li>
+                <li>庚：阳武府同</li>
+                <li>辛：巨阳曲昌</li>
+                <li>壬：梁紫左武</li>
+                <li>癸：破巨阴贪</li>
+            </ul>
+        </div> -->
+        <div class="form-group">
+            <label for="fourStars">四化星组合（禄、权、科、忌）</label>
+            <select id="fourStars" onchange="updateSelectedStars()">
+                <option value="">请选择</option>
+                <option value="甲">廉破武阳</option>
+                <option value="乙">机梁紫阴</option>
+                <option value="丙">同机昌廉</option>
+                <option value="丁">阴同机巨</option>
+                <option value="戊">贪阴弼机</option>
+                <option value="己">武贪梁曲</option>
+                <option value="庚">阳武府同</option>
+                <option value="辛">巨阳曲昌</option>
+                <option value="壬">梁紫左武</option>
+                <option value="癸">破巨阴贪</option>
+            </select>
+            <div id="selectedStars" class="selected-stars"></div>
+        </div>
+        <div class="form-group">
+            <label>流年1岁地支</label>
+            <select id="liuNian">
+                <option value="">请选择</option>
+                <option value="子">子</option>
+                <option value="丑">丑</option>
+                <option value="寅">寅</option>
+                <option value="卯">卯</option>
+                <option value="辰">辰</option>
+                <option value="巳">巳</option>
+                <option value="午">午</option>
+                <option value="未">未</option>
+                <option value="申">申</option>
+                <option value="酉">酉</option>
+                <option value="戌">戌</option>
+                <option value="亥">亥</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>地劫宫位</label>
+            <select id="diJie">
+                <option value="">请选择</option>
+                <option value="子">子</option>
+                <option value="丑">丑</option>
+                <option value="寅">寅</option>
+                <option value="卯">卯</option>
+                <option value="辰">辰</option>
+                <option value="巳">巳</option>
+                <option value="午">午</option>
+                <option value="未">未</option>
+                <option value="申">申</option>
+                <option value="酉">酉</option>
+                <option value="戌">戌</option>
+                <option value="亥">亥</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>左辅宫位</label>
+            <select id="zuoFu">
+                <option value="">请选择</option>
+                <option value="子">子</option>
+                <option value="丑">丑</option>
+                <option value="寅">寅</option>
+                <option value="卯">卯</option>
+                <option value="辰">辰</option>
+                <option value="巳">巳</option>
+                <option value="午">午</option>
+                <option value="未">未</option>
+                <option value="申">申</option>
+                <option value="酉">酉</option>
+                <option value="戌">戌</option>
+                <option value="亥">亥</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>右弼宫位</label>
+            <select id="youBi">
+                <option value="">请选择</option>
+                <option value="子">子</option>
+                <option value="丑">丑</option>
+                <option value="寅">寅</option>
+                <option value="卯">卯</option>
+                <option value="辰">辰</option>
+                <option value="巳">巳</option>
+                <option value="午">午</option>
+                <option value="未">未</option>
+                <option value="申">申</option>
+                <option value="酉">酉</option>
+                <option value="戌">戌</option>
+                <option value="亥">亥</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>八座宫位</label>
+            <select id="baZuo">
+                <option value="">请选择</option>
+                <option value="子">子</option>
+                <option value="丑">丑</option>
+                <option value="寅">寅</option>
+                <option value="卯">卯</option>
+                <option value="辰">辰</option>
+                <option value="巳">巳</option>
+                <option value="午">午</option>
+                <option value="未">未</option>
+                <option value="申">申</option>
+                <option value="酉">酉</option>
+                <option value="戌">戌</option>
+                <option value="亥">亥</option>
+            </select>
+        </div>
+        <button onclick="calculate()">计算</button>
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        const starsMap = {
+            '甲': ['廉', '破', '武', '阳'],
+            '乙': ['机', '梁', '紫', '阴'],
+            '丙': ['同', '机', '昌', '廉'],
+            '丁': ['阴', '同', '机', '巨'],
+            '戊': ['贪', '阴', '弼', '机'],
+            '己': ['武', '贪', '梁', '曲'],
+            '庚': ['阳', '武', '府', '同'],
+            '辛': ['巨', '阳', '曲', '昌'],
+            '壬': ['梁', '紫', '左', '武'],
+            '癸': ['破', '巨', '阴', '贪']
+        };
+
+        function updateSelectedStars() {
+            const selectedGan = document.getElementById('fourStars').value;
+            const selectedStarsDiv = document.getElementById('selectedStars');
+            if (selectedGan) {
+                const stars = starsMap[selectedGan];
+                selectedStarsDiv.textContent = `选择的四化星：${stars.join('、')}`;
+            } else {
+                selectedStarsDiv.textContent = '';
+            }
+        }
+        const tiangan = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
+        const dizhi = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+
+        function getIndex(arr, value) {
+            return arr.indexOf(value);
+        }
+
+        function calculateTime(diJiePos) {
+            let count = 1;
+            let currentPos = getIndex(dizhi, '亥');
+            while (currentPos !== getIndex(dizhi, diJiePos)) {
+                currentPos = (currentPos + 1) % 12;
+                count++;
+            }
+            return count;
+        }
+
+        function calculateMonth(zuoFuPos) {
+            let count = 1;
+            let currentPos = getIndex(dizhi, '辰');
+            while (currentPos !== getIndex(dizhi, zuoFuPos)) {
+                currentPos = (currentPos + 1) % 12;
+                count++;
+            }
+            return count;
+        }
+
+        function calculateDay(baZuoPos,youBiPos) {
+            let count = 1;
+            let currentPos = getIndex(dizhi, youBiPos); // 右弼在戌宫
+            while (currentPos !== getIndex(dizhi, baZuoPos)) {
+                currentPos = (currentPos - 1 + 12) % 12;
+                count++;
+            }
+            return count;
+        }
+
+        function calculate() {
+            const fourStars = document.getElementById('fourStars').value;
+            const liuNian = document.getElementById('liuNian').value;
+            const diJie = document.getElementById('diJie').value;
+            const zuoFu = document.getElementById('zuoFu').value;
+            const youBi = document.getElementById('youBi').value;
+            const baZuo = document.getElementById('baZuo').value;
+            
+            if (!fourStars || !liuNian || !diJie || !zuoFu||!youBi || !baZuo) {
+                alert('请填写所有信息');
+                return;
+            }
+            const nianzhu = fourStars+liuNian;
+            const nianjiazi = (tiangan.indexOf(nianzhu[0])+10-dizhi.indexOf(nianzhu[1]))%10*6+dizhi.indexOf(nianzhu[1]);
+            console.log(nianjiazi)
+            const time = calculateTime(diJie);
+            const month = calculateMonth(zuoFu);
+            const day = calculateDay(baZuo,youBi);
+
+            const timeMap = {
+                1: '子', 2: '丑', 3: '寅', 4: '卯', 
+                5: '辰', 6: '巳', 7: '午', 8: '未',
+                9: '申', 10: '酉', 11: '戌', 12: '亥'
+            };
+
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `
+                <h3>计算结果(农历)：</h3>
+                <p>年柱：${fourStars+liuNian}</p>
+                <p>年份：${1984+nianjiazi}±60×X</p>
+                <p>出生月份：${month}月</p>
+                <p>出生日期：${day}日(+12,+24)</p>
+                 <p>出生时辰：${timeMap[time]}时</p>
+            `;
+        }
+    </script>
+<!-- Code injected by live-server -->
+<script>
+	// <![CDATA[  <-- For SVG support
+	if ('WebSocket' in window) {
+		(function () {
+			function refreshCSS() {
+				var sheets = [].slice.call(document.getElementsByTagName("link"));
+				var head = document.getElementsByTagName("head")[0];
+				for (var i = 0; i < sheets.length; ++i) {
+					var elem = sheets[i];
+					var parent = elem.parentElement || head;
+					parent.removeChild(elem);
+					var rel = elem.rel;
+					if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
+						var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
+						elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
+					}
+					parent.appendChild(elem);
+				}
+			}
+			var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+			var address = protocol + window.location.host + window.location.pathname + '/ws';
+			var socket = new WebSocket(address);
+			socket.onmessage = function (msg) {
+				if (msg.data == 'reload') window.location.reload();
+				else if (msg.data == 'refreshcss') refreshCSS();
+			};
+			if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
+				console.log('Live reload enabled.');
+				sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
+			}
+		})();
+	}
+	else {
+		console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
+	}
+	// ]]>
+</script>
+</body>
+</html>
