@@ -1,15 +1,13 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>五行十神查询系统</title>
+    <title>八字五行十神查询系统</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: "Microsoft YaHei", Arial, sans-serif;
+            font-family: "Microsoft YaHei", sans-serif;
         }
         
         body {
@@ -17,16 +15,15 @@
             color: #333;
             line-height: 1.6;
             padding: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
         }
         
         .container {
+            max-width: 1200px;
+            margin: 0 auto;
             background-color: #fff;
             border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
             padding: 30px;
-            margin-bottom: 20px;
         }
         
         h1 {
@@ -36,67 +33,135 @@
             font-size: 28px;
         }
         
-        h2 {
-            color: #444;
-            margin: 20px 0 15px;
-            padding-bottom: 8px;
+        .section {
+            margin-bottom: 30px;
             border-bottom: 1px solid #eee;
-            font-size: 22px;
+            padding-bottom: 20px;
         }
         
-        h3 {
-            color: #555;
-            margin: 15px 0 10px;
-            font-size: 18px;
+        .selector-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+            justify-content: center;
         }
         
-        .form-group {
-            margin-bottom: 20px;
+        .select-group {
+            display: flex;
+            flex-direction: column;
         }
         
         label {
-            display: block;
-            margin-bottom: 8px;
             font-weight: bold;
+            margin-bottom: 8px;
         }
         
         select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
+            padding: 10px 15px;
             border-radius: 5px;
-            font-size: 16px;
+            border: 1px solid #ddd;
             background-color: #fff;
+            font-size: 16px;
+            min-width: 150px;
         }
         
         button {
             background-color: #4a6fa5;
             color: white;
             border: none;
-            padding: 12px 20px;
-            font-size: 16px;
+            padding: 12px 25px;
             border-radius: 5px;
             cursor: pointer;
-            width: 100%;
+            font-size: 16px;
             transition: background-color 0.3s;
+            margin-top: 24px;
         }
         
         button:hover {
             background-color: #3a5a80;
         }
         
-        .result {
-            margin-top: 30px;
+        .results {
             display: none;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            padding: 20px;
-            border-left: 4px solid #4a6fa5;
+            margin-top: 30px;
         }
         
-        .table-container {
-            overflow-x: auto;
-            margin: 20px 0;
+        .card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            background-color: #4a6fa5;
+            color: white;
+            padding: 15px 20px;
+            font-weight: bold;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        .sub-title {
+            color: #4a6fa5;
+            margin: 15px 0 10px;
+            font-weight: bold;
+            border-left: 4px solid #4a6fa5;
+            padding-left: 10px;
+        }
+        
+        .detail-group {
+            margin-bottom: 15px;
+        }
+        
+        .detail-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        
+        .tag-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .tag {
+            background-color: #f0f4f8;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-size: 14px;
+            color: #4a6fa5;
+        }
+        
+        .tag.metal {
+            background-color: #f0f0f0;
+            color: #7d7d7d;
+        }
+        
+        .tag.wood {
+            background-color: #e8f5e9;
+            color: #388e3c;
+        }
+        
+        .tag.water {
+            background-color: #e1f5fe;
+            color: #0288d1;
+        }
+        
+        .tag.fire {
+            background-color: #ffebee;
+            color: #d32f2f;
+        }
+        
+        .tag.earth {
+            background-color: #fff8e1;
+            color: #ffb300;
         }
         
         table {
@@ -108,1007 +173,1683 @@
         th, td {
             padding: 12px 15px;
             text-align: left;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid #eee;
         }
         
         th {
-            background-color: #f2f2f2;
+            background-color: #f5f5f5;
             font-weight: bold;
         }
         
         tr:hover {
-            background-color: #f5f5f5;
-        }
-        
-        .element-wood {
-            color: #2e8b57;
-        }
-        
-        .element-fire {
-            color: #ff4500;
-        }
-        
-        .element-earth {
-            color: #cd853f;
-        }
-        
-        .element-metal {
-            color: #a9a9a9;
-        }
-        
-        .element-water {
-            color: #4682b4;
-        }
-        
-        .section {
-            margin-bottom: 25px;
-            background-color: #fff;
-            border-radius: 8px;
-            padding: 15px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-        }
-        
-        .toggle-btn {
-            background-color: #eee;
-            color: #333;
-            border: none;
-            padding: 8px 15px;
-            font-size: 14px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        
-        .toggle-content {
-            display: none;
-            margin-top: 10px;
-            padding: 10px;
             background-color: #f9f9f9;
+        }
+        
+        .relationship-table td {
+            padding: 8px 12px;
+        }
+        
+        .shenshaDetail {
+            margin-top: 15px;
+            background-color: #f9f9f9;
+            padding: 15px;
             border-radius: 5px;
         }
         
-        .active {
-            display: block;
+        .abstract, .concrete {
+            margin-top: 10px;
         }
         
-        .tabs {
+        .table-container {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        
+        .table-container table {
+            min-width: 800px;
+        }
+        
+        .tab-container {
+            margin-top: 20px;
+        }
+        
+        .tab-nav {
             display: flex;
-            flex-wrap: wrap;
-            margin-bottom: 15px;
             border-bottom: 1px solid #ddd;
         }
         
-        .tab {
+        .tab-button {
             padding: 10px 20px;
-            cursor: pointer;
-            background-color: #f1f1f1;
+            background-color: #f5f5f5;
             border: 1px solid #ddd;
             border-bottom: none;
-            margin-right: 5px;
             border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+            cursor: pointer;
         }
         
-        .tab.active {
-            background-color: #fff;
-            border-bottom: 1px solid #fff;
-            margin-bottom: -1px;
+        .tab-button.active {
+            background-color: #4a6fa5;
+            color: white;
+            border-color: #4a6fa5;
         }
         
         .tab-content {
             display: none;
-            padding: 15px;
+            padding: 20px;
             border: 1px solid #ddd;
             border-top: none;
-            border-radius: 0 0 5px 5px;
         }
         
         .tab-content.active {
             display: block;
         }
-
-        .key-point {
-            font-weight: bold;
-            color: #d35400;
-        }
-
-        .note {
-            font-style: italic;
-            color: #777;
-            margin: 10px 0;
-        }
-
-        .analysis {
-            margin: 15px 0;
-            padding: 10px;
-            background-color: #f9f9f9;
-            border-radius: 5px;
-            border-left: 3px solid #3498db;
-        }
-
+        
         @media (max-width: 768px) {
-            .container {
-                padding: 15px;
+            .selector-area {
+                flex-direction: column;
             }
             
-            h1 {
-                font-size: 24px;
+            select {
+                width: 100%;
             }
             
-            h2 {
-                font-size: 20px;
-            }
-            
-            table {
-                font-size: 14px;
-            }
-            
-            th, td {
-                padding: 8px 10px;
+            button {
+                width: 100%;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>五行十神查询与分析系统</h1>
+        <h1>八字五行十神查询与分析系统</h1>
         
-        <div class="form-group">
-            <label for="day-master">选择日主（您的日干）：</label>
-            <select id="day-master">
-                <option value="">请选择</option>
-                <option value="jiaMu">甲木</option>
-                <option value="yiMu">乙木</option>
-                <option value="bingHuo">丙火</option>
-                <option value="dingHuo">丁火</option>
-                <option value="wuTu">戊土</option>
-                <option value="jiTu">己土</option>
-                <option value="gengJin">庚金</option>
-                <option value="xinJin">辛金</option>
-                <option value="renShui">壬水</option>
-                <option value="guiShui">癸水</option>
-            </select>
+        <div class="section">
+            <p>本系统通过严谨推导，详细分析日主五行特性与十神关系，融合自然象征与现实意义，全面解读命理本质。</p>
         </div>
         
-        <button id="query-btn">查询分析</button>
+        <div class="selector-area">
+            <div class="select-group">
+                <label for="rizhuSelector">选择日主</label>
+                <select id="rizhuSelector">
+                    <option value="">请选择...</option>
+                    <option value="甲">甲木</option>
+                    <option value="乙">乙木</option>
+                    <option value="丙">丙火</option>
+                    <option value="丁">丁火</option>
+                    <option value="戊">戊土</option>
+                    <option value="己">己土</option>
+                    <option value="庚">庚金</option>
+                    <option value="辛">辛金</option>
+                    <option value="壬">壬水</option>
+                    <option value="癸">癸水</option>
+                </select>
+            </div>
+            
+            <div class="select-group">
+                <label for="targetSelector">选择查询对象</label>
+                <select id="targetSelector">
+                    <option value="">请选择...</option>
+                    <option value="甲">甲木</option>
+                    <option value="乙">乙木</option>
+                    <option value="丙">丙火</option>
+                    <option value="丁">丁火</option>
+                    <option value="戊">戊土</option>
+                    <option value="己">己土</option>
+                    <option value="庚">庚金</option>
+                    <option value="辛">辛金</option>
+                    <option value="壬">壬水</option>
+                    <option value="癸">癸水</option>
+                </select>
+            </div>
+            
+            <button id="queryBtn">查询分析</button>
+        </div>
         
-        <div id="result" class="result">
-            <div class="tabs">
-                <div class="tab active" data-tab="day-master-info">日主特性</div>
-                <div class="tab" data-tab="ten-gods">十神分析</div>
-                <div class="tab" data-tab="relationships">五行关系</div>
-                <div class="tab" data-tab="applications">实际应用</div>
+        <div class="tab-container">
+            <div class="tab-nav">
+                <div class="tab-button active" data-tab="tab-query">查询结果</div>
+                <div class="tab-button" data-tab="tab-matrix">十神关系矩阵</div>
+                <div class="tab-button" data-tab="tab-theory">理论基础</div>
             </div>
             
-            <div id="day-master-info" class="tab-content active">
-                <h2>日主基本特性分析</h2>
-                <div id="day-master-details"></div>
+            <div class="tab-content active" id="tab-query">
+                <div id="results" class="results">
+                    <div class="card">
+                        <div class="card-header" id="resultHeader">
+                            日主五行特性与十神关系分析
+                        </div>
+                        <div class="card-body">
+                            <div id="rizhuInfo">
+                                <!-- 日主信息将由JavaScript动态生成 -->
+                            </div>
+                            
+                            <h3 class="sub-title">十神关系</h3>
+                            <div id="shenshaInfo">
+                                <!-- 十神关系信息将由JavaScript动态生成 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             
-            <div id="ten-gods" class="tab-content">
-                <h2>十神详细分析</h2>
-                <div id="ten-gods-details"></div>
+            <div class="tab-content" id="tab-matrix">
+                <h3 class="sub-title">十神关系完整对应表</h3>
+                <p>此表展示了不同日主天干遇到各种天干时形成的十神关系</p>
+                
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>日主\天干</th>
+                                <th>甲木</th>
+                                <th>乙木</th>
+                                <th>丙火</th>
+                                <th>丁火</th>
+                                <th>戊土</th>
+                                <th>己土</th>
+                                <th>庚金</th>
+                                <th>辛金</th>
+                                <th>壬水</th>
+                                <th>癸水</th>
+                            </tr>
+                        </thead>
+                        <tbody id="matrixTable">
+                            <!-- 矩阵表格将由JavaScript生成 -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
             
-            <div id="relationships" class="tab-content">
-                <h2>五行相生相克关系</h2>
-                <div id="relationship-details"></div>
-            </div>
-            
-            <div id="applications" class="tab-content">
-                <h2>实际应用与指导</h2>
-                <div id="application-details"></div>
+            <div class="tab-content" id="tab-theory">
+                <h3 class="sub-title">十神理论基础</h3>
+                <div class="detail-group">
+                    <p>十神理论是八字命理中的核心概念，是天干之间相互作用的具体表现，通过五行生克关系和阴阳属性共同决定。</p>
+                </div>
+                
+                <h3 class="sub-title">十神的定义与推导</h3>
+                <div class="detail-group">
+                    <p>十神包括：比肩、劫财、偏印、正印、食神、伤官、偏财、正财、七杀、正官。</p>
+                    <p>这十种关系是通过五行生克关系（生、克、被生、被克、比和）结合天干阴阳属性（阴干、阳干）推导而来。</p>
+                    
+                    <div class="table-container">
+                        <table>
+                            <tbody><tr>
+                                <th>关系类型</th>
+                                <th>五行关系</th>
+                                <th>阳干</th>
+                                <th>阴干</th>
+                            </tr>
+                            <tr>
+                                <td>同类</td>
+                                <td>比和</td>
+                                <td>比肩</td>
+                                <td>劫财</td>
+                            </tr>
+                            <tr>
+                                <td>我生</td>
+                                <td>生</td>
+                                <td>食神</td>
+                                <td>伤官</td>
+                            </tr>
+                            <tr>
+                                <td>我克</td>
+                                <td>克</td>
+                                <td>偏财</td>
+                                <td>正财</td>
+                            </tr>
+                            <tr>
+                                <td>克我</td>
+                                <td>被克</td>
+                                <td>七杀</td>
+                                <td>正官</td>
+                            </tr>
+                            <tr>
+                                <td>生我</td>
+                                <td>被生</td>
+                                <td>偏印</td>
+                                <td>正印</td>
+                            </tr>
+                        </tbody></table>
+                    </div>
+                </div>
+                
+                <h3 class="sub-title">十神性质总结</h3>
+                <div class="detail-group" id="shenshaExplain">
+                    <!-- 十神解释将由JavaScript生成 -->
+                </div>
             </div>
         </div>
     </div>
-
+    
     <script>
-        // 五行基本特性数据
-        const elementData = {
-            wood: {
-                name: "木",
-                nature: "生发、向上、伸展",
-                season: "春季",
-                direction: "东方",
-                color: "青绿色",
-                taste: "酸",
-                shape: "长条形、柱形",
-                traits: "仁爱、创新、灵活、进取",
-                body: "肝胆、筋脉、眼睛",
-                emotions: "怒",
-                virtues: "仁",
-                weather: "风",
-                phases: "生长期",
-                objects: "树木、植物、木制品、纤维",
-                career: "文学、教育、法律、创意、环保、农林",
-                detailed: "木代表生命力和成长，如春天抽出的新芽，充满无限生机和动力。木的能量是向上攀升、四处伸展的，象征着勃勃生机和不断扩张的力量。"
-            },
-            fire: {
-                name: "火",
-                nature: "上升、热烈、光明",
-                season: "夏季",
-                direction: "南方",
-                color: "红色",
-                taste: "苦",
-                shape: "尖锐形、三角形",
-                traits: "热情、直觉、活力、表达力强",
-                body: "心脏、小肠、脉搏、面色",
-                emotions: "喜",
-                virtues: "礼",
-                weather: "热",
-                phases: "成熟期",
-                objects: "照明、电器、熔炉、太阳、热源",
-                career: "演艺、营销、公关、餐饮、心理咨询",
-                detailed: "火代表热量和光明，如夏日的烈阳，温暖而明亮。火的能量是向上蔓延和外放的，象征着热情、活力和变化。火能照亮黑暗，也能燃烧一切，既有创造力也有破坏力。"
-            },
-            earth: {
-                name: "土",
-                nature: "稳定、包容、中正",
-                season: "四季末月或季末",
-                direction: "中央",
-                color: "黄色",
-                taste: "甘甜",
-                shape: "方形、平面",
-                traits: "稳重、实际、可靠、保守",
-                body: "脾胃、肌肉、嘴唇",
-                emotions: "思",
-                virtues: "信",
-                weather: "湿",
-                phases: "转化期",
-                objects: "泥土、陶瓷、建筑物、山脉、田地",
-                career: "农业、房地产、建筑、行政、服务业",
-                detailed: "土代表稳定和承载，如大地孕育万物，给予一切生命支持和养分。土的能量是厚重、包容的，象征着稳定性和丰收。土既可以被其他元素塑造，也能成为万物的基础。"
-            },
-            metal: {
-                name: "金",
-                nature: "收敛、锐利、坚固",
-                season: "秋季",
-                direction: "西方",
-                color: "白色",
-                taste: "辛辣",
-                shape: "圆形、弧形",
-                traits: "刚毅、决断、公正、秩序感强",
-                body: "肺、大肠、皮肤、鼻子",
-                emotions: "忧",
-                virtues: "义",
-                weather: "燥",
-                phases: "收获期",
-                objects: "金属制品、货币、武器、珠宝、机械",
-                career: "金融、军警、司法、工程、机械制造",
-                detailed: "金代表坚硬和收敛，如秋天里成熟的果实和落叶。金的能量是内敛、精确和锐利的，象征着纪律和条理。金能切割和塑造其他元素，也代表着价值和纯度。"
-            },
-            water: {
-                name: "水",
-                nature: "向下、流动、柔韧",
-                season: "冬季",
-                direction: "北方",
-                color: "黑色/蓝色",
-                taste: "咸",
-                shape: "波浪形、不规则",
-                traits: "聪慧、灵活、沟通力强、适应性好",
-                body: "肾、膀胱、耳朵、骨髓",
-                emotions: "恐",
-                virtues: "智",
-                weather: "寒",
-                phases: "潜藏期",
-                objects: "江河湖海、饮料、液体、墨水",
-                career: "学术、研究、哲学、航运、贸易、外交",
-                detailed: "水代表流动和适应，如冬天的雪水渗入地下，孕育新生。水的能量是向下渗透和包容的，象征着智慧和柔韧。水能适应任何容器的形状，既能滋养生命，也能无坚不摧。"
-            }
-        };
+        document.addEventListener('DOMContentLoaded', function() {
+            // 五行特性数据库
+            const wuxingData = {
+                // 木
+                "甲": {
+                    element: "木",
+                    yangYin: "阳",
+                    nature: "阳木如直立挺拔的树干，向上生长",
+                    character: "刚健、正直、勇往直前",
+                    abstract: {
+                        characteristics: ["正直", "开创", "进取", "理想主义", "开拓"],
+                        strengths: ["决断力强", "有领导才能", "坚韧不拔", "注重道义", "富有理想"],
+                        weaknesses: ["固执", "缺乏灵活性", "好高骛远", "不够圆融"],
+                        relationships: ["重视纪律", "注重家族", "以理性处事", "重视目标和原则"],
+                        career: ["管理", "军事", "法律", "行政", "教育"]
+                    },
+                    concrete: {
+                        appearance: ["身形高大挺拔", "骨骼健壮", "面相方正"],
+                        health: ["肝胆系统", "筋骨", "易肝火旺", "容易头痛眼疾"],
+                        lifeStyle: ["积极进取", "喜欢规划", "注重原则", "生活有条理"],
+                        fortune: ["事业稳步发展", "经济以稳健为主", "适合长期投资"]
+                    },
+                    naturalSymbols: ["树干", "竹", "高山", "长江", "东方"]
+                },
+                "乙": {
+                    element: "木",
+                    yangYin: "阴",
+                    nature: "阴木如藤蔓花草，柔韧灵活，顺势而生",
+                    character: "柔和、灵活、随机应变",
+                    abstract: {
+                        characteristics: ["柔韧", "灵活", "富有创意", "善于应变", "感性"],
+                        strengths: ["观察力敏锐", "善解人意", "富有艺术气质", "乐于奉献", "适应性强"],
+                        weaknesses: ["优柔寡断", "情绪化", "缺乏主见", "过于敏感"],
+                        relationships: ["重视亲情", "注重关系协调", "感情丰富", "善于交际"],
+                        career: ["艺术", "设计", "医疗", "人文", "服务业"]
+                    },
+                    concrete: {
+                        appearance: ["身形偏瘦挺拔", "面容秀气", "气质文雅"],
+                        health: ["肝胆系统", "神经系统", "易情绪波动", "容易失眠"],
+                        lifeStyle: ["生活讲究品位", "重视人际关系", "适应环境能力强"],
+                        fortune: ["机遇与变化并存", "财运波动", "适合灵活多变的投资"]
+                    },
+                    naturalSymbols: ["花草", "藤蔓", "绿叶", "风", "晓雾"]
+                },
+                // 火
+                "丙": {
+                    element: "火",
+                    yangYin: "阳",
+                    nature: "阳火如烈日当空，光明磊落",
+                    character: "热情、光明、积极向上",
+                    abstract: {
+                        characteristics: ["热情", "开朗", "光明磊落", "活力充沛", "追求卓越"],
+                        strengths: ["魅力四射", "领导能力强", "充满活力", "思维敏捷", "乐观向上"],
+                        weaknesses: ["急躁", "自我", "缺乏耐心", "易冲动"],
+                        relationships: ["热情奔放", "善于表达", "喜欢社交", "重视声望"],
+                        career: ["表演", "管理", "销售", "公关", "政治"]
+                    },
+                    concrete: {
+                        appearance: ["面色红润", "动作敏捷", "气质阳光", "精力充沛"],
+                        health: ["心脏系统", "血液循环", "易心火旺", "容易面红耳赤"],
+                        lifeStyle: ["生活热情", "活动丰富", "喜欢社交", "注重形象"],
+                        fortune: ["事业发展迅速", "财运起伏大", "适合冒险性投资"]
+                    },
+                    naturalSymbols: ["太阳", "火焰", "闪电", "烈日", "南方"]
+                },
+                "丁": {
+                    element: "火",
+                    yangYin: "阴",
+                    nature: "阴火如灯烛之火，温暖内敛",
+                    character: "温和、细腻、内敛",
+                    abstract: {
+                        characteristics: ["温和", "细腻", "内敛", "感性", "亲和力强"],
+                        strengths: ["情感丰富", "洞察力强", "亲和力佳", "善解人意", "精致细腻"],
+                        weaknesses: ["多愁善感", "缺乏决断", "情绪化", "容易疲惫"],
+                        relationships: ["重视情感", "注重内在联系", "善于倾听", "富有同情心"],
+                        career: ["艺术", "文学", "心理咨询", "护理", "设计"]
+                    },
+                    concrete: {
+                        appearance: ["面色红润柔和", "举止优雅", "气质温婉"],
+                        health: ["心脏", "小肠", "情绪易波动", "容易失眠"],
+                        lifeStyle: ["生活讲究", "注重情调", "重视个人感受", "喜爱艺术"],
+                        fortune: ["财运平稳", "事业进展依靠贵人", "适合稳健投资"]
+                    },
+                    naturalSymbols: ["烛光", "晚霞", "灯火", "温泉", "星光"]
+                },
+                // 土
+                "戊": {
+                    element: "土",
+                    yangYin: "阳",
+                    nature: "阳土如高山厚土，稳重踏实",
+                    character: "稳重、忠诚、坚守",
+                    abstract: {
+                        characteristics: ["稳重", "可靠", "踏实", "忠诚", "实际"],
+                        strengths: ["责任感强", "处事稳健", "意志坚定", "忠诚可靠", "勤勉务实"],
+                        weaknesses: ["固执", "保守", "墨守成规", "反应迟缓"],
+                        relationships: ["重视责任", "注重家庭", "忠诚稳定", "处事公正"],
+                        career: ["农业", "建筑", "行政管理", "金融", "房地产"]
+                    },
+                    concrete: {
+                        appearance: ["体形壮实", "骨骼粗大", "面相方正", "步伐稳健"],
+                        health: ["脾胃系统", "肌肉", "易湿热", "容易消化不良"],
+                        lifeStyle: ["生活规律", "注重实际", "勤俭持家", "讲究实用"],
+                        fortune: ["事业稳健发展", "财运积累缓慢但稳固", "适合传统行业投资"]
+                    },
+                    naturalSymbols: ["高山", "黄土", "田野", "大地", "中央"]
+                },
+                "己": {
+                    element: "土",
+                    yangYin: "阴",
+                    nature: "阴土如平原沃土，温和包容",
+                    character: "温和、包容、滋养",
+                    abstract: {
+                        characteristics: ["温和", "包容", "细致", "持久", "善良"],
+                        strengths: ["人缘好", "善解人意", "包容力强", "谦虚和善", "富有耐心"],
+                        weaknesses: ["缺乏主见", "优柔寡断", "太过重视他人看法", "过于谨慎"],
+                        relationships: ["重视和谐", "注重人情世故", "温柔体贴", "善于调和"],
+                        career: ["服务业", "教育", "医疗", "社会工作", "烹饪"]
+                    },
+                    concrete: {
+                        appearance: ["体态丰满", "面色黄润", "动作温和", "态度和善"],
+                        health: ["脾胃", "消化系统", "易湿滞", "容易水肿"],
+                        lifeStyle: ["生活温和", "注重和谐", "善于持家", "讲究中庸"],
+                        fortune: ["事业发展平稳", "财运稳定增长", "适合稳健保守型投资"]
+                    },
+                    naturalSymbols: ["沃土", "平原", "田园", "壤泥", "陶土"]
+                },
+                // 金
+                "庚": {
+                    element: "金",
+                    yangYin: "阳",
+                    nature: "阳金如刚剑利器，坚硬锋利",
+                    character: "刚毅、果断、坚韧",
+                    abstract: {
+                        characteristics: ["果断", "刚毅", "正直", "公正", "果敢"],
+                        strengths: ["决断力强", "正义感强", "执行力佳", "条理分明", "遵守规则"],
+                        weaknesses: ["固执", "武断", "过于严厉", "缺乏变通"],
+                        relationships: ["重视公正", "注重原则", "期望高", "言出必行"],
+                        career: ["军事", "司法", "金融", "工程", "执法"]
+                    },
+                    concrete: {
+                        appearance: ["体形健硕", "眉目清秀", "气质刚毅", "举止干练"],
+                        health: ["肺部", "大肠", "皮肤", "易燥", "容易呼吸系统问题"],
+                        lifeStyle: ["生活有条理", "注重效率", "严格自律", "追求完美"],
+                        fortune: ["事业发展迅速", "财运波动", "适合果断决策型投资"]
+                    },
+                    naturalSymbols: ["利剑", "钢铁", "金属器具", "山峰", "西方"]
+                },
+                "辛": {
+                    element: "金",
+                    yangYin: "阴",
+                    nature: "阴金如首饰珠宝，华美精致",
+                    character: "优雅、精致、灵活",
+                    abstract: {
+                        characteristics: ["优雅", "精致", "敏锐", "灵活", "善于表达"],
+                        strengths: ["审美能力强", "观察力敏锐", "适应力佳", "善于沟通", "具有艺术才华"],
+                        weaknesses: ["过于敏感", "情绪化", "过于讲究", "容易焦虑"],
+                        relationships: ["重视品质", "注重感受", "善于交际", "优雅得体"],
+                        career: ["设计", "艺术", "时尚", "媒体", "外交"]
+                    },
+                    concrete: {
+                        appearance: ["身材修长", "五官精致", "气质优雅", "举止得体"],
+                        health: ["肺", "皮肤", "易伤感", "容易过敏"],
+                        lifeStyle: ["生活精致", "注重品质", "追求美感", "喜欢社交"],
+                        fortune: ["事业依靠人脉发展", "财运稳健", "适合小众精品投资"]
+                    },
+                    naturalSymbols: ["珠宝", "金饰", "白露", "秋风", "霜"]
+                },
+                // 水
+                "壬": {
+                    element: "水",
+                    yangYin: "阳",
+                    nature: "阳水如江河奔流，势不可挡",
+                    character: "智慧、变通、进取",
+                    abstract: {
+                        characteristics: ["智慧", "变通", "进取", "创新", "冒险"],
+                        strengths: ["思维敏捷", "变通能力强", "创新精神", "冒险精神", "善于谋划"],
+                        weaknesses: ["浮躁", "缺乏持久性", "善变", "过于冒险"],
+                        relationships: ["重视自由", "注重智慧", "追求刺激", "喜欢变化"],
+                        career: ["科研", "IT", "投资", "探险", "学术"]
+                    },
+                    concrete: {
+                        appearance: ["体态灵活", "目光敏锐", "气质洒脱", "行动迅速"],
+                        health: ["肾脏", "膀胱", "耳朵", "易肾虚", "容易腰痛"],
+                        lifeStyle: ["生活多变", "追求新奇", "喜欢冒险", "思想前卫"],
+                        fortune: ["事业发展多变", "财运波动大", "适合高风险高回报投资"]
+                    },
+                    naturalSymbols: ["江河", "瀑布", "海洋", "暴雨", "北方"]
+                },
+                "癸": {
+                    element: "水",
+                    yangYin: "阴",
+                    nature: "阴水如云雾甘霖，滋润万物",
+                    character: "温润、含蓄、滋养",
+                    abstract: {
+                        characteristics: ["温润", "含蓄", "聪慧", "敏感", "深沉"],
+                        strengths: ["思考深入", "洞察力强", "情感丰富", "适应力强", "善于倾听"],
+                        weaknesses: ["情绪波动", "过于内敛", "缺乏决断", "忧虑过多"],
+                        relationships: ["重视内心", "注重情感", "善解人意", "深情厚谊"],
+                        career: ["心理学", "文学", "哲学", "艺术", "咨询"]
+                    },
+                    concrete: {
+                        appearance: ["身材柔韧", "面容清秀", "气质温和", "举止文雅"],
+                        health: ["肾", "生殖系统", "易怕冷", "容易抑郁"],
+                        lifeStyle: ["生活安静", "内心丰富", "追求内涵", "喜欢思考"],
+                        fortune: ["事业稳步发展", "财运循序渐进", "适合长线投资"]
+                    },
+                    naturalSymbols: ["细雨", "露水", "云雾", "小溪", "湖泊"]
+                }
+            };
+            
+            // 五行生克关系
+            const wuxingRelations = {
+                "木": {
+                    "木": "比和",
+                    "火": "生",
+                    "土": "克",
+                    "金": "被克",
+                    "水": "被生"
+                },
+                "火": {
+                    "木": "被生",
+                    "火": "比和",
+                    "土": "生",
+                    "金": "克",
+                    "水": "被克"
+                },
+                "土": {
+                    "木": "被克",
+                    "火": "被生",
+                    "土": "比和",
+                    "金": "生",
+                    "水": "克"
+                },
+                "金": {
+                    "木": "克",
+                    "火": "被克",
+                    "土": "被生",
+                    "金": "比和",
+                    "水": "生"
+                },
+                "水": {
+                    "木": "生",
+                    "火": "克",
+                    "土": "被克",
+                    "金": "被生",
+                    "水": "比和"
+                }
+            };
 
-        // 天干特性数据
-        const tianganData = {
-            jia: {
-                name: "甲",
-                element: "木",
-                yin_yang: "阳",
-                special: "阳木如参天大树，代表刚直不阿、挺拔向上、勇往直前的特质。",
-                character: "甲木性刚，如青松翠柏，生机勃勃，代表正直坚强的品格，有领导力和开拓精神。个性外向开朗，有较强的进取心，敢于冒险，但有时显得固执己见。",
-                career: "适合需要决策能力和领导力的工作，如管理、创业、法律等。",
-                symbolism: "甲象征新生和开始，如种子破土而出，充满无限可能。在古代，甲也是铠甲的代表，象征保护和防御。"
-            },
-            yi: {
-                name: "乙",
-                element: "木",
-                yin_yang: "阴",
-                special: "阴木如藤蔓花草，代表柔韧灵活、缠绵不断、适应性强的特质。",
-                character: "乙木性柔，如垂柳花草，柔韧而有韧性，代表温和谦逊的品格，有艺术气质和审美能力。个性内敛温和，善解人意，富有同情心，但有时会过于敏感和优柔寡断。",
-                career: "适合需要创意和人际沟通的工作，如设计、教育、心理咨询等。",
-                symbolism: "乙象征生长和延续，如藤蔓攀爬生长，柔韧而坚韧。在传统文化中，乙也象征着婉约之美和内在气质。"
-            },
-            bing: {
-                name: "丙",
-                element: "火",
-                yin_yang: "阳",
-                special: "阳火如烈日当空，代表光明磊落、热情奔放、充满活力的特质。",
-                character: "丙火性烈，如太阳火炬，光明热情，代表开朗豪迈的品格，有感染力和表现欲。个性活泼外向，充满激情，乐观积极，但有时容易冲动和急躁。",
-                career: "适合需要创造力和表现力的工作，如演艺、销售、营销等。",
-                symbolism: "丙象征光明和热量，如太阳普照大地，带来光明和温暖。在传统文化中，丙火也象征智慧之光和精神力量。"
-            },
-            ding: {
-                name: "丁",
-                element: "火",
-                yin_yang: "阴",
-                special: "阴火如灯烛之光，代表温暖内敛、明慧细腻、照人心房的特质。",
-                character: "丁火性温，如烛光灯火，温和而持久，代表细腻敏感的品格，有洞察力和同理心。个性温婉内敛，情感丰富，善于关怀他人，但有时显得犹豫不决。",
-                career: "适合需要细心和关怀的工作，如医护、服务、文学创作等。",
-                symbolism: "丁象征内在的温暖和光明，如灯火照亮黑夜，给人指引和慰藉。在传统文化中，丁火也象征家庭温暖和情感纽带。"
-            },
-            wu: {
-                name: "戊",
-                element: "土",
-                yin_yang: "阳",
-                special: "阳土如高山厚土，代表坚固稳重、厚德载物、中流砥柱的特质。",
-                character: "戊土性厚，如山岳大地，坚实而广阔，代表踏实稳重的品格，有责任感和忠诚度。个性朴实诚恳，脚踏实地，重视传统，但有时显得固执保守。",
-                career: "适合需要责任感和稳定性的工作，如行政、农业、建筑等。",
-                symbolism: "戊象征稳定和支撑，如高山屹立不动，给人依靠和安全感。在传统文化中，戊土也象征中央之位和社会稳定。"
-            },
-            ji: {
-                name: "己",
-                element: "土",
-                yin_yang: "阴",
-                special: "阴土如沃野良田，代表温润肥沃、包容滋养、生生不息的特质。",
-                character: "己土性柔，如肥沃田园，温和而富饶，代表包容宽厚的品格，有耐心和亲和力。个性温和可亲，为人和善，善于照顾他人，但有时过于顺从。",
-                career: "适合需要耐心和服务精神的工作，如餐饮、教育、护理等。",
-                symbolism: "己象征包容和滋养，如良田孕育万物，给予生命养分。在传统文化中，己土也象征母性关怀和家庭和睦。"
-            },
-            geng: {
-                name: "庚",
-                element: "金",
-                yin_yang: "阳",
-                special: "阳金如利剑精钢，代表刚毅果断、正直不阿、锋芒毕露的特质。",
-                character: "庚金性刚，如刀剑利器，锐利而强韧，代表刚毅果断的品格，有原则性和公正感。个性直率坦诚，做事有条理，重视纪律，但有时显得固执和刻板。",
-                career: "适合需要纪律性和执行力的工作，如军警、金融、工程等。",
-                symbolism: "庚象征锐利和纯净，如利剑出鞘，锋芒毕露。在传统文化中，庚金也象征公正无私和英勇果敢。"
-            },
-            xin: {
-                name: "辛",
-                element: "金",
-                yin_yang: "阴",
-                special: "阴金如珠宝玉器，代表温润光泽、精致婉约、内敛含蓄的特质。",
-                character: "辛金性柔，如珠宝首饰，精致而优雅，代表细腻审美的品格，有气质和品位。个性含蓄内敛，注重细节，有艺术天分，但有时过于追求完美。",
-                career: "适合需要精细和审美的工作，如设计、珠宝、时尚等。",
-                symbolism: "辛象征精致和价值，如珍珠宝石，内敛而珍贵。在传统文化中，辛金也象征高雅气质和精神境界。"
-            },
-            ren: {
-                name: "壬",
-                element: "水",
-                yin_yang: "阳",
-                special: "阳水如大海江河，代表波澜壮阔、气势磅礴、包容广博的特质。",
-                character: "壬水性动，如江河大海，浩瀚而深邃，代表智慧深远的品格，有远见和包容力。个性开阔豁达，思维活跃，适应性强，但有时显得漂泊不定。",
-                career: "适合需要智慧和远见的工作，如研究、策划、外交等。",
-                symbolism: "壬象征智慧和力量，如大海包容百川，深不可测。在传统文化中，壬水也象征哲学思考和生命源泉。"
-            },
-            gui: {
-                name: "癸",
-                element: "水",
-                yin_yang: "阴",
-                special: "阴水如雨露甘霖，代表滋润柔和、静谧深沉、涓涓细流的特质。",
-                character: "癸水性柔，如雨露溪流，温润而细致，代表灵敏机智的品格，有感知力和直觉。个性敏感细腻，思维灵活，善于适应变化，但有时显得多愁善感。",
-                career: "适合需要灵感和创意的工作，如艺术、写作、心理分析等。",
-                symbolism: "癸象征滋润和变化，如雨露滋养万物，无声无息。在传统文化中，癸水也象征潜意识和神秘力量。"
-            }
-        };
+            // 十神通用数据库(基础数据)
+            const shenshaBasicData = {
+                "比肩": {
+                    basicMeaning: "与日主同性同五行的天干",
+                    derivation: "取象于人的肩膀，与自己并肩而立，代表兄弟、同性朋友，自我力量的延伸",
+                    abstract: {
+                        characteristics: ["同气连枝", "平等互助", "团队合作", "竞争", "自我意识"],
+                        strengths: ["增强自身力量", "合作共赢", "相互扶持", "集体力量"],
+                        weaknesses: ["竞争消耗", "分散资源", "过度独立", "自我固执"],
+                        lifeMeaning: ["同道人", "志同道合", "自助能力", "独立精神"]
+                    },
+                    concrete: {
+                        people: ["兄弟姐妹", "同性朋友", "同事", "合作伙伴", "竞争对手"],
+                        matters: ["团队协作", "共同创业", "同行业交流", "权力争夺"],
+                        objects: ["手足", "工具", "武器", "辅助物"]
+                    },
+                    elementSpecific: {
+                        "木": "如两棵树木并立，相互支撑又相互竞争阳光",
+                        "火": "如两团火焰并存，相互增强又彼此竞争燃料",
+                        "土": "如两座山峰并峙，稳固却也各自为阵",
+                        "金": "如两把利剑并列，相互辉映又彼此较量锋芒",
+                        "水": "如两条溪流并行，相互汇合又各自寻找出路"
+                    }
+                },
+                "劫财": {
+                    basicMeaning: "与日主同五行异性的天干",
+                    derivation: "取象于财被劫走，代表姐妹、异性朋友，表示资源被分享或损耗",
+                    abstract: {
+                        characteristics: ["分享", "协作", "互补", "消耗", "变动"],
+                        strengths: ["互相配合", "资源共享", "灵活变通", "善于变化"],
+                        weaknesses: ["资源分散", "相互牵制", "变化无常", "缺乏集中"],
+                        lifeMeaning: ["变动不居", "资源流动", "交际能力", "分享精神"]
+                    },
+                    concrete: {
+                        people: ["姐妹", "异性朋友", "亲密同事", "共享资源的人"],
+                        matters: ["资源分配", "财富流动", "家庭开支", "婚嫁嫁妆"],
+                        objects: ["流动资产", "共享物品", "家庭支出", "分配资源"]
+                    },
+                    elementSpecific: {
+                        "木": "如树木与藤蔓互相依存，又共享土壤养分",
+                        "火": "如火炬与烛光互相照应，又共享燃料",
+                        "土": "如山峰与平原相连，形成地貌变化",
+                        "金": "如刚剑与珠宝并存，价值各异但同源",
+                        "水": "如江河与湖泊相通，水量互相影响"
+                    }
+                },
+                "食神": {
+                    basicMeaning: "日主所生且为阳性的天干",
+                    derivation: "取象于饮食，代表营养、享受、创造，表示生活品质、艺术、才华",
+                    abstract: {
+                        characteristics: ["创造", "艺术", "享受", "才华", "乐观"],
+                        strengths: ["才艺表现", "创造力", "乐观态度", "生活情趣"],
+                        weaknesses: ["过度享乐", "不切实际", "缺乏责任", "虚荣"],
+                        lifeMeaning: ["生活品质", "艺术修养", "创造精神", "乐观向上"]
+                    },
+                    concrete: {
+                        people: ["子女", "学生", "艺术家", "厨师", "服务人员"],
+                        matters: ["文艺活动", "教育", "饮食", "娱乐", "创作"],
+                        objects: ["艺术品", "食物", "文学作品", "玩具", "休闲设施"]
+                    },
+                    elementSpecific: {
+                        "木": "木生火，如树木孕育新芽，代表创造力、新生命",
+                        "火": "火生土，如火焰形成灰烬，代表转化创造",
+                        "土": "土生金，如大地孕育矿藏，代表实用性创造",
+                        "金": "金生水，如金属冷凝水滴，代表精致创造",
+                        "水": "水生木，如雨露滋养幼苗，代表滋养创造"
+                    }
+                },
+                "伤官": {
+                    basicMeaning: "日主所生且为阴性的天干",
+                    derivation: "取象于打破规则、挑战权威，代表创新、变革、不拘一格",
+                    abstract: {
+                        characteristics: ["创新", "变革", "叛逆", "灵活", "个性"],
+                        strengths: ["打破常规", "创新思维", "独立精神", "变通能力"],
+                        weaknesses: ["任性", "不守规矩", "破坏性", "过度自由"],
+                        lifeMeaning: ["突破束缚", "创新精神", "自由意志", "变革力量"]
+                    },
+                    concrete: {
+                        people: ["子女", "学生", "改革者", "艺术家", "创新者"],
+                        matters: ["改革", "创新", "叛逆", "突破", "学术研究"],
+                        objects: ["实验品", "创新作品", "非传统物品", "特立独行的事物"]
+                    },
+                    elementSpecific: {
+                        "木": "木生火，如新枝破土而出，代表突破性成长",
+                        "火": "火生土，如野火改变地貌，代表变革转化",
+                        "土": "土生金，如淘炼出珍贵金属，代表价值转化",
+                        "金": "金生水，如金属熔化成流体，代表形态变化",
+                        "水": "水生木，如水滴石穿，代表柔弱创造奇迹"
+                    }
+                },
+                "偏财": {
+                    basicMeaning: "日主所克且为阳性的天干",
+                    derivation: "取象于意外之财、横财，代表非常规收入、机遇",
+                    abstract: {
+                        characteristics: ["机遇", "意外收获", "冒险", "变动", "外来资源"],
+                        strengths: ["把握机会", "创造财富", "开拓视野", "发现价值"],
+                        weaknesses: ["投机心态", "贪婪", "风险意识弱", "不稳定"],
+                        lifeMeaning: ["机会把握", "风险投资", "开放心态", "财富观念"]
+                    },
+                    concrete: {
+                        people: ["贵人", "投资伙伴", "商业伙伴", "异性缘"],
+                        matters: ["投资", "创业", "偶然机会", "意外之财", "资源争取"],
+                        objects: ["投资品", "赠品", "奖金", "彩票", "外来资源"]
+                    },
+                    elementSpecific: {
+                        "木": "木克土，如树根破土，代表从大地获取养分",
+                        "火": "火克金，如火炼金，代表通过变革获得价值",
+                        "土": "土克水，如堤坝控水，代表控制流动资源",
+                        "金": "金克木，如斧伐树，代表通过锐气获取资源",
+                        "水": "水克火，如水灭火，代表通过柔克刚获利"
+                    }
+                },
+                "正财": {
+                    basicMeaning: "日主所克且为阴性的天干",
+                    derivation: "取象于正常收入、稳定财富，代表常规收入、积累",
+                    abstract: {
+                        characteristics: ["积累", "稳定", "常规", "务实", "管理"],
+                        strengths: ["稳定收入", "良好管理", "规划能力", "资源整合"],
+                        weaknesses: ["缺乏突破", "保守", "畏难情绪", "过于依赖"],
+                        lifeMeaning: ["经济基础", "财务规划", "务实精神", "稳健发展"]
+                    },
+                    concrete: {
+                        people: ["配偶", "财务人员", "下属", "服务者"],
+                        matters: ["正常收入", "储蓄", "规划", "理财", "家业"],
+                        objects: ["存款", "固定资产", "收入来源", "家产"]
+                    },
+                    elementSpecific: {
+                        "木": "木克土，如园丁培土种树，代表规划利用资源",
+                        "火": "火克金，如匠人用火锻造金器，代表技艺创造价值",
+                        "土": "土克水，如水井储水，代表储存流动资源",
+                        "金": "金克木，如木匠用刀雕刻，代表精细加工创造价值",
+                        "水": "水克火，如温泉水能源，代表温和持续的资源"
+                    }
+                },
+                "七杀": {
+                    basicMeaning: "克日主且为阳性的天干",
+                    derivation: "取象于权威、力量、挑战，代表压力、权力、竞争",
+                    abstract: {
+                        characteristics: ["权威", "压力", "挑战", "竞争", "控制"],
+                        strengths: ["执行力", "决断力", "竞争意识", "权威掌控"],
+                        weaknesses: ["专制", "固执", "过于强硬", "缺乏灵活性"],
+                        lifeMeaning: ["威严气场", "领导能力", "竞争精神", "规则意识"]
+                    },
+                    concrete: {
+                        people: ["上司", "权威人物", "执法者", "竞争对手", "强势人物"],
+                        matters: ["竞争", "考验", "挑战", "权力争夺", "压力"],
+                        objects: ["武器", "权力象征物", "控制工具", "强制力量"]
+                    },
+                    elementSpecific: {
+                        "木": "金克木，如斧砍树木，代表外部力量的侵袭",
+                        "火": "水克火，如洪水灭火，代表强大冲击",
+                        "土": "木克土，如根系破坏地基，代表暗中威胁",
+                        "金": "火克金，如烈火熔金，代表强烈挑战",
+                        "水": "土克水，如山体阻断河流，代表权威阻力"
+                    }
+                },
+                "正官": {
+                    basicMeaning: "克日主且为阴性的天干",
+                    derivation: "取象于规则、制度、秩序，代表约束、规范、责任",
+                    abstract: {
+                        characteristics: ["规范", "秩序", "责任", "约束", "清晰"],
+                        strengths: ["遵守规则", "责任感", "条理清晰", "规范行为"],
+                        weaknesses: ["教条", "刻板", "缺乏变通", "过于保守"],
+                        lifeMeaning: ["规则意识", "尊重秩序", "责任担当", "法治观念"]
+                    },
+                    concrete: {
+                        people: ["配偶", "长官", "权威人物", "管理者", "师长"],
+                        matters: ["管理", "规范", "制度", "约束", "传统"],
+                        objects: ["规章制度", "证书执照", "官方文件", "法规"]
+                    },
+                    elementSpecific: {
+                        "木": "金克木，如修剪树木，代表规范化外部力量",
+                        "火": "水克火，如细水调节火候，代表温和控制",
+                        "土": "木克土，如林木管理土壤保持，代表规范利用",
+                        "金": "火克金，如冶炼金属，代表规范塑造",
+                        "水": "土克水，如水渠引导水流，代表规范引导"
+                    }
+                },
+                "偏印": {
+                    basicMeaning: "生日主且为阳性的天干",
+                    derivation: "取象于智慧、学识、灵感，代表非传统知识、创造性思维",
+                    abstract: {
+                        characteristics: ["智慧", "灵感", "直觉", "神秘", "非常规"],
+                        strengths: ["创新思维", "灵感涌现", "超前意识", "敏锐感知"],
+                        weaknesses: ["不切实际", "神秘主义", "过于理想化", "忽视现实"],
+                        lifeMeaning: ["智慧启发", "精神追求", "神秘体验", "内在探索"]
+                    },
+                    concrete: {
+                        people: ["师长", "思想家", "智者", "母亲", "精神导师"],
+                        matters: ["学习", "研究", "灵感", "创意", "精神追求"],
+                        objects: ["书籍", "艺术品", "研究成果", "创意作品"]
+                    },
+                    elementSpecific: {
+                        "木": "水生木，如泉水涌出滋养大树，代表源源不断的智慧",
+                        "火": "木生火，如燧木取火，代表智慧火花",
+                        "土": "火生土，如火山喷发形成新地貌，代表创造性智慧",
+                        "金": "土生金，如大地孕育金矿，代表深藏的智慧",
+                        "水": "金生水，如高山流泉，代表精纯的智慧"
+                    }
+                },
+                "正印": {
+                    basicMeaning: "生日主且为阴性的天干",
+                    derivation: "取象于传统、学问、母爱，代表传统知识、养育之恩",
+                    abstract: {
+                        characteristics: ["传统", "养育", "温和", "包容", "基础"],
+                        strengths: ["扎实基础", "温和力量", "包容心", "持续支持"],
+                        weaknesses: ["保守", "依赖", "缺乏创新", "过度保护"],
+                        lifeMeaning: ["文化传承", "家庭教育", "慈爱精神", "根基稳固"]
+                    },
+                    concrete: {
+                        people: ["母亲", "老师", "长辈", "支持者", "保护者"],
+                        matters: ["教育", "养育", "保护", "传承", "学习"],
+                        objects: ["典籍", "传统物品", "教材", "滋养品"]
+                    },
+                    elementSpecific: {
+                        "木": "水生木，如细雨滋润树苗，代表温和养育",
+                        "火": "木生火，如薪火相传，代表传统传承",
+                        "土": "火生土，如温火烤土，代表温和塑造",
+                        "金": "土生金，如大地孕育珍宝，代表价值传承",
+                        "水": "金生水，如甘泉流出，代表纯净传承"
+                    }
+                }
+            };
 
-        // 日主对应的十神数据
-        const tenGodsData = {
-            // 甲木日主的十神
-            jiaMu: {
-                self: { name: "比肩", tiangan: ["甲"], element: "木", property: "同性同类", nature: "比肩如兄弟，同气连枝，相互支持又相互竞争" },
-                sibling: { name: "劫财", tiangan: ["乙"], element: "木", property: "异性同类", nature: "劫财如姐妹，亦友亦敌，能帮助亦能掠夺" },
-                money: { name: "食神", tiangan: ["丙"], element: "火", property: "同性有情", nature: "食神如子女，温顺可爱，带来喜悦与创造力" },
-                rob_money: { name: "伤官", tiangan: ["丁"], element: "火", property: "异性有情", nature: "伤官如爱人，热情活泼，有灵气但易反叛" },
-                official: { name: "偏财", tiangan: ["戊", "己"], element: "土", property: "同性生我", nature: "偏财如外快，不稳定却丰厚的财富，需有度取用" },
-                wealth: { name: "正财", tiangan: ["庚", "辛"], element: "金", property: "异性生我", nature: "正财如薪资，稳定可靠的收入来源，源源不断" },
-                hurting: { name: "七杀", tiangan: ["壬"], element: "水", property: "同性克我", nature: "七杀如上司，强势威猛，既是压力也是动力" },
-                officer: { name: "正官", tiangan: ["癸"], element: "水", property: "异性克我", nature: "正官如师长，规矩严谨，带来秩序与约束" }
-            },
-            // 乙木日主的十神
-            yiMu: {
-                self: { name: "劫财", tiangan: ["甲"], element: "木", property: "异性同类", nature: "劫财如兄长，强势护持，但也可能争夺资源" },
-                sibling: { name: "比肩", tiangan: ["乙"], element: "木", property: "同性同类", nature: "比肩如姐妹，同气连枝，相互扶持共同进退" },
-                money: { name: "伤官", tiangan: ["丙"], element: "火", property: "异性有情", nature: "伤官如调皮的孩子，聪明机灵但不守规矩" },
-                rob_money: { name: "食神", tiangan: ["丁"], element: "火", property: "同性有情", nature: "食神如温顺的孩子，带来快乐与满足感" },
-                official: { name: "正财", tiangan: ["戊", "己"], element: "土", property: "异性生我", nature: "正财如固定收入，稳定可靠，生活保障" },
-                wealth: { name: "偏财", tiangan: ["庚", "辛"], element: "金", property: "同性生我", nature: "偏财如意外之财，丰厚却不稳定，需珍惜" },
-                hurting: { name: "正官", tiangan: ["壬"], element: "水", property: "异性克我", nature: "正官如严师，公正严明，教导规矩与纪律" },
-                officer: { name: "七杀", tiangan: ["癸"], element: "水", property: "同性克我", nature: "七杀如强敌，既是挑战也是鞭策，需谨慎应对" }
-            },
-            // 丙火日主的十神
-            bingHuo: {
-                self: { name: "比肩", tiangan: ["丙"], element: "火", property: "同性同类", nature: "比肩如兄弟，共同燃烧，相互增强光热" },
-                sibling: { name: "劫财", tiangan: ["丁"], element: "火", property: "异性同类", nature: "劫财如姐妹，温和持久，共享资源也有竞争" },
-                money: { name: "食神", tiangan: ["戊", "己"], element: "土", property: "同性有情", nature: "食神如子女，温顺可靠，带来满足与成就感" },
-                rob_money: { name: "伤官", tiangan: ["庚", "辛"], element: "金", property: "异性有情", nature: "伤官如爱人，光彩夺目却也有锋芒，既吸引又抵触" },
-                official: { name: "偏财", tiangan: ["壬", "癸"], element: "水", property: "同性生我", nature: "偏财如外快，忽多忽少，需把握机会及时获取" },
-                wealth: { name: "正财", tiangan: ["甲", "乙"], element: "木", property: "异性生我", nature: "正财如薪资，稳步增长，源源不断滋养生活" },
-                hurting: { name: "七杀", tiangan: ["戊", "己"], element: "土", property: "同性克我", nature: "七杀如上司，稳重权威，压制我但也成就我" },
-                officer: { name: "正官", tiangan: ["庚", "辛"], element: "金", property: "异性克我", nature: "正官如师长，锐利明断，带来规范与秩序" }
-            },
-            // 丁火日主的十神
-            dingHuo: {
-                self: { name: "劫财", tiangan: ["丙"], element: "火", property: "异性同类", nature: "劫财如兄长，光明磊落，护持我但也会争夺资源" },
-                sibling: { name: "比肩", tiangan: ["丁"], element: "火", property: "同性同类", nature: "比肩如姐妹，温暖相伴，互助共进退" },
-                money: { name: "伤官", tiangan: ["戊", "己"], element: "土", property: "异性有情", nature: "伤官如调皮的孩子，既活泼又难以驾驭" },
-                rob_money: { name: "食神", tiangan: ["庚", "辛"], element: "金", property: "同性有情", nature: "食神如乖巧的孩子，带来愉悦与创意" },
-                official: { name: "正财", tiangan: ["壬", "癸"], element: "水", property: "异性生我", nature: "正财如稳定之财，可靠持续，维系生活" },
-                wealth: { name: "偏财", tiangan: ["甲", "乙"], element: "木", property: "同性生我", nature: "偏财如意外之财，忽多忽少，需善加利用" },
-                hurting: { name: "正官", tiangan: ["戊", "己"], element: "土", property: "异性克我", nature: "正官如长辈，稳重持重，给予指导与规范" },
-                officer: { name: "七杀", tiangan: ["庚", "辛"], element: "金", property: "同性克我", nature: "七杀如锐敌，光芒锋利，既是压力也是挑战" }
-            },
-            // 戊土日主的十神
-            wuTu: {
-                self: { name: "比肩", tiangan: ["戊"], element: "土", property: "同性同类", nature: "比肩如兄弟，厚实稳重，共同支撑家业" },
-                sibling: { name: "劫财", tiangan: ["己"], element: "土", property: "异性同类", nature: "劫财如姐妹，温和可靠，既互助又分享资源" },
-                money: { name: "食神", tiangan: ["庚", "辛"], element: "金", property: "同性有情", nature: "食神如子女，锐利有成就，带来喜悦与满足" },
-                rob_money: { name: "伤官", tiangan: ["壬", "癸"], element: "水", property: "异性有情", nature: "伤官如爱人，灵动多变，令人既爱又忧" },
-                official: { name: "偏财", tiangan: ["甲", "乙"], element: "木", property: "同性生我", nature: "偏财如外快，蓬勃生长却不稳定，需及时收获" },
-                wealth: { name: "正财", tiangan: ["丙", "丁"], element: "火", property: "异性生我", nature: "正财如薪资，温暖明亮，持续提供生活保障" },
-                hurting: { name: "七杀", tiangan: ["甲", "乙"], element: "木", property: "同性克我", nature: "七杀如上司，挺拔有力，既能制约也能激励" },
-                officer: { name: "正官", tiangan: ["丙", "丁"], element: "火", property: "异性克我", nature: "正官如师长，光明温和，既严格又温暖" }
-            },
-            // 己土日主的十神
-            jiTu: {
-                self: { name: "劫财", tiangan: ["戊"], element: "土", property: "异性同类", nature: "劫财如兄长，稳重踏实，护持我但也会争夺资源" },
-                sibling: { name: "比肩", tiangan: ["己"], element: "土", property: "同性同类", nature: "比肩如姐妹，柔和包容，共同经营家业" },
-                money: { name: "伤官", tiangan: ["庚", "辛"], element: "金", property: "异性有情", nature: "伤官如调皮的孩子，锋芒毕露，聪明却难以驾驭" },
-                rob_money: { name: "食神", tiangan: ["壬", "癸"], element: "水", property: "同性有情", nature: "食神如温顺的孩子，灵动聪慧，带来欢乐" },
-                official: { name: "正财", tiangan: ["甲", "乙"], element: "木", property: "异性生我", nature: "正财如固定收入，稳步生长，保障生活" },
-                wealth: { name: "偏财", tiangan: ["丙", "丁"], element: "火", property: "同性生我", nature: "偏财如意外之财，明亮热情，来去迅速" },
-                hurting: { name: "正官", tiangan: ["甲", "乙"], element: "木", property: "异性克我", nature: "正官如长辈，挺拔正直，给予指导与规范" },
-                officer: { name: "七杀", tiangan: ["丙", "丁"], element: "火", property: "同性克我", nature: "七杀如强敌，炽热明亮，既是压力也是动力" }
-            },
-            // 庚金日主的十神
-            gengJin: {
-                self: { name: "比肩", tiangan: ["庚"], element: "金", property: "同性同类", nature: "比肩如兄弟，刚毅锐利，共同开拓事业" },
-                sibling: { name: "劫财", tiangan: ["辛"], element: "金", property: "异性同类", nature: "劫财如姐妹，温润精致，既竞争又互助" },
-                money: { name: "食神", tiangan: ["壬", "癸"], element: "水", property: "同性有情", nature: "食神如子女，灵动智慧，带来欢乐与满足" },
-                rob_money: { name: "伤官", tiangan: ["甲", "乙"], element: "木", property: "异性有情", nature: "伤官如爱人，挺拔生机，有创造力却难掌控" },
-                official: { name: "偏财", tiangan: ["丙", "丁"], element: "火", property: "同性生我", nature: "偏财如外快，明亮热情，丰厚却不稳定" },
-                wealth: { name: "正财", tiangan: ["戊", "己"], element: "土", property: "异性生我", nature: "正财如薪资，厚重可靠，持续滋养生活" },
-                hurting: { name: "七杀", tiangan: ["丙", "丁"], element: "火", property: "同性克我", nature: "七杀如上司，热情强势，既是压力也是动力" },
-                officer: { name: "正官", tiangan: ["戊", "己"], element: "土", property: "异性克我", nature: "正官如师长，稳重持重，给予规范与支持" }
-            },
-            // 辛金日主的十神
-            xinJin: {
-                self: { name: "劫财", tiangan: ["庚"], element: "金", property: "异性同类", nature: "劫财如兄长，刚直不阿，护持我但也会争夺资源" },
-                sibling: { name: "比肩", tiangan: ["辛"], element: "金", property: "同性同类", nature: "比肩如姐妹，温润细腻，共同经营生活" },
-                money: { name: "伤官", tiangan: ["壬", "癸"], element: "水", property: "异性有情", nature: "伤官如调皮的孩子，机智灵动，才华横溢却难驾驭" },
-                rob_money: { name: "食神", tiangan: ["甲", "乙"], element: "木", property: "同性有情", nature: "食神如温顺的孩子，生机勃勃，带来愉悦" },
-                official: { name: "正财", tiangan: ["丙", "丁"], element: "火", property: "异性生我", nature: "正财如固定收入，光明温暖，稳定持续" },
-                wealth: { name: "偏财", tiangan: ["戊", "己"], element: "土", property: "同性生我", nature: "偏财如意外之财，厚重可靠，需把握机会" },
-                hurting: { name: "正官", tiangan: ["丙", "丁"], element: "火", property: "异性克我", nature: "正官如长辈，光明磊落，给予温暖与规范" },
-                officer: { name: "七杀", tiangan: ["戊", "己"], element: "土", property: "同性克我", nature: "七杀如强敌，稳重厚实，既是压力也是基础" }
-            },
-            // 壬水日主的十神
-            renShui: {
-                self: { name: "比肩", tiangan: ["壬"], element: "水", property: "同性同类", nature: "比肩如兄弟，深沉智慧，共同探索人生" },
-                sibling: { name: "劫财", tiangan: ["癸"], element: "水", property: "异性同类", nature: "劫财如姐妹，温柔细腻，既互助又分享资源" },
-                money: { name: "食神", tiangan: ["甲", "乙"], element: "木", property: "同性有情", nature: "食神如子女，生机勃勃，带来快乐与满足" },
-                rob_money: { name: "伤官", tiangan: ["丙", "丁"], element: "火", property: "异性有情", nature: "伤官如爱人，热情明亮，既吸引又令人担忧" },
-                official: { name: "偏财", tiangan: ["戊", "己"], element: "土", property: "同性生我", nature: "偏财如外快，厚重可靠，需把握机会及时获取" },
-                wealth: { name: "正财", tiangan: ["庚", "辛"], element: "金", property: "异性生我", nature: "正财如薪资，锐利明净，稳定滋养生活" },
-                hurting: { name: "七杀", tiangan: ["戊", "己"], element: "土", property: "同性克我", nature: "七杀如上司，稳重权威，既能制约也能促进" },
-                officer: { name: "正官", tiangan: ["庚", "辛"], element: "金", property: "异性克我", nature: "正官如师长，锐利明断，给予规范与指引" }
-            },
-            // 癸水日主的十神
-            guiShui: {
-                self: { name: "劫财", tiangan: ["壬"], element: "水", property: "异性同类", nature: "劫财如兄长，浩瀚深邃，护持我但也会争夺资源" },
-                sibling: { name: "比肩", tiangan: ["癸"], element: "水", property: "同性同类", nature: "比肩如姐妹，温柔细腻，共同面对生活挑战" },
-                money: { name: "伤官", tiangan: ["甲", "乙"], element: "木", property: "异性有情", nature: "伤官如调皮的孩子，生机蓬勃，聪明活泼却难以掌控" },
-                rob_money: { name: "食神", tiangan: ["丙", "丁"], element: "火", property: "同性有情", nature: "食神如温顺的孩子，温暖明亮，带来欢乐" },
-                official: { name: "正财", tiangan: ["戊", "己"], element: "土", property: "异性生我", nature: "正财如固定收入，厚重可靠，持续提供保障" },
-                wealth: { name: "偏财", tiangan: ["庚", "辛"], element: "金", property: "同性生我", nature: "偏财如意外之财，锐利精致，需善加利用" },
-                hurting: { name: "正官", tiangan: ["戊", "己"], element: "土", property: "异性克我", nature: "正官如长辈，踏实稳重，给予教导与约束" },
-                officer: { name: "七杀", tiangan: ["庚", "辛"], element: "金", property: "同性克我", nature: "七杀如强敌，锋利坚固，既是压力也是鞭策" }
-            }
-        };
+            // 天干特定的十神详细数据
+            const ganSpecificShenshaData = {
+                "甲": {
+                    "比肩": {
+                        gan: "甲",
+                        specificMeaning: "甲木日主见甲木，为阳木见阳木，刚见刚，如两棵大树并立，相互依靠却也争夺阳光",
+                        lifeApplication: "具有坚韧正直的特性，适合团队合作，但要注意资源竞争",
+                        favorable: ["事业合作", "共同创业", "竞争中成长"],
+                        unfavorable: ["过度争斗", "固执己见", "过于独立"]
+                    },
+                    "劫财": {
+                        gan: "乙",
+                        specificMeaning: "甲木日主见乙木，为阳木见阴木，刚见柔，如树干与柔枝，互为依存又各有所需",
+                        lifeApplication: "互补性强，善于变通，但资源可能分散",
+                        favorable: ["灵活应变", "互补合作", "融通资源"],
+                        unfavorable: ["资源流失", "路线不一", "缺乏凝聚力"]
+                    },
+                    "食神": {
+                        gan: "丙",
+                        specificMeaning: "甲木日主见丙火，为阳木生阳火，如阳光照射下的树木孕育生机与活力",
+                        lifeApplication: "创造力强，阳光开朗，善于表达，喜欢艺术",
+                        favorable: ["创作", "教育", "艺术", "阳光事业"],
+                        unfavorable: ["过度消耗", "不切实际", "急功近利"]
+                    },
+                    "伤官": {
+                        gan: "丁",
+                        specificMeaning: "甲木日主见丁火，为阳木生阴火，如木头燃起温和的火焰，创新中带有内敛",
+                        lifeApplication: "创新能力强，但更为含蓄精细，善于变革",
+                        favorable: ["精细创作", "技术创新", "改革优化"],
+                        unfavorable: ["过于理想化", "执行力不足", "破坏规则"]
+                    },
+                    "偏财": {
+                        gan: "戊",
+                        specificMeaning: "甲木日主见戊土，为阳木克阳土，如大树根系突破土层，获取养分",
+                        lifeApplication: "通过掌控资源获取财富，适合投资和开拓",
+                        favorable: ["资源开发", "大胆投资", "新项目拓展"],
+                        unfavorable: ["过度冒险", "急于求成", "忽视风险"]
+                    },
+                    "正财": {
+                        gan: "己",
+                        specificMeaning: "甲木日主见己土，为阳木克阴土，如农夫耕种沃土，有计划地利用资源",
+                        lifeApplication: "稳定获取财富，善于规划管理，务实",
+                        favorable: ["稳健经营", "计划理财", "可持续发展"],
+                        unfavorable: ["缺乏创新", "固守传统", "过于保守"]
+                    },
+                    "七杀": {
+                        gan: "庚",
+                        specificMeaning: "甲木日主见庚金，为阳木被阳金所克，如利斧砍树，面临强大挑战",
+                        lifeApplication: "面临权威压力，需要勇于应对挑战，锻炼抗压能力",
+                        favorable: ["迎接挑战", "锻炼意志", "化压力为动力"],
+                        unfavorable: ["过度对抗", "顽固抵抗", "无视规则"]
+                    },
+                    "正官": {
+                        gan: "辛",
+                        specificMeaning: "甲木日主见辛金，为阳木被阴金所克，如精细修剪树木，受到规范和约束",
+                        lifeApplication: "需要遵守规则，接受管理，注重秩序",
+                        favorable: ["规范行为", "遵守制度", "合理规划"],
+                        unfavorable: ["过度约束", "压抑创新", "刻板教条"]
+                    },
+                    "偏印": {
+                        gan: "壬",
+                        specificMeaning: "甲木日主见壬水，为阳木得阳水滋养，如大树吸收源头活水，获取智慧",
+                        lifeApplication: "获得非常规知识和灵感，思维活跃",
+                        favorable: ["创新思考", "学术研究", "接受新知"],
+                        unfavorable: ["过于理想化", "不切实际", "思想偏激"]
+                    },
+                    "正印": {
+                        gan: "癸",
+                        specificMeaning: "甲木日主见癸水，为阳木得阴水滋养，如树木吸收细雨甘露，稳定成长",
+                        lifeApplication: "获得传统知识和温和支持，成长稳定",
+                        favorable: ["传统学习", "稳定成长", "文化传承"],
+                        unfavorable: ["过于依赖", "缺乏创新", "思想保守"]
+                    }
+                },
+                "乙": {
+                    "劫财": {
+                        gan: "甲",
+                        specificMeaning: "乙木日主见甲木，为阴木见阳木，柔见刚，如藤蔓依附大树，资源共享但有依赖",
+                        lifeApplication: "需要与强者合作，善于借力，但可能依赖过度",
+                        favorable: ["联合强者", "扩展影响", "资源共享"],
+                        unfavorable: ["过度依赖", "失去主见", "资源分散"]
+                    },
+                    "比肩": {
+                        gan: "乙",
+                        specificMeaning: "乙木日主见乙木，为阴木见阴木，柔见柔，如两株藤蔓相互缠绕，柔韧中共存",
+                        lifeApplication: "灵活协作，相互理解，但力量可能不足",
+                        favorable: ["灵活合作", "相互理解", "柔韧共进"],
+                        unfavorable: ["力量不足", "缺乏主导", "过于柔弱"]
+                    },
+                    "伤官": {
+                        gan: "丙",
+                        specificMeaning: "乙木日主见丙火，为阴木生阳火，如柔枝被阳光照耀，爆发活力与创新",
+                        lifeApplication: "创新能力强，但可能过于激进，需要平衡",
+                        favorable: ["创意爆发", "变革创新", "打破常规"],
+                        unfavorable: ["过于激进", "缺乏规划", "忽视稳定"]
+                    },
+                    "食神": {
+                        gan: "丁",
+                        specificMeaning: "乙木日主见丁火，为阴木生阴火，如细枝上的温和火光，创造精致与艺术",
+                        lifeApplication: "艺术才华丰富，精致细腻，创造力强",
+                        favorable: ["艺术创作", "精细工作", "品质生活"],
+                        unfavorable: ["过于追求完美", "忽视实际", "情绪化"]
+                    },
+                    "正财": {
+                        gan: "戊",
+                        specificMeaning: "乙木日主见戊土，为阴木克阳土，如细根渗入坚土，巧妙获取资源",
+                        lifeApplication: "善于从稳固资源中获取财富，需要巧妙规划",
+                        favorable: ["稳健理财", "细致规划", "持续积累"],
+                        unfavorable: ["缺乏大局观", "过于谨慎", "进展缓慢"]
+                    },
+                    "偏财": {
+                        gan: "己",
+                        specificMeaning: "乙木日主见己土，为阴木克阴土，如藤蔓在柔软土壤中扩展，获取机遇",
+                        lifeApplication: "善于发现机会，灵活获取财富，适应性强",
+                        favorable: ["把握机遇", "灵活投资", "适应变化"],
+                        unfavorable: ["缺乏规划", "过于冒险", "忽视风险"]
+                    },
+                    "正官": {
+                        gan: "庚",
+                        specificMeaning: "乙木日主见庚金，为阴木被阳金所克，如锋利金属切割细枝，面临强制规范",
+                        lifeApplication: "需要适应严格规则，接受权威管理",
+                        favorable: ["规范行为", "接受管理", "遵守秩序"],
+                        unfavorable: ["过度压抑", "失去特性", "畏惧权威"]
+                    },
+                    "七杀": {
+                        gan: "辛",
+                        specificMeaning: "乙木日主见辛金，为阴木被阴金所克，如精致剪刀修剪细枝，面临精细挑战",
+                        lifeApplication: "面临精细化挑战，需要适应高标准要求",
+                        favorable: ["精益求精", "提高标准", "适应高要求"],
+                        unfavorable: ["过度焦虑", "自我怀疑", "缺乏信心"]
+                    },
+                    "正印": {
+                        gan: "壬",
+                        specificMeaning: "乙木日主见壬水，为阴木得阳水滋养，如藤蔓吸收活水，获得强大支持",
+                        lifeApplication: "获得有力支持和知识，思维活跃开放",
+                        favorable: ["接受新思想", "创新学习", "开阔视野"],
+                        unfavorable: ["过度依赖", "思想混乱", "忽视传统"]
+                    },
+                    "偏印": {
+                        gan: "癸",
+                        specificMeaning: "乙木日主见癸水，为阴木得阴水滋养，如藤蔓在细雨中生长，温和滋润",
+                        lifeApplication: "获得温和支持和传统知识，成长稳定",
+                        favorable: ["传统学习", "稳定成长", "温和支持"],
+                        unfavorable: ["过于保守", "缺乏创新", "过度依赖"]
+                    }
+                },
+                "丙": {
+                    "偏印": {
+                        gan: "甲",
+                        specificMeaning: "丙火日主见甲木，为阳火得阳木所生，如烈火得到强大燃料，智慧充沛",
+                        lifeApplication: "获得强有力的支持和养分，思维活跃",
+                        favorable: ["智慧启发", "思想创新", "精神追求"],
+                        unfavorable: ["过度消耗", "急于求成", "缺乏节制"]
+                    },
+                    "正印": {
+                        gan: "乙",
+                        specificMeaning: "丙火日主见乙木，为阳火得阴木所生，如火焰得到柔韧燃料，稳定持久",
+                        lifeApplication: "获得温和持久的支持，知识积累稳定",
+                        favorable: ["持续学习", "稳定成长", "知识传承"],
+                        unfavorable: ["过度依赖", "缺乏主动", "墨守成规"]
+                    },
+                    "比肩": {
+                        gan: "丙",
+                        specificMeaning: "丙火日主见丙火，为阳火见阳火，如两团烈火并存，相互增强又竞争燃料",
+                        lifeApplication: "具有热情活力，适合团队合作，但可能竞争激烈",
+                        favorable: ["热情协作", "共同成长", "相互激励"],
+                        unfavorable: ["激烈竞争", "资源消耗", "过度兴奋"]
+                    },
+                    "劫财": {
+                        gan: "丁",
+                        specificMeaning: "丙火日主见丁火，为阳火见阴火，如烈火与烛光共存，互补又分散能量",
+                        lifeApplication: "互补性强，善于分工，但可能力量分散",
+                        favorable: ["优势互补", "分工协作", "资源整合"],
+                        unfavorable: ["力量分散", "方向不一", "能量损耗"]
+                    },
+                    "食神": {
+                        gan: "戊",
+                        specificMeaning: "丙火日主见戊土，为阳火生阳土，如烈火化为厚重灰烬，创造稳固成果",
+                        lifeApplication: "创造力转化为实际成果，注重实用",
+                        favorable: ["实用创造", "务实发展", "稳健创新"],
+                        unfavorable: ["过度保守", "缺乏突破", "固化思维"]
+                    },
+                    "伤官": {
+                        gan: "己",
+                        specificMeaning: "丙火日主见己土，为阳火生阴土，如火焰塑造柔软土壤，创新中带有灵活",
+                        lifeApplication: "创新能力强，更为灵活适应，善于变通",
+                        favorable: ["灵活创新", "适应变化", "打破常规"],
+                        unfavorable: ["缺乏规划", "散漫无序", "变化过多"]
+                    },
+                    "偏财": {
+                        gan: "庚",
+                        specificMeaning: "丙火日主见庚金，为阳火克阳金，如烈火冶炼金属，通过变革获取价值",
+                        lifeApplication: "通过改革创新获取财富，适合高风险高回报",
+                        favorable: ["改革创新", "价值提升", "突破性发展"],
+                        unfavorable: ["冒险过度", "忽视基础", "急于求成"]
+                    },
+                    "正财": {
+                        gan: "辛",
+                        specificMeaning: "丙火日主见辛金，为阳火克阴金，如匠人用火塑造精美金饰，创造精致价值",
+                        lifeApplication: "通过技艺和精细工作获取稳定财富",
+                        favorable: ["精细创作", "技艺专长", "品质提升"],
+                        unfavorable: ["过于追求完美", "忽视效率", "资源消耗大"]
+                    },
+                    "七杀": {
+                        gan: "壬",
+                        specificMeaning: "丙火日主见壬水，为阳火被阳水所克，如烈火遇大水浇灭，面临强大挑战",
+                        lifeApplication: "面临强势压力，需要勇于应对，增强适应性",
+                        favorable: ["迎接挑战", "增强适应", "危机转机"],
+                        unfavorable: ["抵抗过度", "固执己见", "忽视变通"]
+                    },
+                    "正官": {
+                        gan: "癸",
+                        specificMeaning: "丙火日主见癸水，为阳火被阴水所克，如火被细雨调节，受到温和约束",
+                        lifeApplication: "需要适应规则约束，但压力较为温和",
+                        favorable: ["遵守规则", "适当收敛", "规范行为"],
+                        unfavorable: ["过度压抑", "失去活力", "消极应对"]
+                    }
+                },
+                "丁": {
+                    "正印": {
+                        gan: "甲",
+                        specificMeaning: "丁火日主见甲木，为阴火得阳木所生，如烛光依靠坚实木柴，获得稳定支持",
+                        lifeApplication: "获得可靠的知识和支持，稳定发展",
+                        favorable: ["稳定学习", "传统传承", "可靠支持"],
+                        unfavorable: ["过度依赖", "缺乏创新", "思想保守"]
+                    },
+                    "偏印": {
+                        gan: "乙",
+                        specificMeaning: "丁火日主见乙木，为阴火得阴木所生，如烛光依靠柔软枝条，获得温和滋养",
+                        lifeApplication: "获得温和灵活的支持和知识，成长恬静",
+                        favorable: ["灵活学习", "细腻理解", "柔和成长"],
+                        unfavorable: ["力量不足", "缺乏主见", "过于内敛"]
+                    },
+                    "劫财": {
+                        gan: "丙",
+                        specificMeaning: "丁火日主见丙火，为阴火见阳火，如烛光遇烈火，被强势力量影响",
+                        lifeApplication: "与强者合作，资源可能被分散或主导",
+                        favorable: ["借势发展", "资源整合", "扩大影响"],
+                        unfavorable: ["被强势压制", "资源失控", "特质被掩盖"]
+                    },
+                    "比肩": {
+                        gan: "丁",
+                        specificMeaning: "丁火日主见丁火，为阴火见阴火，如烛光相映，温和互补",
+                        lifeApplication: "温和协作，相互理解，但力量可能偏弱",
+                        favorable: ["温和合作", "互相理解", "资源共享"],
+                        unfavorable: ["力量不足", "缺乏突破", "影响有限"]
+                    },
+                    "伤官": {
+                        gan: "戊",
+                        specificMeaning: "丁火日主见戊土，为阴火生阳土，如温火烤制陶土，创造稳定成果",
+                        lifeApplication: "创新中注重稳定，作品实用性强",
+                        favorable: ["稳健创新", "实用创造", "务实发展"],
+                        unfavorable: ["缺乏突破", "过于稳健", "创新有限"]
+                    },
+                    "食神": {
+                        gan: "己",
+                        specificMeaning: "丁火日主见己土，为阴火生阴土，如温火塑造柔软土壤，创造精细艺术",
+                        lifeApplication: "创造力细腻，作品精致，注重艺术性",
+                        favorable: ["艺术创作", "精细工作", "品质提升"],
+                        unfavorable: ["过于追求完美", "效率不高", "忽视实用"]
+                    },
+                    "正财": {
+                        gan: "庚",
+                        specificMeaning: "丁火日主见庚金，为阴火克阳金，如温火熔炼坚硬金属，通过细致工作获益",
+                        lifeApplication: "通过精细化工作获取稳定收入，适合技术性工作",
+                        favorable: ["技术专长", "精细工作", "稳定收益"],
+                        unfavorable: ["过于保守", "缺乏突破", "进展缓慢"]
+                    },
+                    "偏财": {
+                        gan: "辛",
+                        specificMeaning: "丁火日主见辛金，为阴火克阴金，如温火塑造精美金饰，通过艺术创造价值",
+                        lifeApplication: "通过艺术和创意获取财富，适合创意产业",
+                        favorable: ["艺术创作", "设计创新", "品质提升"],
+                        unfavorable: ["市场不稳", "过于理想化", "实用性不足"]
+                    },
+                    "正官": {
+                        gan: "壬",
+                        specificMeaning: "丁火日主见壬水，为阴火被阳水所克，如烛光被急流冲击，面临强大规范",
+                        lifeApplication: "需要适应严格规则，面临强势约束",
+                        favorable: ["遵守规则", "接受指导", "规范行为"],
+                        unfavorable: ["个性被抑制", "创新受限", "压力过大"]
+                    },
+                    "七杀": {
+                        gan: "癸",
+                        specificMeaning: "丁火日主见癸水，为阴火被阴水所克，如烛光被细雨浸润，面临柔和挑战",
+                        lifeApplication: "面临温和约束，需要灵活适应",
+                        favorable: ["灵活应对", "柔和接受", "适应变化"],
+                        unfavorable: ["缺乏主见", "过度妥协", "个性消失"]
+                    }
+                },
+                "戊": {
+                    "七杀": {
+                        gan: "甲",
+                        specificMeaning: "戊土日主见甲木，为阳土被阳木所克，如山石被树根破裂，面临强大挑战",
+                        lifeApplication: "面临强势挑战，需要坚韧应对",
+                        favorable: ["坚守本心", "稳健应对", "化危为机"],
+                        unfavorable: ["固执抵抗", "忽视变通", "过度防守"]
+                    },
+                    "正官": {
+                        gan: "乙",
+                        specificMeaning: "戊土日主见乙木，为阳土被阴木所克，如土壤被根系渗透，面临柔和规范",
+                        lifeApplication: "面临精细规范，需要适应秩序",
+                        favorable: ["规范行为", "接受引导", "有序发展"],
+                        unfavorable: ["过度约束", "缺乏创新", "限制过多"]
+                    },
+                    "偏印": {
+                        gan: "丙",
+                        specificMeaning: "戊土日主见丙火，为阳土得阳火所生，如高山被阳光照耀，获得强大智慧",
+                        lifeApplication: "获得活跃的思想和支持，创新思维",
+                        favorable: ["思维活跃", "创新发展", "开拓视野"],
+                        unfavorable: ["过于理想化", "忽视现实", "缺乏务实"]
+                    },
+                    "正印": {
+                        gan: "丁",
+                        specificMeaning: "戊土日主见丁火，为阳土得阴火所生，如山丘被温煦阳光滋养，获得温和智慧",
+                        lifeApplication: "获得温和持久的支持和知识，稳定成长",
+                        favorable: ["稳定学习", "温和成长", "知识累积"],
+                        unfavorable: ["缺乏突破", "过于保守", "依赖思维"]
+                    },
+                    "比肩": {
+                        gan: "戊",
+                        specificMeaning: "戊土日主见戊土，为阳土见阳土，如高山并峙，相互支撑又各自独立",
+                        lifeApplication: "稳固协作，注重实效，但可能竞争资源",
+                        favorable: ["稳健合作", "资源整合", "互补发展"],
+                        unfavorable: ["固步自封", "资源竞争", "缺乏创新"]
+                    },
+                    "劫财": {
+                        gan: "己",
+                        specificMeaning: "戊土日主见己土，为阳土见阴土，如山峦与平原相连，刚柔并济",
+                        lifeApplication: "互补性强，资源共享，但可能力量分散",
+                        favorable: ["优势互补", "资源流动", "柔和发展"],
+                        unfavorable: ["力量分散", "方向不一", "缺乏集中"]
+                    },
+                    "食神": {
+                        gan: "庚",
+                        specificMeaning: "戊土日主见庚金，为阳土生阳金，如山中孕育金矿，创造坚固价值",
+                        lifeApplication: "创造力转化为实际价值，注重实用",
+                        favorable: ["实用创造", "价值体现", "务实发展"],
+                        unfavorable: ["过于重视物质", "忽视精神", "创新不足"]
+                    },
+                    "伤官": {
+                        gan: "辛",
+                        specificMeaning: "戊土日主见辛金，为阳土生阴金，如大地孕育珠宝，创造精致价值",
+                        lifeApplication: "创新能力强，作品精致，注重品质",
+                        favorable: ["精致创作", "品质提升", "技艺精进"],
+                        unfavorable: ["过于追求完美", "效率不高", "务实不足"]
+                    },
+                    "偏财": {
+                        gan: "壬",
+                        specificMeaning: "戊土日主见壬水，为阳土克阳水，如山体截留江河，掌控流动资源",
+                        lifeApplication: "通过掌控变化获取财富，适合管理流动资产",
+                        favorable: ["资源管理", "变化应对", "机会把握"],
+                        unfavorable: ["压制过度", "缺乏灵活", "限制发展"]
+                    },
+                    "正财": {
+                        gan: "癸",
+                        specificMeaning: "戊土日主见癸水，为阳土克阴水，如水井蓄水，稳定管理流动资源",
+                        lifeApplication: "通过规划管理获取稳定财富，适合长期投资",
+                        favorable: ["稳健理财", "长期规划", "资源积累"],
+                        unfavorable: ["过于保守", "缺乏灵活", "机会错失"]
+                    }
+                },
+                "己": {
+                    "正官": {
+                        gan: "甲",
+                        specificMeaning: "己土日主见甲木，为阴土被阳木所克，如平地被树根突破，面临强大规范",
+                        lifeApplication: "需要适应严格规则，接受管理指导",
+                        favorable: ["遵守规则", "吸收养分", "规范发展"],
+                        unfavorable: ["压力过大", "束缚过多", "创新受限"]
+                    },
+                    "七杀": {
+                        gan: "乙",
+                        specificMeaning: "己土日主见乙木，为阴土被阴木所克，如田园被藤蔓缠绕，面临精细挑战",
+                        lifeApplication: "面临细致挑战，需要灵活应对",
+                        favorable: ["灵活应变", "适应变化", "柔中带刚"],
+                        unfavorable: ["过度迁就", "缺乏主见", "特性消失"]
+                    },
+                    "正印": {
+                        gan: "丙",
+                        specificMeaning: "己土日主见丙火，为阴土得阳火所生，如平原被阳光普照，获得智慧启发",
+                        lifeApplication: "获得活跃思想和支持，开拓视野",
+                        favorable: ["思维活跃", "开放学习", "视野扩展"],
+                        unfavorable: ["过于兴奋", "不切实际", "忽视稳定"]
+                    },
+                    "偏印": {
+                        gan: "丁",
+                        specificMeaning: "己土日主见丁火，为阴土得阴火所生，如沃土被温火滋养，获得温和智慧",
+                        lifeApplication: "获得温和持久的支持和知识，成长稳定",
+                        favorable: ["稳定学习", "细腻理解", "温和成长"],
+                        unfavorable: ["缺乏突破", "过于依赖", "创新不足"]
+                    },
+                    "劫财": {
+                        gan: "戊",
+                        specificMeaning: "己土日主见戊土，为阴土见阳土，如平原与高山相接，获得坚实支持",
+                        lifeApplication: "与强者合作，资源共享，但可能被主导",
+                        favorable: ["借力发展", "资源共享", "稳固基础"],
+                        unfavorable: ["被强势影响", "失去特性", "缺乏主见"]
+                    },
+                    "比肩": {
+                        gan: "己",
+                        specificMeaning: "己土日主见己土，为阴土见阴土，如沃土相连，温和共存",
+                        lifeApplication: "温和协作，相互滋养，但力量可能偏弱",
+                        favorable: ["和谐合作", "互相理解", "资源共享"],
+                        unfavorable: ["力量不足", "缺乏突破", "过于温和"]
+                    },
+                    "伤官": {
+                        gan: "庚",
+                        specificMeaning: "己土日主见庚金，为阴土生阳金，如田地孕育金属，创造坚固价值",
+                        lifeApplication: "创新中注重实用，作品坚实耐用",
+                        favorable: ["实用创新", "价值体现", "稳健发展"],
+                        unfavorable: ["过于保守", "缺乏变通", "创新有限"]
+                    },
+                    "食神": {
+                        gan: "辛",
+                        specificMeaning: "己土日主见辛金，为阴土生阴金，如良田孕育珠宝，创造精致价值",
+                        lifeApplication: "创造力细腻，作品精美，注重艺术性",
+                        favorable: ["艺术创作", "精细工作", "品质生活"],
+                        unfavorable: ["过于追求完美", "效率不高", "实用性不足"]
+                    },
+                    "正财": {
+                        gan: "壬",
+                        specificMeaning: "己土日主见壬水，为阴土克阳水，如农田引水灌溉，规划利用流动资源",
+                        lifeApplication: "通过规划管理获取财富，适合有序投资",
+                        favorable: ["计划理财", "系统规划", "资源整合"],
+                        unfavorable: ["过于保守", "缺乏冒险", "错失机会"]
+                    },
+                    "偏财": {
+                        gan: "癸",
+                        specificMeaning: "己土日主见癸水，为阴土克阴水，如田园中的小溪，温和利用流动资源",
+                        lifeApplication: "通过温和方式获取财富，适合灵活投资",
+                        favorable: ["灵活投资", "温和获利", "持续收益"],
+                        unfavorable: ["缺乏冲劲", "过于谨慎", "进展缓慢"]
+                    }
+                },
+                "庚": {
+                    "偏财": {
+                        gan: "甲",
+                        specificMeaning: "庚金日主见甲木，为阳金克阳木，如利剑砍伐大树，强势获取资源",
+                        lifeApplication: "通过果断决策获取财富，适合开拓性投资",
+                        favorable: ["果断投资", "开拓市场", "创新获利"],
+                        unfavorable: ["过于强硬", "忽视协作", "资源损耗"]
+                    },
+                    "正财": {
+                        gan: "乙",
+                        specificMeaning: "庚金日主见乙木，为阳金克阴木，如精工雕刻木材，精细获取资源",
+                        lifeApplication: "通过精细工作获取稳定财富，注重品质",
+                        favorable: ["精细工作", "稳健收入", "品质管理"],
+                        unfavorable: ["过于苛求", "效率不高", "压力过大"]
+                    },
+                    "七杀": {
+                        gan: "丙",
+                        specificMeaning: "庚金日主见丙火，为阳金被阳火所克，如刚剑在烈火中熔化，面临强大挑战",
+                        lifeApplication: "面临强势挑战，需要勇于应对转变",
+                        favorable: ["转危为机", "锻造提升", "变革创新"],
+                        unfavorable: ["固守成规", "过度防御", "拒绝变化"]
+                    },
+                    "正官": {
+                        gan: "丁",
+                        specificMeaning: "庚金日主见丁火，为阳金被阴火所克，如金属在温火中塑形，面临精细规范",
+                        lifeApplication: "面临温和规范，需要适应调整",
+                        favorable: ["接受塑造", "规范提升", "品质改善"],
+                        unfavorable: ["过度妥协", "失去锐气", "特性消失"]
+                    },
+                    "偏印": {
+                        gan: "戊",
+                        specificMeaning: "庚金日主见戊土，为阳金得阳土所生，如宝剑从矿山中提炼，获得坚实支持",
+                        lifeApplication: "获得稳固支持和实用知识，思维务实",
+                        favorable: ["实用知识", "稳固支持", "务实发展"],
+                        unfavorable: ["过于保守", "缺乏灵活", "思想僵化"]
+                    },
+                    "正印": {
+                        gan: "己",
+                        specificMeaning: "庚金日主见己土，为阳金得阴土所生，如利器从沃土中孕育，获得温和滋养",
+                        lifeApplication: "获得温和支持和传统知识，成长稳定",
+                        favorable: ["传统学习", "温和支持", "稳定成长"],
+                        unfavorable: ["过于依赖", "缺乏创新", "独立性弱"]
+                    },
+                    "比肩": {
+                        gan: "庚",
+                        specificMeaning: "庚金日主见庚金，为阳金见阳金，如利剑相照，锋芒毕露",
+                        lifeApplication: "刚强合作，注重效率，但可能竞争激烈",
+                        favorable: ["强强联合", "效率提升", "优势互补"],
+                        unfavorable: ["锋芒相对", "过度竞争", "资源争夺"]
+                    },
+                    "劫财": {
+                        gan: "辛",
+                        specificMeaning: "庚金日主见辛金，为阳金见阴金，如刚剑与珠宝并存，刚柔相济",
+                        lifeApplication: "互补性强，资源共享，兼具力量与精细",
+                        favorable: ["刚柔并济", "优势互补", "资源共享"],
+                        unfavorable: ["方向不一", "定位模糊", "资源分散"]
+                    },
+                    "食神": {
+                        gan: "壬",
+                        specificMeaning: "庚金日主见壬水，为阳金生阳水，如利剑化为江河，创造强大流动力",
+                        lifeApplication: "创造力强，作品影响广泛，适合开创性工作",
+                        favorable: ["开创事业", "广泛影响", "强劲发展"],
+                        unfavorable: ["缺乏稳定", "变化过快", "难以掌控"]
+                    },
+                    "伤官": {
+                        gan: "癸",
+                        specificMeaning: "庚金日主见癸水，为阳金生阴水，如金属凝结细雨，创造温润柔和之力",
+                        lifeApplication: "创新中注重温和，作品细腻深刻",
+                        favorable: ["温和创新", "细腻表达", "深度探索"],
+                        unfavorable: ["缺乏锐气", "过于内敛", "影响有限"]
+                    }
+                },
+                "辛": {
+                    "正财": {
+                        gan: "甲",
+                        specificMeaning: "辛金日主见甲木，为阴金克阳木，如巧匠雕刻树木，精细获取资源",
+                        lifeApplication: "通过精细工作获取财富，适合艺术创作",
+                        favorable: ["精细工作", "艺术创造", "价值提升"],
+                        unfavorable: ["过于追求完美", "效率不高", "压力过大"]
+                    },
+                    "偏财": {
+                        gan: "乙",
+                        specificMeaning: "辛金日主见乙木，为阴金克阴木，如细工雕刻藤蔓，巧妙获取资源",
+                        lifeApplication: "通过灵活创意获取财富，适合设计创新",
+                        favorable: ["创意设计", "灵活应变", "精细收益"],
+                        unfavorable: ["过于纤细", "缺乏力量", "不够稳定"]
+                    },
+                    "正官": {
+                        gan: "丙",
+                        specificMeaning: "辛金日主见丙火，为阴金被阳火所克，如珠宝在烈火中锻造，面临强势规范",
+                        lifeApplication: "面临严格规范，需要接受锻造提升",
+                        favorable: ["接受挑战", "提升品质", "规范行为"],
+                        unfavorable: ["压力过大", "失去特性", "过度妥协"]
+                    },
+                    "七杀": {
+                        gan: "丁",
+                        specificMeaning: "辛金日主见丁火，为阴金被阴火所克，如金饰在温火中塑形，面临温和挑战",
+                        lifeApplication: "面临精细挑战，需要灵活适应",
+                        favorable: ["精细调整", "温和适应", "品质提升"],
+                        unfavorable: ["过度敏感", "缺乏主见", "特性消失"]
+                    },
+                    "正印": {
+                        gan: "戊",
+                        specificMeaning: "辛金日主见戊土，为阴金得阳土所生，如珠宝从山石中孕育，获得坚实支持",
+                        lifeApplication: "获得稳固支持和实用知识，基础扎实",
+                        favorable: ["稳固基础", "务实知识", "可靠支持"],
+                        unfavorable: ["过于依赖", "缺乏变通", "思想保守"]
+                    },
+                    "偏印": {
+                        gan: "己",
+                        specificMeaning: "辛金日主见己土，为阴金得阴土所生，如金饰从沃土中提炼，获得温和滋养",
+                        lifeApplication: "获得温和支持和灵活知识，成长和谐",
+                        favorable: ["和谐学习", "柔和支持", "稳定成长"],
+                        unfavorable: ["缺乏主见", "过于温顺", "创新不足"]
+                    },
+                    "劫财": {
+                        gan: "庚",
+                        specificMeaning: "辛金日主见庚金，为阴金见阳金，如珠宝与利剑相映，柔和与锋芒并存",
+                        lifeApplication: "与强者合作，优势互补，但可能被主导",
+                        favorable: ["借势发展", "强弱互补", "扩大影响"],
+                        unfavorable: ["被强势压制", "资源不均", "特质被掩盖"]
+                    },
+                    "比肩": {
+                        gan: "辛",
+                        specificMeaning: "辛金日主见辛金，为阴金见阴金，如珠光宝气相映，相互衬托",
+                        lifeApplication: "精致协作，注重品质，相互促进",
+                        favorable: ["品质提升", "相互欣赏", "资源共享"],
+                        unfavorable: ["过于讲究", "效率不高", "力量不足"]
+                    },
+                    "伤官": {
+                        gan: "壬",
+                        specificMeaning: "辛金日主见壬水，为阴金生阳水，如珠宝化为清泉，创造活跃流动之美",
+                        lifeApplication: "创新能力强，作品富有活力，适合变革创新",
+                        favorable: ["变革创新", "流动发展", "广泛影响"],
+                        unfavorable: ["缺乏稳定", "过于激进", "难以掌控"]
+                    },
+                    "食神": {
+                        gan: "癸",
+                        specificMeaning: "辛金日主见癸水，为阴金生阴水，如金饰化为细雨，创造温润细腻之美",
+                        lifeApplication: "创造力细腻，作品温润深刻，注重品质",
+                        favorable: ["细腻创作", "品质生活", "深度表达"],
+                        unfavorable: ["过于内敛", "影响有限", "缺乏冲击力"]
+                    }
+                },
+                "壬": {
+                    "食神": {
+                        gan: "甲",
+                        specificMeaning: "壬水日主见甲木，为阳水生阳木，如江河滋养大树，创造生机勃勃的力量",
+                        lifeApplication: "创造力强，作品生机勃勃，适合开创性工作",
+                        favorable: ["开创事业", "创新发展", "活力四射"],
+                        unfavorable: ["缺乏稳定", "过于激进", "消耗过大"]
+                    },
+                    "伤官": {
+                        gan: "乙",
+                        specificMeaning: "壬水日主见乙木，为阳水生阴木，如江河滋养柔枝，创造灵活多变的美",
+                        lifeApplication: "创新中注重灵活，作品变化多端",
+                        favorable: ["灵活创新", "适应变化", "多样发展"],
+                        unfavorable: ["缺乏集中", "方向不明", "过于分散"]
+                    },
+                    "偏财": {
+                        gan: "丙",
+                        specificMeaning: "壬水日主见丙火，为阳水克阳火，如洪水压制烈火，强势获取资源",
+                        lifeApplication: "通过冲击力获取财富，适合风险投资",
+                        favorable: ["把握机会", "果断投资", "冲破阻碍"],
+                        unfavorable: ["过于冒险", "忽视稳定", "消耗过大"]
+                    },
+                    "正财": {
+                        gan: "丁",
+                        specificMeaning: "壬水日主见丁火，为阳水克阴火，如清流调节烛光，温和获取价值",
+                        lifeApplication: "通过调和控制获取财富，适合稳健投资",
+                        favorable: ["稳健理财", "持续收益", "规避风险"],
+                        unfavorable: ["过于保守", "错失机会", "进展缓慢"]
+                    },
+                    "七杀": {
+                        gan: "戊",
+                        specificMeaning: "壬水日主见戊土，为阳水被阳土所克，如江河被高山阻断，面临强大挑战",
+                        lifeApplication: "面临强势阻力，需要灵活应对",
+                        favorable: ["灵活应变", "寻找突破", "曲线发展"],
+                        unfavorable: ["固执硬抗", "忽视变通", "消耗过大"]
+                    },
+                    "正官": {
+                        gan: "己",
+                        specificMeaning: "壬水日主见己土，为阳水被阴土所克，如江河被沃土引导，面临温和规范",
+                        lifeApplication: "面临温和约束，需要顺势而为",
+                        favorable: ["顺势而为", "规范发展", "有序前进"],
+                        unfavorable: ["过度限制", "束缚创新", "活力受限"]
+                    },
+                    "偏印": {
+                        gan: "庚",
+                        specificMeaning: "壬水日主见庚金，为阳水得阳金所生，如江河源于高山之巅，获得强大智慧",
+                        lifeApplication: "获得清晰锐利的思想和支持，思维活跃",
+                        favorable: ["锐意创新", "思维敏捷", "开拓视野"],
+                        unfavorable: ["过于锋芒", "缺乏温和", "稳定性差"]
+                    },
+                    "正印": {
+                        gan: "辛",
+                        specificMeaning: "壬水日主见辛金，为阳水得阴金所生，如江河源于精致山泉，获得精细智慧",
+                        lifeApplication: "获得精细的知识和支持，思维细腻",
+                        favorable: ["精细思考", "艺术智慧", "审美提升"],
+                        unfavorable: ["过于讲究", "缺乏魄力", "行动迟缓"]
+                    },
+                    "比肩": {
+                        gan: "壬",
+                        specificMeaning: "壬水日主见壬水，为阳水见阳水，如两江交汇，浩荡奔流",
+                        lifeApplication: "力量强大，善于变通，但可能竞争资源",
+                        favorable: ["强强联合", "资源整合", "扩大影响"],
+                        unfavorable: ["过度竞争", "资源消耗", "方向不一"]
+                    },
+                    "劫财": {
+                        gan: "癸",
+                        specificMeaning: "壬水日主见癸水，为阳水见阴水，如江河与湖泊相通，刚柔并济",
+                        lifeApplication: "互补性强，资源流动，兼具力量与温和",
+                        favorable: ["刚柔并济", "资源共享", "互补发展"],
+                        unfavorable: ["能量分散", "缺乏聚焦", "方向模糊"]
+                    }
+                },
+                "癸": {
+                    "伤官": {
+                        gan: "甲",
+                        specificMeaning: "癸水日主见甲木，为阴水生阳木，如细雨滋养大树，创造强健有力的变化",
+                        lifeApplication: "创新能力强，作品强健有力，但保持内敛",
+                        favorable: ["强健创新", "深度突破", "稳步变革"],
+                        unfavorable: ["内外不一", "力量不足", "过于隐晦"]
+                    },
+                    "食神": {
+                        gan: "乙",
+                        specificMeaning: "癸水日主见乙木，为阴水生阴木，如细雨滋养柔枝，创造柔美细腻的艺术",
+                        lifeApplication: "创造力细腻，作品柔美，注重艺术性",
+                        favorable: ["艺术创作", "细腻表达", "温和发展"],
+                        unfavorable: ["缺乏冲击力", "过于内敛", "影响有限"]
+                    },
+                    "正财": {
+                        gan: "丙",
+                        specificMeaning: "癸水日主见丙火，为阴水克阳火，如细雨调节烈火，巧妙获取价值",
+                        lifeApplication: "通过调和平衡获取财富，适合精细管理",
+                        favorable: ["精细管理", "稳定获利", "风险控制"],
+                        unfavorable: ["力量不足", "进展缓慢", "过于保守"]
+                    },
+                    "偏财": {
+                        gan: "丁",
+                        specificMeaning: "癸水日主见丁火，为阴水克阴火，如细雨浸润烛光，温和获取价值",
+                        lifeApplication: "通过温和方式获取财富，适合细致投资",
+                        favorable: ["细致投资", "温和获利", "长期积累"],
+                        unfavorable: ["收益微小", "过程漫长", "缺乏亮点"]
+                    },
+                    "正官": {
+                        gan: "戊",
+                        specificMeaning: "癸水日主见戊土，为阴水被阳土所克，如细流被山体阻断，面临强大规范",
+                        lifeApplication: "面临严格约束，需要接受管理指导",
+                        favorable: ["接受规范", "遵守秩序", "稳定发展"],
+                        unfavorable: ["压力过大", "活力受限", "创新困难"]
+                    },
+                    "七杀": {
+                        gan: "己",
+                        specificMeaning: "癸水日主见己土，为阴水被阴土所克，如细雨被沃土吸收，面临温和挑战",
+                        lifeApplication: "面临温和约束，需要顺势而为",
+                        favorable: ["顺势而为", "柔和适应", "稳定发展"],
+                        unfavorable: ["过度融入", "特性消失", "缺乏突破"]
+                    },
+                    "正印": {
+                        gan: "庚",
+                        specificMeaning: "癸水日主见庚金，为阴水得阳金所生，如细雨源于高山之巅，获得清晰指引",
+                        lifeApplication: "获得清晰有力的支持和知识，思路开阔",
+                        favorable: ["思路清晰", "坚定支持", "明确方向"],
+                        unfavorable: ["过于依赖", "缺乏自主", "压力过大"]
+                    },
+                    "偏印": {
+                        gan: "辛",
+                        specificMeaning: "癸水日主见辛金，为阴水得阴金所生，如细雨源于精致泉水，获得精细滋养",
+                        lifeApplication: "获得精细的知识和支持，思维细腻",
+                        favorable: ["精细思考", "细腻理解", "审美提升"],
+                        unfavorable: ["过于敏感", "缺乏实践", "犹豫不决"]
+                    },
+                    "劫财": {
+                        gan: "壬",
+                        specificMeaning: "癸水日主见壬水，为阴水见阳水，如细流汇入江河，被强势力量影响",
+                        lifeApplication: "与强者合作，资源共享，但可能被主导",
+                        favorable: ["借势发展", "扩大影响", "资源整合"],
+                        unfavorable: ["被强势吞没", "特性消失", "独立性弱"]
+                    },
+                    "比肩": {
+                        gan: "癸",
+                        specificMeaning: "癸水日主见癸水，为阴水见阴水，如细雨相融，温和共存",
+                        lifeApplication: "温和协作，相互理解，但力量可能偏弱",
+                        favorable: ["温和合作", "相互理解", "共同成长"],
+                        unfavorable: ["缺乏突破", "影响有限", "进展缓慢"]
+                    }
+                }
+            };
 
-        // 应用场景数据
-        const applicationData = {
-            wood: {
-                career: "木属性日主善于规划和创新，适合从事创意设计、教育培训、法律咨询、环保事业等需要开拓创新的工作。",
-                relationships: "木属性日主在人际关系中善解人意，乐于助人，但有时可能较为固执。建议保持开放心态，理解他人立场。",
-                health: "木属性日主需注意肝胆系统健康，保持情绪平和，避免过度紧张和愤怒，定期运动有助疏通气血。",
-                living: "居住环境宜选择通风良好、阳光充足的地方，室内可摆放适量绿色植物，有助于生发木气。",
-                balance: "若木气过旺，可通过金属饰品调节；若木气不足，可多接触自然环境，增加绿色元素。"
-            },
-            fire: {
-                career: "火属性日主热情洋溢，适合从事演艺、销售、公关、餐饮、心理咨询等需要表现力和感染力的工作。",
-                relationships: "火属性日主在人际关系中活泼开朗，容易获得他人好感，但要注意控制情绪波动，避免过于急躁。",
-                health: "火属性日主需注意心脑血管健康，保持情绪稳定，避免过度兴奋和熬夜，适当进行有氧运动。",
-                living: "居住环境宜选择明亮温暖的地方，室内可适当使用红色等暖色调装饰，增强火的能量。",
-                balance: "若火气过旺，可通过水元素调节，如蓝色装饰或喷泉；若火气不足，可增加红色元素或提高照明亮度。"
-            },
-            earth: {
-                career: "土属性日主踏实稳重，适合从事行政管理、房地产、农业、服务业等需要耐心和责任感的工作。",
-                relationships: "土属性日主在人际关系中忠诚可靠，注重家庭价值，但有时可能较为保守，建议适当接受新事物。",
-                health: "土属性日主需注意脾胃健康，保持饮食规律，避免过度思虑和担忧，适当进行中等强度运动。",
-                living: "居住环境宜选择稳定安全的地方，室内可使用黄色、棕色等土色调装饰，增强安全感。",
-                balance: "若土气过旺，可通过木元素调节，如绿色植物；若土气不足，可增加黄色元素或方形家具。"
-            },
-            metal: {
-                career: "金属性日主条理分明，适合从事金融、军警、司法、工程、机械制造等需要纪律性和执行力的工作。",
-                relationships: "金属性日主在人际关系中原则性强，重视公平公正，但有时可能显得刚硬，建议增加灵活性和包容心。",
-                health: "金属性日主需注意肺部和大肠健康，保持环境清洁，避免过度忧郁，适当进行呼吸训练。",
-                living: "居住环境宜选择整洁有序的地方，室内可使用白色、金属色调装饰，增强金的能量。",
-                balance: "若金气过旺，可通过火元素调节，如红色装饰；若金气不足，可增加金属饰品或白色元素。"
-            },
-            water: {
-                career: "水属性日主思维灵活，适合从事研究、贸易、外交、哲学、航运等需要智慧和沟通能力的工作。",
-                relationships: "水属性日主在人际关系中善于沟通，适应性强，但有时可能缺乏稳定性，建议培养恒心和承诺感。",
-                health: "水属性日主需注意肾脏和膀胱健康，保持足够休息，避免过度恐惧，适当进行静态运动如太极。",
-                living: "居住环境宜选择安静流畅的地方，室内可使用蓝色、黑色等水色调装饰，或摆放小型水景。",
-                balance: "若水气过旺，可通过土元素调节，如黄色装饰；若水气不足，可增加蓝色元素或流水装饰。"
-            }
-        };
+            // 十神关系矩阵
+            const shenshaMatrix = {
+                "甲": ["比肩","劫财","食神","伤官","偏财","正财","七杀","正官","偏印","正印"],
+                "乙": ["劫财","比肩","伤官","食神","正财","偏财","正官","七杀","正印","偏印"],
+                "丙": ["偏印","正印","比肩","劫财","食神","伤官","偏财","正财","七杀","正官"],
+                "丁": ["正印","偏印","劫财","比肩","伤官","食神","正财","偏财","正官","七杀"],
+                "戊": ["七杀","正官","偏印","正印","比肩","劫财","食神","伤官","偏财","正财"],
+                "己": ["正官","七杀","正印","偏印","劫财","比肩","伤官","食神","正财","偏财"],
+                "庚": ["偏财","正财","七杀","正官","偏印","正印","比肩","劫财","食神","伤官"],
+                "辛": ["正财","偏财","正官","七杀","正印","偏印","劫财","比肩","伤官","食神"],
+                "壬": ["食神","伤官","偏财","正财","七杀","正官","偏印","正印","比肩","劫财"],
+                "癸": ["伤官","食神","正财","偏财","正官","七杀","正印","偏印","劫财","比肩"]
+            };
+            
+            // 天干对应五行
+            const ganToElement = {
+                "甲": "木", "乙": "木",
+                "丙": "火", "丁": "火",
+                "戊": "土", "己": "土",
+                "庚": "金", "辛": "金",
+                "壬": "水", "癸": "水"
+            };
+            
+            // 天干阴阳属性
+            const ganToYangYin = {
+                "甲": "阳", "丙": "阳", "戊": "阳", "庚": "阳", "壬": "阳",
+                "乙": "阴", "丁": "阴", "己": "阴", "辛": "阴", "癸": "阴"
+            };
 
-        // 十神应用数据
-        const tenGodsApplicationData = {
-            self: {
-                meaning: "比肩代表兄弟姐妹、同事、朋友、竞争者等同辈关系，也象征合作、竞争、支持等力量。",
-                strong: "比肩旺盛时，表现为人际关系活跃，合作机会多，但也可能面临激烈竞争，需要学会共存共赢。",
-                weak: "比肩薄弱时，可能感到缺乏支持和帮助，建议主动寻求合作，扩展人脉网络。",
-                balance: "平衡的比肩能量，使人既能独立自主，又能与他人良好合作，取长补短。"
-            },
-            sibling: {
-                meaning: "劫财代表兄弟姐妹中的异性、志同道合的朋友、资源竞争者等，也象征分享、争夺、互助等关系。",
-                strong: "劫财旺盛时，可能面临资源争夺，关系紧张，需要学会妥协和让步，避免不必要的冲突。",
-                weak: "劫财薄弱时，可能缺乏竞争意识，容易被他人占便宜，建议适当增强自我保护意识。",
-                balance: "平衡的劫财能量，使人能够在竞争中保持友谊，在分享中保持边界，取得长久共赢。"
-            },
-            money: {
-                meaning: "食神代表子女、学生、追随者、爱好等，也象征快乐、艺术、享受、创造力等方面。",
-                strong: "食神旺盛时，生活充满乐趣和创意，但可能过于追求享乐，忽视责任，需要适度节制。",
-                weak: "食神薄弱时，可能缺乏生活乐趣和创造力，建议培养兴趣爱好，增加生活情趣。",
-                balance: "平衡的食神能量，使人既能享受生活乐趣，又能保持责任感，创造有意义的快乐。"
-            },
-            rob_money: {
-                meaning: "伤官代表聪明才智、反叛精神、创新能力等，也象征不受约束的才华和灵感。",
-                strong: "伤官旺盛时，思维活跃，创新能力强，但可能我行我素，难以遵守规则，需要适当节制。",
-                weak: "伤官薄弱时，可能缺乏创新精神和批判思维，建议培养独立思考能力，勇于尝试新事物。",
-                balance: "平衡的伤官能量，使人既有创新精神，又能尊重规则，将才华用于建设性的方向。"
-            },
-            official: {
-                meaning: "正财代表稳定收入、配偶、固定资产等，也象征安全感、物质保障等方面。",
-                strong: "正财旺盛时，经济状况稳定，物质生活丰富，但可能过于依赖物质保障，忽视精神追求。",
-                weak: "正财薄弱时，可能面临经济压力，缺乏安全感，建议提高理财能力，开拓稳定收入来源。",
-                balance: "平衡的正财能量，使人既能拥有物质保障，又不被物质所束缚，保持精神自由。"
-            },
-            wealth: {
-                meaning: "偏财代表意外收获、投资收益、兼职收入等，也象征冒险精神、机遇把握等方面。",
-                strong: "偏财旺盛时，机会众多，财运亨通，但可能冒险过度，需要学会控制风险，理性投资。",
-                weak: "偏财薄弱时，可能缺乏冒险精神，错失机会，建议适当尝试新的投资和收入渠道。",
-                balance: "平衡的偏财能量，使人既能把握机会获取收益，又能控制风险避免损失，实现财富稳健增长。"
-            },
-            hurting: {
-                meaning: "七杀代表上司、权威、挑战、压力等，也象征威严、决断、勇气等方面。",
-                strong: "七杀旺盛时，面临较大压力和挑战，但也能锻炼意志和能力，需要学会面对和克服困难。",
-                weak: "七杀薄弱时，可能缺乏勇气和决断力，面对困难容易退缩，建议培养勇气和意志力。",
-                balance: "平衡的七杀能量，使人既有面对挑战的勇气，又有理性应对的智慧，在逆境中成长。"
-            },
-            officer: {
-                meaning: "正官代表权威、规则、制度、长辈等，也象征责任、纪律、秩序等方面。",
-                strong: "正官旺盛时，做事有条理，遵守规则，但可能过于拘泥于形式，缺乏灵活性，需要适当放松。",
-                weak: "正官薄弱时，可能缺乏纪律性和责任感，做事随意，建议培养自律精神和责任意识。",
-                balance: "平衡的正官能量，使人既能遵守规则维持秩序，又能保持灵活应对变化，取得长期稳定发展。"
-            }
-        };
-
-        // 查询按钮点击事件
-        document.getElementById('query-btn').addEventListener('click', function() {
-            const dayMaster = document.getElementById('day-master').value;
+            // 获取十天干数组
+            const tianGan = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"];
             
-            if (!dayMaster) {
-                alert('请选择日主！');
-                return;
-            }
-            
-            // 显示结果区域
-            const resultDiv = document.getElementById('result');
-            resultDiv.style.display = 'block';
-            
-            // 获取日主对应的五行
-            let element = '';
-            let tianganName = '';
-            
-            switch(dayMaster) {
-                case 'jiaMu':
-                    element = 'wood';
-                    tianganName = 'jia';
-                    break;
-                case 'yiMu':
-                    element = 'wood';
-                    tianganName = 'yi';
-                    break;
-                case 'bingHuo':
-                    element = 'fire';
-                    tianganName = 'bing';
-                    break;
-                case 'dingHuo':
-                    element = 'fire';
-                    tianganName = 'ding';
-                    break;
-                case 'wuTu':
-                    element = 'earth';
-                    tianganName = 'wu';
-                    break;
-                case 'jiTu':
-                    element = 'earth';
-                    tianganName = 'ji';
-                    break;
-                case 'gengJin':
-                    element = 'metal';
-                    tianganName = 'geng';
-                    break;
-                case 'xinJin':
-                    element = 'metal';
-                    tianganName = 'xin';
-                    break;
-                case 'renShui':
-                    element = 'water';
-                    tianganName = 'ren';
-                    break;
-                case 'guiShui':
-                    element = 'water';
-                    tianganName = 'gui';
-                    break;
-            }
-            
-            // 设置日主信息
-            const dayMasterDetails = document.getElementById('day-master-details');
-            const elementInfo = elementData[element];
-            const tianganInfo = tianganData[tianganName];
-            
-            let elementClass = '';
-            switch(element) {
-                case 'wood': elementClass = 'element-wood'; break;
-                case 'fire': elementClass = 'element-fire'; break;
-                case 'earth': elementClass = 'element-earth'; break;
-                case 'metal': elementClass = 'element-metal'; break;
-                case 'water': elementClass = 'element-water'; break;
-            }
-            
-            dayMasterDetails.innerHTML = `
-                <div class="section">
-                    <h3 class="${elementClass}">${tianganInfo.name}${elementInfo.name}日主基本信息</h3>
-                    <p><strong>五行属性：</strong>${elementInfo.name}（${tianganInfo.yin_yang}性）</p>
-                    <p><strong>基本特质：</strong>${tianganInfo.special}</p>
-                    <p><strong>性格特征：</strong>${tianganInfo.character}</p>
-                    <p><strong>象征意义：</strong>${tianganInfo.symbolism}</p>
-                </div>
-                
-                <div class="section">
-                    <h3 class="${elementClass}">${elementInfo.name}的五行特性详解</h3>
-                    <div class="table-container">
-                        <table>
-                            <tr><th>属性</th><th>特征</th></tr>
-                            <tr><td>本质</td><td>${elementInfo.nature}</td></tr>
-                            <tr><td>相应季节</td><td>${elementInfo.season}</td></tr>
-                            <tr><td>方位</td><td>${elementInfo.direction}</td></tr>
-                            <tr><td>颜色</td><td>${elementInfo.color}</td></tr>
-                            <tr><td>味道</td><td>${elementInfo.taste}</td></tr>
-                            <tr><td>形状</td><td>${elementInfo.shape}</td></tr>
-                            <tr><td>情绪</td><td>${elementInfo.emotions}</td></tr>
-                            <tr><td>德行</td><td>${elementInfo.virtues}</td></tr>
-                            <tr><td>物候</td><td>${elementInfo.weather}</td></tr>
-                            <tr><td>对应物</td><td>${elementInfo.objects}</td></tr>
-                            <tr><td>相应职业</td><td>${elementInfo.career}</td></tr>
-                        </table>
-                    </div>
-                    
-                    <div class="analysis">
-                        <p><span class="key-point">自然哲学视角：</span>${elementInfo.detailed}</p>
-                        <p><span class="key-point">五行理论推导：</span>${elementInfo.name}作为五行之一，与其他四行形成相生相克的关系。${elementInfo.name}生于${getGeneratingElement(element)}，克制${getControlledElement(element)}，被${getOvercomingElement(element)}所克，并能够生${getGeneratedElement(element)}。这种关系体现了宇宙万物相互联系、相互制约的哲学观念。</p>
-                    </div>
-                </div>
-            `;
-            
-            // 设置十神信息
-            const tenGodsDetails = document.getElementById('ten-gods-details');
-            const tenGods = tenGodsData[dayMaster];
-            
-            let tenGodsHTML = `
-                <div class="section">
-                    <h3>十神基本概念</h3>
-                    <p>十神是八字命理学中重要概念，代表日主与其他天干的关系，揭示了人生各方面的信息。十神包括：比肩、劫财、食神、伤官、正财、偏财、正官、七杀、正印、偏印。对于${tianganInfo.name}${elementInfo.name}日主而言，各十神的具体对应如下：</p>
-                </div>
-                
-                <div class="section">
-                    <h3 class="${elementClass}">十神详细解析</h3>
-                    <div class="table-container">
-                        <table>
-                            <tr><th>十神名称</th><th>对应天干</th><th>五行关系</th><th>基本含义</th></tr>
-            `;
-            
-            for (let god in tenGods) {
-                const godInfo = tenGods[god];
-                tenGodsHTML += `
-                    <tr>
-                        <td>${godInfo.name}</td>
-                        <td>${godInfo.tiangan.join('、')}</td>
-                        <td>${godInfo.property}</td>
-                        <td>${godInfo.nature}</td>
-                    </tr>
-                `;
-            }
-            
-            tenGodsHTML += `
-                        </table>
-                    </div>
-                </div>
-            `;
-            
-            // 添加十神深入分析
-            tenGodsHTML += `
-                <div class="section">
-                    <h3>十神深入分析</h3>
-                    <p class="note">以下是各个十神的深入解析，包括自然象征、现实意义和心理影响</p>
-            `;
-            
-            for (let god in tenGods) {
-                const godInfo = tenGods[god];
-                const applicationInfo = tenGodsApplicationData[god];
-                
-                tenGodsHTML += `
-                    <div>
-                        <h4>${godInfo.name}（${godInfo.property}）</h4>
-                        <p><strong>自然象征：</strong>在自然界中，${godInfo.name}如同${getGodNatureSymbol(god, element)}，体现了${godInfo.property}的关系。</p>
-                        <p><strong>现实意义：</strong>${applicationInfo.meaning}</p>
-                        <button class="toggle-btn" onclick="toggleContent('${god}-detail')">查看详细分析</button>
-                        <div id="${god}-detail" class="toggle-content">
-                            <p><strong>强盛时：</strong>${applicationInfo.strong}</p>
-                            <p><strong>薄弱时：</strong>${applicationInfo.weak}</p>
-                            <p><strong>平衡状态：</strong>${applicationInfo.balance}</p>
-                            <p><strong>心理影响：</strong>${getGodPsychologicalEffect(god, element)}</p>
-                            <p><strong>人生启示：</strong>${getGodLifeImplication(god, element)}</p>
-                        </div>
-                    </div>
-                `;
-            }
-            
-            tenGodsHTML += `</div>`;
-            tenGodsDetails.innerHTML = tenGodsHTML;
-            
-            // 设置五行关系信息
-            const relationshipDetails = document.getElementById('relationship-details');
-            relationshipDetails.innerHTML = `
-                <div class="section">
-                    <h3 class="${elementClass}">五行相生相克体系</h3>
-                    <p>五行相生次序：木生火，火生土，土生金，金生水，水生木。</p>
-                    <p>五行相克次序：木克土，土克水，水克火，火克金，金克木。</p>
-                    
-                    <div class="analysis">
-                        <p><span class="key-point">${elementInfo.name}的相生关系：</span>${elementInfo.name}生于${getGeneratingElement(element)}，能生${getGeneratedElement(element)}。这种关系体现了能量的传递和转化。</p>
-                        <p><span class="key-point">${elementInfo.name}的相克关系：</span>${elementInfo.name}克制${getControlledElement(element)}，被${getOvercomingElement(element)}所克。这种关系体现了自然界的制衡和平衡。</p>
-                    </div>
-                </div>
-                
-                <div class="section">
-                    <h3>阴阳五行的哲学思考</h3>
-                    <p>阴阳五行学说是中国古代朴素的唯物主义哲学，它通过观察自然现象，抽象出事物变化的基本规律。五行不仅是五种基本物质，更代表五种基本能量和运动状态。</p>
-                    <p>在这个体系中，${tianganInfo.name}${elementInfo.name}作为${tianganInfo.yin_yang}性${elementInfo.name}，既具有${elementInfo.name}的基本属性，又带有${tianganInfo.yin_yang}的特性。${tianganInfo.yin_yang}性意味着${tianganInfo.yin_yang === '阳' ? '外向、刚强、主动、扩张' : '内敛、柔和、被动、收缩'}的特质。</p>
-                    <p>从哲学层面看，阴阳五行的相生相克关系揭示了事物的辩证发展规律：相生代表事物的生长和延续，相克代表事物的制约和变化。两种关系共同维持着宇宙的动态平衡。</p>
-                </div>
-            `;
-            
-            // 设置应用信息
-            const applicationDetails = document.getElementById('application-details');
-            const appInfo = applicationData[element];
-            
-            applicationDetails.innerHTML = `
-                <div class="section">
-                    <h3 class="${elementClass}">${tianganInfo.name}${elementInfo.name}日主的现实指导</h3>
-                    <p><strong>事业发展：</strong>${appInfo.career}</p>
-                    <p><strong>人际关系：</strong>${appInfo.relationships}</p>
-                    <p><strong>健康养生：</strong>${appInfo.health}</p>
-                    <p><strong>生活环境：</strong>${appInfo.living}</p>
-                    <p><strong>平衡调节：</strong>${appInfo.balance}</p>
-                </div>
-                
-                <div class="section">
-                    <h3>十神平衡的个人发展建议</h3>
-                    <p>在命理学中，十神的平衡是个人发展的关键。对于${tianganInfo.name}${elementInfo.name}日主，以下是基于十神关系的具体建议：</p>
-                    <ul>
-                        <li><strong>比肩劫财（同类力量）：</strong>学会与同类型人士良性竞争与合作，既能独立自主，又能团队协作。</li>
-                        <li><strong>食神伤官（我生之物）：</strong>培养创造力和表达能力，既能遵循规则，又能保持创新精神。</li>
-                        <li><strong>正财偏财（生我之物）：</strong>重视稳定收入的同时，也要把握机遇，适度冒险，实现财富增长。</li>
-                        <li><strong>正官七杀（克我之物）：</strong>尊重规则和权威，同时培养面对挑战的勇气和应对压力的能力。</li>
-                        <li><strong>正印偏印（我克之物）：</strong>学习吸收新知识，提升内在修养，将智慧转化为实际行动。</li>
-                    </ul>
-                </div>
-                
-                <div class="section">
-                    <h3>个人见解与未来展望</h3>
-                    <p>在现代社会，五行十神理论可以作为一种自我认知和人生指导的工具。对于${tianganInfo.name}${elementInfo.name}日主而言，了解自己的五行特性和十神关系，有助于更好地发挥优势，弥补不足。</p>
-                    <p>我认为，五行理论的精髓在于"平衡"。生活中不是追求某一种五行能量的极致，而是寻求各种能量的和谐共存。${tianganInfo.name}${elementInfo.name}日主可以通过调整生活方式、环境、人际关系等方面，达到更理想的平衡状态。</p>
-                    <p>从心理学角度看，五行十神理论也反映了人格的多面性和复杂性。通过这一视角，我们可以更全面地认识自己，接纳自己的多元特质，实现更全面的个人发展。</p>
-                </div>
-            `;
-            
-            // 初始化标签切换功能
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.addEventListener('click', function() {
-                    // 移除所有标签的active类
-                    document.querySelectorAll('.tab').forEach(t => {
-                        t.classList.remove('active');
+            // 生成十神关系矩阵表格
+            function generateMatrixTable() {
+                let tableHtml = '';
+                tianGan.forEach(rizhu => {
+                    let row = `<tr><td><strong>${rizhu}${ganToElement[rizhu]}</strong></td>`;
+                    tianGan.forEach(gan => {
+                        const index = tianGan.indexOf(gan);
+                        const shenshaName = shenshaMatrix[rizhu][index];
+                        row += `<td>${shenshaName}</td>`;
                     });
-                    
-                    // 为当前点击的标签添加active类
-                    this.classList.add('active');
-                    
-                    // 隐藏所有内容
+                    row += '</tr>';
+                    tableHtml += row;
+                });
+                document.getElementById('matrixTable').innerHTML = tableHtml;
+            }
+            
+            // 生成十神解释
+            function generateShenshaExplain() {
+                let html = '';
+                ["比肩", "劫财", "食神", "伤官", "偏财", "正财", "七杀", "正官", "偏印", "正印"].forEach(shenshaName => {
+                    const data = shenshaBasicData[shenshaName];
+                    html += `
+                        <div class="detail-group">
+                            <h4>${shenshaName}</h4>
+                            <p><b>基本含义：</b>${data.basicMeaning}</p>
+                            <p><b>推导过程：</b>${data.derivation}</p>
+                            <p><b>主要特质：</b>${data.abstract.characteristics.join("、")}</p>
+                            <p><b>代表人物：</b>${data.concrete.people.join("、")}</p>
+                        </div>
+                    `;
+                });
+                document.getElementById('shenshaExplain').innerHTML = html;
+            }
+            
+            // 标签切换功能
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    // 移除所有标签的active类
+                    document.querySelectorAll('.tab-button').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
                     document.querySelectorAll('.tab-content').forEach(content => {
                         content.classList.remove('active');
                     });
                     
-                    // 显示对应的内容
-                    const contentId = this.getAttribute('data-tab');
-                    document.getElementById(contentId).classList.add('active');
+                    // 添加当前标签的active类
+                    this.classList.add('active');
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                    
+                    // 如果是矩阵标签，生成矩阵表格
+                    if(tabId === 'tab-matrix') {
+                        generateMatrixTable();
+                    }
+                    
+                    // 如果是理论标签，生成十神解释
+                    if(tabId === 'tab-theory') {
+                        generateShenshaExplain();
+                    }
                 });
             });
-        });
-        
-        // 内容折叠展开功能
-        function toggleContent(id) {
-            const content = document.getElementById(id);
-            if (content.classList.contains('active')) {
-                content.classList.remove('active');
-            } else {
-                content.classList.add('active');
-            }
-        }
-        
-        // 获取生我的五行
-        function getGeneratingElement(element) {
-            const generatingMap = {
-                wood: '水',
-                fire: '木',
-                earth: '火',
-                metal: '土',
-                water: '金'
-            };
             
-            return generatingMap[element];
-        }
-        
-        // 获取我生的五行
-        function getGeneratedElement(element) {
-            const generatedMap = {
-                wood: '火',
-                fire: '土',
-                earth: '金',
-                metal: '水',
-                water: '木'
-            };
-            
-            return generatedMap[element];
-        }
-        
-        // 获取克我的五行
-        function getOvercomingElement(element) {
-            const overcomingMap = {
-                wood: '金',
-                fire: '水',
-                earth: '木',
-                metal: '火',
-                water: '土'
-            };
-            
-            return overcomingMap[element];
-        }
-        
-        // 获取我克的五行
-        function getControlledElement(element) {
-            const controlledMap = {
-                wood: '土',
-                fire: '金',
-                earth: '水',
-                metal: '木',
-                water: '火'
-            };
-            
-            return controlledMap[element];
-        }
-        
-        // 获取十神的自然象征
-        function getGodNatureSymbol(god, element) {
-            const symbolMap = {
-                self: {
-                    wood: '同一片森林中的大树，彼此依存又相互竞争阳光',
-                    fire: '同一片天空中的太阳，共同照耀却也各自发光',
-                    earth: '同一片土地上的山丘，互相连接又各自屹立',
-                    metal: '同一矿脉中的金属，质地相似又各有特色',
-                    water: '同一江河中的水流，融为一体又各有去向'
-                },
-                sibling: {
-                    wood: '同一片林地中的树木和藤蔓，形态不同却共同生长',
-                    fire: '同一处的烈日和烛光，大小不同却本质相同',
-                    earth: '同一块土地上的高山和平原，形态各异却同根相连',
-                    metal: '同一类的刚剑和柔金，硬度不同却同属金性',
-                    water: '同一水体的江河和细雨，形态不同却本质相通'
-                },
-                money: {
-                    wood: '木滋养下生长的花朵，吸收养分又展现美丽',
-                    fire: '火焰照耀下的温暖土地，接受热量又孕育生命',
-                    earth: '土壤滋养的金属矿藏，隐藏其中又被提炼而出',
-                    metal: '金属切割下流淌的清泉，被分割引导又滋润万物',
-                    water: '水滋养下生长的树木，接受滋润又茁壮成长'
-                },
-                rob_money: {
-                    wood: '木助长的火焰，得到养分又有自己的热情',
-                    fire: '火锻造下的土质，被烘干固化又有独特坚韧',
-                    earth: '土包容下的流水，被限制方向又保持灵动',
-                    metal: '金属反射的阳光，被映照又有自己的光彩',
-                    water: '水滋润的嫩叶，被滋养又有自己的生命力'
-                },
-                official: {
-                    wood: '木材燃烧产生的火焰，转化能量展现新的形态',
-                    fire: '火焰灼烧后的灰烬，转化物质呈现新的状态',
-                    earth: '土地孕育的金属矿产，凝聚精华展现新的价值',
-                    metal: '金属冶炼的水珠，改变形态呈现流动之美',
-                    water: '水滋养的树木，传递生命力展现成长之姿'
-                },
-                wealth: {
-                    wood: '木材燃烧产生的灯火，化为光明照亮前方',
-                    fire: '火炼制的陶土，变得坚硬可靠，有实用价值',
-                    earth: '土中提炼的金属，闪烁光芒，价值倍增',
-                    metal: '金属凝结的水滴，晶莹剔透，蕴含智慧',
-                    water: '水滋润后生长的树木，茁壮挺拔，充满生机'
-                },
-                hurting: {
-                    wood: '木被削制成的器具，失去原形却获得新价值',
-                    fire: '火被水流熄灭，失去热力却滋润大地',
-                    earth: '土被木根穿透，表面破损却培育生命',
-                    metal: '金被火熔化，失去形态却可重塑',
-                    water: '水被土堤阻挡，改变方向却形成湖泊'
-                },
-                officer: {
-                    wood: '木被金属切割，受到约束却成为有用之材',
-                    fire: '火被水流控制，受到限制却更加安全',
-                    earth: '土被木植穿透，受到破坏却滋养生命',
-                    metal: '金被火焰锻造，受到考验却更加坚韧',
-                    water: '水被土堤引导，受到约束却更有方向'
+            // 查询按钮点击事件
+            document.getElementById('queryBtn').addEventListener('click', function() {
+                const rizhu = document.getElementById('rizhuSelector').value;
+                const target = document.getElementById('targetSelector').value;
+                
+                if (!rizhu || !target) {
+                    alert('请选择日主和查询对象');
+                    return;
                 }
-            };
-            
-            return symbolMap[god][element];
-        }
-        
-        // 获取十神的心理影响
-        function getGodPsychologicalEffect(god, element) {
-            const effectMap = {
-                self: '增强自信和同伴意识，但可能导致竞争压力和身份焦虑。平衡状态下，能够认识自我价值，既独立自主又善于合作。',
-                sibling: '促进资源共享和互助精神，但可能引发争夺和嫉妒。平衡状态下，能够明确边界，在竞争中保持友善，在分享中保持自我。',
-                money: '带来愉悦感和创造力，促进艺术表达，但可能导致过度追求享乐。平衡状态下，能够在享受生活的同时保持责任感。',
-                rob_money: '激发创新思维和反叛精神，增强个性表达，但可能导致不守规则和任性。平衡状态下，能够创新突破又尊重传统。',
-                official: '增强安全感和物质保障，促进稳定和规划，但可能导致物质依赖和守旧。平衡状态下，能够珍视物质基础又不被其束缚。',
-                wealth: '激发冒险精神和机遇把握能力，带来兴奋感，但可能导致赌博心态和风险忽视。平衡状态下，能够把握机会又控制风险。',
-                hurting: '锻炼意志力和应对压力的能力，促进成长，但可能导致紧张和恐惧。平衡状态下，能够面对挑战又不被压力击垮。',
-                officer: '培养规则意识和责任感，促进自律，但可能导致过度约束和僵化。平衡状态下，能够尊重规则又保持灵活应变。'
-            };
-            
-            return effectMap[god];
-        }
-        
-        // 获取十神的人生启示
-        function getGodLifeImplication(god, element) {
-            const implicationMap = {
-                self: '人生路上，既要有自己的立场和追求，又要学会与同伴共存共赢。过度竞争会导致孤立，过度依赖会失去自我。',
-                sibling: '资源有限，学会适度分享和适度竞争，建立健康的人际边界，才能实现长期共赢和个人成长。',
-                money: '生活需要创造和享受，但不能沉迷于享乐而忘记责任。真正的快乐来自于创造价值和分享喜悦。',
-                rob_money: '创新需要打破常规，但不是否定一切规则。智慧的反叛是在尊重基本原则的前提下，寻找更好的解决方案。',
-                official: '物质基础是必要的，但不是人生的全部。稳定的收入让生活更安心，却不应成为衡量人生价值的唯一标准。',
-                wealth: '机会总是稍纵即逝，要有把握机遇的眼光和行动力，但也要有风险意识和底线思维，不要因小失大。',
-                hurting: '挑战和压力是成长的必经之路，面对困难不退缩，从逆境中汲取力量，才能锻造坚韧不拔的品格。',
-                officer: '规则和秩序是社会运行的基础，尊重规则不是束缚自由，而是在共同框架下更好地实现个人价值和社会责任。'
-            };
-            
-            return implicationMap[god];
-        }
-        
-        // 全局函数声明
-        window.toggleContent = toggleContent;
+                
+                // 获取日主信息和十神关系
+                const rizhuData = wuxingData[rizhu];
+                const targetIndex = tianGan.indexOf(target);
+                const shenshaName = shenshaMatrix[rizhu][targetIndex];
+                const targetElement = ganToElement[target];
+                const targetYangYin = ganToYangYin[target];
+                
+                // 获取基础十神数据和天干特定十神数据
+                const basicShenshaData = shenshaBasicData[shenshaName];
+                const ganSpecificData = ganSpecificShenshaData[rizhu][shenshaName];
+                
+                // 更新结果头部
+                document.getElementById('resultHeader').innerText = `${rizhu}${rizhuData.element}日主 与 ${target}${targetElement}的十神关系分析`;
+                
+                // 生成日主信息HTML
+                let rizhuHtml = `
+                    <h3 class="sub-title">日主五行特性</h3>
+                    <div class="detail-group">
+                        <p><b>${rizhu}${rizhuData.element}：</b>${rizhuData.yangYin}${rizhuData.element}，${rizhuData.nature}</p>
+                        <p><b>性格特征：</b>${rizhuData.character}</p>
+                    </div>
+                    
+                    <div class="detail-group">
+                        <div class="detail-title">抽象特性</div>
+                        <p><b>核心特质：</b>${rizhuData.abstract.characteristics.join("、")}</p>
+                        <p><b>优势：</b>${rizhuData.abstract.strengths.join("、")}</p>
+                        <p><b>挑战：</b>${rizhuData.abstract.weaknesses.join("、")}</p>
+                        <p><b>人际关系：</b>${rizhuData.abstract.relationships.join("、")}</p>
+                        <p><b>事业倾向：</b>${rizhuData.abstract.career.join("、")}</p>
+                    </div>
+                    
+                    <div class="detail-group">
+                        <div class="detail-title">具体表现</div>
+                        <p><b>外表特征：</b>${rizhuData.concrete.appearance.join("、")}</p>
+                        <p><b>健康状况：</b>${rizhuData.concrete.health.join("、")}</p>
+                        <p><b>生活方式：</b>${rizhuData.concrete.lifeStyle.join("、")}</p>
+                        <p><b>财运趋势：</b>${rizhuData.concrete.fortune.join("、")}</p>
+                    </div>
+                    
+                    <div class="detail-group">
+                        <div class="detail-title">自然象征</div>
+                        <div class="tag-area">
+                            ${rizhuData.naturalSymbols.map(symbol => `<span class="tag ${rizhuData.element === '木' ? 'wood' : rizhuData.element === '火' ? 'fire' : rizhuData.element === '土' ? 'earth' : rizhuData.element === '金' ? 'metal' : 'water'}">${symbol}</span>`).join('')}
+                        </div>
+                    </div>
+                `;
+                
+                // 生成五行关系信息
+                const wuxingRelation = wuxingRelations[rizhuData.element][targetElement];
+                
+                // 生成十神关系信息HTML
+                let shenshaHtml = `
+                    <div class="detail-group">
+                        <p><b>${rizhu}${rizhuData.element}日主</b> 与 <b>${target}${targetElement}</b> 的关系：<b>${wuxingRelation}</b>，在此关系下形成 <b>${shenshaName}</b>。</p>
+                    </div>
+                    
+                    <div class="relationship-table">
+                        <table>
+                            <tr>
+                                <th>十神名称</th>
+                                <th>基本含义</th>
+                                <th>五行关系</th>
+                                <th>阴阳属性</th>
+                            </tr>
+                            <tr>
+                                <td><b>${shenshaName}</b></td>
+                                <td>${basicShenshaData.basicMeaning}</td>
+                                <td>${wuxingRelation}</td>
+                                <td>${targetYangYin}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <div class="shenshaDetail">
+                        <p><b>取象推导：</b>${basicShenshaData.derivation}</p>
+                        
+                        <div class="abstract">
+                            <div class="detail-title">抽象意义</div>
+                            <p><b>核心特质：</b>${basicShenshaData.abstract.characteristics.join("、")}</p>
+                            <p><b>优势：</b>${basicShenshaData.abstract.strengths.join("、")}</p>
+                            <p><b>挑战：</b>${basicShenshaData.abstract.weaknesses.join("、")}</p>
+                            <p><b>人生意义：</b>${basicShenshaData.abstract.lifeMeaning.join("、")}</p>
+                        </div>
+                        
+                        <div class="concrete">
+                            <div class="detail-title">具体表现</div>
+                            <p><b>人物代表：</b>${basicShenshaData.concrete.people.join("、")}</p>
+                            <p><b>事务代表：</b>${basicShenshaData.concrete.matters.join("、")}</p>
+                            <p><b>物品代表：</b>${basicShenshaData.concrete.objects.join("、")}</p>
+                        </div>
+                        
+                        <div class="element-specific">
+                            <div class="detail-title">五行特殊象征</div>
+                            <p><b>${rizhuData.element}日主视角：</b>${basicShenshaData.elementSpecific[rizhuData.element]}</p>
+                        </div>
+                        
+                        <div class="gan-specific">
+                            <div class="detail-title">${rizhu}日主见${target}的特殊意义</div>
+                            <p><b>具体含义：</b>${ganSpecificData.specificMeaning}</p>
+                            <p><b>生活应用：</b>${ganSpecificData.lifeApplication}</p>
+                            <p><b>有利方面：</b>${ganSpecificData.favorable.join("、")}</p>
+                            <p><b>不利方面：</b>${ganSpecificData.unfavorable.join("、")}</p>
+                        </div>
+                    </div>
+                    
+                    <h3 class="sub-title">日主与十神的综合分析</h3>
+                    <div class="detail-group">
+                        <p>当${rizhu}${rizhuData.element}日主遇到${target}${targetElement}（${shenshaName}）时，其表现和影响会受到日主本身特性的调节。</p>
+                        <p><b>核心互动：</b>${rizhu}${rizhuData.element}作为${rizhuData.yangYin}${rizhuData.element}，${rizhuData.character}，与${target}${targetElement}作为${shenshaName}时，体现出的关系是${wuxingRelation}。两者互动会强化${basicShenshaData.abstract.characteristics[0]}和${rizhuData.abstract.characteristics[0]}的特质。</p>
+                        <p><b>优势互补：</b>日主的${rizhuData.abstract.strengths[0]}能够平衡${shenshaName}可能带来的${basicShenshaData.abstract.weaknesses[0]}，同时${shenshaName}的${basicShenshaData.abstract.strengths[0]}能弥补日主在${rizhuData.abstract.weaknesses[0]}方面的不足。</p>
+                        <p><b>挑战：</b>需要注意的是，两者互动可能会强化${rizhuData.abstract.weaknesses[1]}和${basicShenshaData.abstract.weaknesses[1]}的负面特质。</p>
+                        <p><b>发展方向：</b>最理想的互动方式是发挥${rizhu}${rizhuData.element}的${rizhuData.abstract.strengths[1]}，同时利用${target}${targetElement}作为${shenshaName}带来的${basicShenshaData.abstract.strengths[1]}，从而在人生旅途中实现更全面的发展。</p>
+                        <p><b>具体应用：</b>${ganSpecificData.lifeApplication}。在${ganSpecificData.favorable[0]}和${ganSpecificData.favorable[1]}方面会有较好表现，但需警惕${ganSpecificData.unfavorable[0]}和${ganSpecificData.unfavorable[1]}的倾向。</p>
+                    </div>
+                `;
+                
+                // 更新DOM
+                document.getElementById('rizhuInfo').innerHTML = rizhuHtml;
+                document.getElementById('shenshaInfo').innerHTML = shenshaHtml;
+                document.getElementById('results').style.display = 'block';
+                
+                // 切换到查询结果标签
+                document.querySelector('.tab-button[data-tab="tab-query"]').click();
+            });
+        });
     </script>
-</body>
-</html>
+
+
+</body></html>
