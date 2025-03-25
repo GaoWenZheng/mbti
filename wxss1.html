@@ -1,0 +1,2941 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>八字五行万物取象系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+        }
+
+        .tab-container {
+            margin-top: 20px;
+        }
+
+        .tab-nav {
+            display: flex;
+            flex-wrap: wrap;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .tab-button {
+            padding: 10px 20px;
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            cursor: pointer;
+        }
+
+        .tab-button.active {
+            background-color: #4a6fa5;
+            color: white;
+            border-color: #4a6fa5;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-top: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .filter-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .filter-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .filter-button {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .filter-button.active {
+            background-color: #4a6fa5;
+            color: white;
+            border-color: #4a6fa5;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        th,
+        td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+        }
+
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background-color: #4a6fa5;
+            color: white;
+            padding: 15px 20px;
+            font-weight: bold;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .sub-title {
+            color: #4a6fa5;
+            margin: 15px 0 10px;
+            font-weight: bold;
+            border-left: 4px solid #4a6fa5;
+            padding-left: 10px;
+        }
+
+        .detail-group {
+            margin-bottom: 15px;
+        }
+
+        .detail-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        .category-container {
+            margin-top: 20px;
+        }
+
+        .category-title {
+            background-color: #4a6fa5;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .subcategory {
+            margin-bottom: 20px;
+        }
+
+        .subcategory-title {
+            background-color: #f0f4f8;
+            padding: 8px 12px;
+            border-radius: 3px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .element-icon {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        .icon-wood {
+            background-color: #388e3c;
+        }
+
+        .icon-fire {
+            background-color: #d32f2f;
+        }
+
+        .icon-earth {
+            background-color: #ffb300;
+        }
+
+        .icon-metal {
+            background-color: #7d7d7d;
+        }
+
+        .icon-water {
+            background-color: #0288d1;
+        }
+
+        .tag-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .tag {
+            background-color: #f0f4f8;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-size: 14px;
+            color: #4a6fa5;
+        }
+
+        .tag.wood {
+            background-color: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .tag.fire {
+            background-color: #ffebee;
+            color: #d32f2f;
+        }
+
+        .tag.earth {
+            background-color: #fff8e1;
+            color: #ffb300;
+        }
+
+        .tag.metal {
+            background-color: #f0f0f0;
+            color: #7d7d7d;
+        }
+
+        .tag.water {
+            background-color: #e1f5fe;
+            color: #0288d1;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .grid-item {
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .grid-item h4 {
+            color: #4a6fa5;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+
+        .shenshaRelation {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            border-left: 4px solid #4a6fa5;
+        }
+
+        .relation-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .relation-tag {
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            color: white;
+        }
+
+        .relation-body {
+            margin-top: 10px;
+        }
+
+        #shenshaRelationContent {
+            margin-top: 20px;
+        }
+
+        .search-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: flex-end;
+        }
+
+        .search-group {
+            flex: 1;
+        }
+
+        .search-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .search-group select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        .search-button {
+            padding: 10px 20px;
+            background-color: #4a6fa5;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* 细化十神关系颜色 */
+        .bixian {
+            background-color: #4caf50;
+        }
+
+        .jiecai {
+            background-color: #8bc34a;
+        }
+
+        .shishen {
+            background-color: #ff9800;
+        }
+
+        .shangguan {
+            background-color: #ff5722;
+        }
+
+        .piancai {
+            background-color: #9c27b0;
+        }
+
+        .zhengcai {
+            background-color: #673ab7;
+        }
+
+        .qisha {
+            background-color: #f44336;
+        }
+
+        .zhengguan {
+            background-color: #e91e63;
+        }
+
+        .pianyin {
+            background-color: #03a9f4;
+        }
+
+        .zhengyin {
+            background-color: #00bcd4;
+        }
+
+        @media (max-width: 768px) {
+            .filters {
+                flex-direction: column;
+            }
+
+            .search-container {
+                flex-direction: column;
+            }
+
+            .search-button {
+                width: 100%;
+            }
+
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>八字五行万物取象系统</h1>
+
+        <div class="section">
+            <p>本系统提供完整的万物五行属性查询以及十天干对不同十神的作用关系分析，帮助您深入理解五行与万物的对应关系。</p>
+        </div>
+
+        <div class="tab-container">
+            <div class="tab-nav">
+                <div class="tab-button active" data-tab="tab-wanwu">万物五行属性</div>
+                <div class="tab-button" data-tab="tab-tiangan">十天干特性</div>
+                <div class="tab-button" data-tab="tab-shensha">十神取象</div>
+                <div class="tab-button" data-tab="tab-relation">天干十神关系</div>
+            </div>
+
+            <!-- 万物五行属性 -->
+            <div class="tab-content active" id="tab-wanwu">
+                <h3 class="sub-title">五行万物类象查询</h3>
+                <p>五行理论中，一切事物都可以按照其特性归类到五种基本元素中，以下是详细的分类对应关系。</p>
+
+                <div class="filters">
+                    <div class="filter-group">
+                        <div class="filter-title">选择五行元素：</div>
+                        <div class="filter-buttons" id="elementFilter">
+                            <div class="filter-button active" data-element="all">全部</div>
+                            <div class="filter-button" data-element="木">木</div>
+                            <div class="filter-button" data-element="火">火</div>
+                            <div class="filter-button" data-element="土">土</div>
+                            <div class="filter-button" data-element="金">金</div>
+                            <div class="filter-button" data-element="水">水</div>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <div class="filter-title">选择阴阳属性：</div>
+                        <div class="filter-buttons" id="yinYangFilter">
+                            <div class="filter-button active" data-yinyang="all">全部</div>
+                            <div class="filter-button" data-yinyang="阳">阳性</div>
+                            <div class="filter-button" data-yinyang="阴">阴性</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filters">
+                    <div class="filter-group">
+                        <div class="filter-title">选择类别：</div>
+                        <div class="filter-buttons" id="categoryFilter">
+                            <div class="filter-button active" data-category="all">全部类别</div>
+                            <div class="filter-button" data-category="nature">自然界</div>
+                            <div class="filter-button" data-category="body">人体</div>
+                            <div class="filter-button" data-category="character">性格特征</div>
+                            <div class="filter-button" data-category="career">职业行业</div>
+                            <div class="filter-button" data-category="life">生活用品</div>
+                            <div class="filter-button" data-category="food">饮食</div>
+                            <div class="filter-button" data-category="color">颜色</div>
+                            <div class="filter-button" data-category="direction">方位</div>
+                            <div class="filter-button" data-category="season">季节</div>
+                            <div class="filter-button" data-category="time">时间</div>
+                            <div class="filter-button" data-category="environment">环境</div>
+                            <div class="filter-button" data-category="society">社会</div>
+                            <div class="filter-button" data-category="fortune">运势</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="wanwuContainer">
+                    <!-- 万物类象将由JavaScript动态生成 -->
+                </div>
+            </div>
+
+            <!-- 十天干特性 -->
+            <div class="tab-content" id="tab-tiangan">
+                <h3 class="sub-title">十天干特性详解</h3>
+                <p>十天干是干支纪年法的重要组成部分，每个天干都有其特定的五行属性和阴阳特性，影响着人的性格和命运。</p>
+
+                <div class="grid-container" id="tianganGrid">
+                    <!-- 十天干特性将由JavaScript动态生成 -->
+                </div>
+            </div>
+
+            <!-- 十神取象 -->
+            <div class="tab-content" id="tab-shensha">
+                <h3 class="sub-title">十神取象详解</h3>
+                <p>十神是八字命理学中的核心概念，是天干之间相互作用的具体表现，通过五行生克关系和阴阳属性共同决定。</p>
+
+                <div class="table-container">
+                    <table>
+                        <tbody>
+                            <tr>
+                                <th>关系类型</th>
+                                <th>五行关系</th>
+                                <th>阳干</th>
+                                <th>阴干</th>
+                                <th>基本含义</th>
+                            </tr>
+                            <tr>
+                                <td>同类</td>
+                                <td>比和</td>
+                                <td><span class="relation-tag bixian">比肩</span></td>
+                                <td><span class="relation-tag jiecai">劫财</span></td>
+                                <td>与日主同性质五行的天干</td>
+                            </tr>
+                            <tr>
+                                <td>我生</td>
+                                <td>生</td>
+                                <td><span class="relation-tag shishen">食神</span></td>
+                                <td><span class="relation-tag shangguan">伤官</span></td>
+                                <td>日主所生的天干</td>
+                            </tr>
+                            <tr>
+                                <td>我克</td>
+                                <td>克</td>
+                                <td><span class="relation-tag piancai">偏财</span></td>
+                                <td><span class="relation-tag zhengcai">正财</span></td>
+                                <td>日主所克的天干</td>
+                            </tr>
+                            <tr>
+                                <td>克我</td>
+                                <td>被克</td>
+                                <td><span class="relation-tag qisha">七杀</span></td>
+                                <td><span class="relation-tag zhengguan">正官</span></td>
+                                <td>克制日主的天干</td>
+                            </tr>
+                            <tr>
+                                <td>生我</td>
+                                <td>被生</td>
+                                <td><span class="relation-tag pianyin">偏印</span></td>
+                                <td><span class="relation-tag zhengyin">正印</span></td>
+                                <td>生日主的天干</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="grid-container" id="shenshaGrid">
+                    <!-- 十神特性将由JavaScript动态生成 -->
+                </div>
+            </div>
+
+            <!-- 天干十神关系 -->
+            <div class="tab-content" id="tab-relation">
+                <h3 class="sub-title">天干与十神作用关系</h3>
+                <p>每个天干作为日主时与其他天干形成的十神关系各不相同，以下可查询不同日主与天干的十神关系及其作用。</p>
+
+                <div class="search-container">
+                    <div class="search-group">
+                        <label for="rizhuSelect">选择日主</label>
+                        <select id="rizhuSelect">
+                            <option value="">请选择...</option>
+                            <option value="甲">甲木</option>
+                            <option value="乙">乙木</option>
+                            <option value="丙">丙火</option>
+                            <option value="丁">丁火</option>
+                            <option value="戊">戊土</option>
+                            <option value="己">己土</option>
+                            <option value="庚">庚金</option>
+                            <option value="辛">辛金</option>
+                            <option value="壬">壬水</option>
+                            <option value="癸">癸水</option>
+                        </select>
+                    </div>
+
+                    <div class="search-group">
+                        <label for="shenshaSelect">选择十神</label>
+                        <select id="shenshaSelect">
+                            <option value="">请选择...</option>
+                            <option value="比肩">比肩</option>
+                            <option value="劫财">劫财</option>
+                            <option value="食神">食神</option>
+                            <option value="伤官">伤官</option>
+                            <option value="偏财">偏财</option>
+                            <option value="正财">正财</option>
+                            <option value="七杀">七杀</option>
+                            <option value="正官">正官</option>
+                            <option value="偏印">偏印</option>
+                            <option value="正印">正印</option>
+                        </select>
+                    </div>
+
+                    <button class="search-button" id="relationSearchBtn">查询</button>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>日主\天干</th>
+                                <th>甲木</th>
+                                <th>乙木</th>
+                                <th>丙火</th>
+                                <th>丁火</th>
+                                <th>戊土</th>
+                                <th>己土</th>
+                                <th>庚金</th>
+                                <th>辛金</th>
+                                <th>壬水</th>
+                                <th>癸水</th>
+                            </tr>
+                        </thead>
+                        <tbody id="relationMatrixTable">
+                            <!-- 关系矩阵表格将由JavaScript生成 -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="shenshaRelationContent">
+                    <!-- 十神关系内容将由JavaScript动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 万物类象数据库
+            const wanwuData = {
+                "木": {
+                    "阳": {
+                        name: "阳木",
+                        representative: "甲木",
+                        description: "阳木如直立挺拔的树干，向上生长，具有刚健正直的特性",
+                        nature: {
+                            plants: ["大树", "常青树", "松柏", "竹子", "直立植物"],
+                            animals: ["龙", "鹿", "马", "长颈鹿", "高大动物"],
+                            weather: ["东风", "春雨", "阳光充足的春日", "植物抽芽"],
+                            geography: ["森林", "山林", "高山草原", "东方地区", "木材产地"],
+                            celestialBodies: ["木星", "东方青龙", "东方星宿"]
+                        },
+                        body: {
+                            organs: ["肝脏", "胆囊", "眼睛", "筋脉", "指甲"],
+                            bodyParts: ["手", "脚", "四肢", "肌肉", "神经系统"],
+                            face: ["方正面容", "浓眉", "有神的眼睛", "挺拔的鼻梁"],
+                            physique: ["高大", "骨骼健壮", "身材挺拔", "肌肉发达"],
+                            diseases: ["肝病", "眼疾", "高血压", "头痛", "神经系统疾病"]
+                        },
+                        character: {
+                            strengths: ["坚韧不拔", "正直无私", "进取心强", "有领导能力", "决断力强"],
+                            weaknesses: ["固执", "缺乏灵活性", "好高骛远", "容易冲动", "刚愎自用"],
+                            traits: ["理想主义", "重视规则", "喜欢开拓", "积极进取", "注重原则"],
+                            behaviors: ["追求发展", "制定规划", "喜欢组织活动", "主动承担责任", "勇于挑战"]
+                        },
+                        career: {
+                            suitable: ["管理者", "军人", "法官", "政府官员", "教育工作者", "林业工作者"],
+                            industries: ["林业", "法律", "行政", "教育", "军事", "体育"],
+                            workStyles: ["有计划性", "注重原则", "追求进步", "注重团队", "自律"]
+                        },
+                        life: {
+                            objects: ["木制家具", "书柜", "直立物品", "工具", "运动器材"],
+                            clothing: ["正式着装", "质地硬挺的衣物", "传统服饰", "军装", "制服"],
+                            hobbies: ["登山", "植树", "园艺", "阅读", "策略游戏", "体育活动"],
+                            living: ["整洁有序", "功能性强", "规划明确", "朴素实用"]
+                        },
+                        food: {
+                            tastes: ["酸味", "清香", "微苦", "清爽"],
+                            ingredients: ["青菜", "绿色蔬果", "麦类", "谷物", "筋力食材"],
+                            dishes: ["凉拌青菜", "清蒸鱼", "素食", "清淡饮食"],
+                            beverages: ["绿茶", "青草茶", "果汁", "啤酒"]
+                        },
+                        color: ["绿色", "青色", "墨绿色", "深蓝色", "青灰色"],
+                        direction: ["东方", "东南偏东", "上升", "直立"],
+                        season: ["春季", "立春", "惊蛰", "春分"],
+                        time: ["凌晨", "日出", "清晨", "春天"],
+                        environment: ["郊外", "森林", "公园", "高山", "宽敞明亮的空间"],
+                        society: {
+                            roles: ["领导者", "决策者", "开拓者", "保护者", "执行者"],
+                            institutions: ["政府", "军队", "教育机构", "环保组织", "法律机构"],
+                            relationships: ["父子", "师生", "上下级", "战友", "兄弟"]
+                        },
+                        fortune: {
+                            wealth: ["稳定收入", "长期投资", "固定资产", "可持续发展"],
+                            career: ["晋升有序", "逐步发展", "稳步上升", "成就显著"],
+                            relationships: ["忠诚稳定", "相互扶持", "彼此尊重", "长久维系"]
+                        }
+                    },
+                    "阴": {
+                        name: "阴木",
+                        representative: "乙木",
+                        description: "阴木如藤蔓花草，柔韧灵活，顺势而生，具有柔和适应的特性",
+                        nature: {
+                            plants: ["藤蔓", "花草", "灌木", "绿叶植物", "柳树"],
+                            animals: ["兔", "鸟", "猴", "灵活的小型动物"],
+                            weather: ["和风", "细雨", "薄雾", "早春气息"],
+                            geography: ["草原", "花园", "湿地", "丘陵", "绿洲"],
+                            celestialBodies: ["箕宿", "轸宿", "东方星空"]
+                        },
+                        body: {
+                            organs: ["肝胆", "神经", "眼睛", "韧带"],
+                            bodyParts: ["手指", "指甲", "关节", "腱"],
+                            face: ["面容秀气", "眉毛清秀", "面部线条柔和"],
+                            physique: ["身材修长", "骨骼清秀", "四肢灵活", "体态优美"],
+                            diseases: ["神经衰弱", "情绪障碍", "偏头痛", "眼疾", "失眠"]
+                        },
+                        character: {
+                            strengths: ["灵活应变", "善解人意", "富有艺术感", "观察力敏锐", "适应性强"],
+                            weaknesses: ["优柔寡断", "情绪化", "缺乏主见", "过于敏感", "依赖性强"],
+                            traits: ["感性", "敏感", "温柔", "善良", "艺术气质"],
+                            behaviors: ["随机应变", "协调关系", "注重细节", "重视和谐", "追求美感"]
+                        },
+                        career: {
+                            suitable: ["艺术家", "设计师", "医护人员", "心理咨询师", "文案撰写", "园艺师"],
+                            industries: ["艺术", "设计", "医疗", "文化", "社会服务", "时尚"],
+                            workStyles: ["灵活多变", "注重细节", "创意丰富", "协作性强", "善于沟通"]
+                        },
+                        life: {
+                            objects: ["艺术品", "装饰品", "书籍", "手工艺品", "花草盆栽"],
+                            clothing: ["柔软面料", "时尚设计", "自然色调", "休闲舒适", "有艺术感"],
+                            hobbies: ["绘画", "写作", "园艺", "旅行", "音乐欣赏", "手工艺"],
+                            living: ["注重舒适", "重视美感", "随性灵活", "环保理念"]
+                        },
+                        food: {
+                            tastes: ["酸甜", "清新", "温和", "微酸"],
+                            ingredients: ["青菜", "水果", "茶叶", "香草", "坚果"],
+                            dishes: ["清爽沙拉", "素食料理", "精致小菜", "创意料理"],
+                            beverages: ["花茶", "果茶", "清酒", "果汁"]
+                        },
+                        color: ["淡绿", "青草绿", "嫩绿", "淡青", "蓝绿色"],
+                        direction: ["东南", "东方偏南", "蜿蜒", "弯曲"],
+                        season: ["春末", "春分后", "清明前后", "春末夏初"],
+                        time: ["早晨", "日出后", "春天", "新生"],
+                        environment: ["花园", "小溪旁", "草地", "林间小道", "温室"],
+                        society: {
+                            roles: ["协调者", "艺术家", "服务者", "支持者", "创新者"],
+                            institutions: ["艺术团体", "设计机构", "社会服务组织", "医疗机构", "教育辅导"],
+                            relationships: ["朋友", "姐妹", "艺术伙伴", "互助关系", "亲密伙伴"]
+                        },
+                        fortune: {
+                            wealth: ["灵活收入", "艺术创收", "多元投资", "创意价值"],
+                            career: ["多方发展", "创新表现", "独特才华", "专业技能"],
+                            relationships: ["感性交流", "相互理解", "灵活多变", "情感丰富"]
+                        }
+                    }
+                },
+                "火": {
+                    "阳": {
+                        name: "阳火",
+                        representative: "丙火",
+                        description: "阳火如烈日当空，光明磊落，具有热情奔放的特性",
+                        nature: {
+                            plants: ["向日葵", "红花", "辣椒", "热带植物", "阳光充足处的植物"],
+                            animals: ["凤凰", "狮子", "老虎", "具有王者气势的动物"],
+                            weather: ["烈日", "炎热", "雷电", "干燥"],
+                            geography: ["火山", "沙漠", "热带地区", "南方地区"],
+                            celestialBodies: ["太阳", "火星", "南方朱雀", "心宿"]
+                        },
+                        body: {
+                            organs: ["心脏", "小肠", "血液", "脉搏"],
+                            bodyParts: ["面部", "眼睛", "舌头", "血管"],
+                            face: ["面色红润", "眼神明亮", "五官突出", "表情丰富"],
+                            physique: ["动作敏捷", "精力充沛", "热力四射", "反应迅速"],
+                            diseases: ["心脏病", "高血压", "炎症", "发热", "口舌生疮"]
+                        },
+                        character: {
+                            strengths: ["热情", "开朗", "魅力四射", "有领导才能", "乐观向上"],
+                            weaknesses: ["急躁", "自我", "虚荣", "容易冲动", "缺乏耐心"],
+                            traits: ["积极", "阳光", "充满活力", "爱交际", "喜欢表现"],
+                            behaviors: ["乐于表达", "主动社交", "追求刺激", "注重形象", "喜欢热闹"]
+                        },
+                        career: {
+                            suitable: ["演员", "销售", "公关", "政治家", "企业家", "节目主持人"],
+                            industries: ["娱乐", "媒体", "销售", "公关", "表演", "政治"],
+                            workStyles: ["充满激情", "善于展示", "有感染力", "注重声望", "喜欢挑战"]
+                        },
+                        life: {
+                            objects: ["亮色家具", "照明设备", "电子产品", "时尚用品", "装饰品"],
+                            clothing: ["鲜艳色彩", "时尚款式", "显眼设计", "高端品牌", "正装"],
+                            hobbies: ["社交活动", "演讲", "表演", "旅游", "聚会", "体育比赛"],
+                            living: ["现代化", "明亮", "活力", "时尚", "注重形象"]
+                        },
+                        food: {
+                            tastes: ["辛辣", "苦味", "浓烈", "刺激", "香气浓郁"],
+                            ingredients: ["辣椒", "姜", "蒜", "肉类", "高热量食物"],
+                            dishes: ["麻辣火锅", "烧烤", "炒菜", "油炸食品", "烈酒"],
+                            beverages: ["红酒", "烈酒", "浓茶", "浓咖啡", "能量饮料"]
+                        },
+                        color: ["红色", "橙色", "紫色", "明亮色调", "金色"],
+                        direction: ["南方", "正南", "上升", "扩散"],
+                        season: ["夏季", "盛夏", "夏至", "小暑"],
+                        time: ["中午", "正午", "阳光充足时", "夏天"],
+                        environment: ["阳光充足处", "人群聚集地", "明亮宽敞", "热闹场所", "城市中心"],
+                        society: {
+                            roles: ["领袖", "明星", "表演者", "政治家", "营销者"],
+                            institutions: ["政府", "演艺界", "媒体", "广告业", "公关机构"],
+                            relationships: ["君臣", "明星与粉丝", "领导与追随者", "恋人", "朋友"]
+                        },
+                        fortune: {
+                            wealth: ["快速赚钱", "高风险高回报", "短期投资", "声望转化财富"],
+                            career: ["迅速晋升", "获得关注", "成名机会", "广泛影响力"],
+                            relationships: ["热情奔放", "社交广泛", "吸引力强", "容易结缘"]
+                        }
+                    },
+                    "阴": {
+                        name: "阴火",
+                        representative: "丁火",
+                        description: "阴火如灯烛之火，温暖内敛，具有温和细腻的特性",
+                        nature: {
+                            plants: ["红叶植物", "小花", "温室植物", "小型观赏植物"],
+                            animals: ["萤火虫", "家猫", "小鸟", "温顺的小型动物"],
+                            weather: ["晚霞", "温暖", "小雨后的阳光", "微风"],
+                            geography: ["小山", "丘陵", "温暖的谷地", "温泉区"],
+                            celestialBodies: ["星星", "彗星", "流星", "南方星宿"]
+                        },
+                        body: {
+                            organs: ["心脏", "血液", "面部", "小肠"],
+                            bodyParts: ["面颊", "嘴唇", "眼睛", "皮肤"],
+                            face: ["面色红润柔和", "眼神温和", "笑容亲切", "气质温婉"],
+                            physique: ["身材适中", "动作优雅", "姿态柔美", "气质温和"],
+                            diseases: ["心悸", "失眠", "情绪问题", "低血压", "循环系统问题"]
+                        },
+                        character: {
+                            strengths: ["温和", "细腻", "亲和力强", "洞察力好", "情感丰富"],
+                            weaknesses: ["多愁善感", "情绪化", "缺乏决断", "容易疲惫", "过于敏感"],
+                            traits: ["感性", "艺术气质", "内敛", "情感丰富", "善解人意"],
+                            behaviors: ["关心他人", "注重情感", "喜欢艺术", "追求美好", "低调行事"]
+                        },
+                        career: {
+                            suitable: ["文学家", "艺术家", "心理咨询师", "护士", "设计师", "教师"],
+                            industries: ["文化", "艺术", "医疗", "服务", "设计", "教育"],
+                            workStyles: ["注重细节", "情感投入", "关注他人", "精益求精", "注重品质"]
+                        },
+                        life: {
+                            objects: ["艺术品", "温馨灯光", "古典音乐", "文学作品", "细腻精致物品"],
+                            clothing: ["柔软质地", "温暖色调", "优雅设计", "精致细节", "符合身份"],
+                            hobbies: ["阅读", "写作", "艺术欣赏", "手工艺", "园艺", "冥想"],
+                            living: ["温馨", "舒适", "有情调", "注重质感", "个人风格"]
+                        },
+                        food: {
+                            tastes: ["微辣", "温和", "甜中带辣", "细腻口感", "层次丰富"],
+                            ingredients: ["温性食材", "香料", "精致食材", "甜品", "红色食物"],
+                            dishes: ["小炒", "精致点心", "温和调味", "色香味俱佳"],
+                            beverages: ["红茶", "果酒", "温和饮品", "花草茶", "果汁"]
+                        },
+                        color: ["粉红", "淡红", "玫瑰色", "橘红", "暖色调"],
+                        direction: ["南偏东", "东南", "温和扩散", "内敛"],
+                        season: ["初夏", "夏季前期", "夏末", "温暖季节"],
+                        time: ["黄昏", "日落", "傍晚", "温暖时刻"],
+                        environment: ["温馨家居", "文化场所", "安静咖啡馆", "艺术馆", "温和光线处"],
+                        society: {
+                            roles: ["照顾者", "艺术家", "心灵导师", "情感支持者", "服务者"],
+                            institutions: ["艺术团体", "文学社", "心理咨询", "医疗服务", "教育机构"],
+                            relationships: ["亲密伙伴", "知心朋友", "情感支持", "师生", "照顾关系"]
+                        },
+                        fortune: {
+                            wealth: ["稳定收入", "艺术创收", "细水长流", "品质价值"],
+                            career: ["专业发展", "口碑积累", "情感影响", "独特见解"],
+                            relationships: ["深厚情谊", "真挚关系", "情感连接", "相互理解"]
+                        }
+                    }
+                },
+                "土": {
+                    "阳": {
+                        name: "阳土",
+                        representative: "戊土",
+                        description: "阳土如高山厚土，稳重踏实，具有坚实可靠的特性",
+                        nature: {
+                            plants: ["粮食作物", "大型树木", "根系发达植物", "多年生植物"],
+                            animals: ["牛", "象", "狗", "稳重忠诚动物"],
+                            weather: ["晴朗", "稳定气候", "季节交替", "重雾"],
+                            geography: ["高山", "平原", "丘陵", "黄土高原", "农田"],
+                            celestialBodies: ["土星", "中央黄道", "北斗星"]
+                        },
+                        body: {
+                            organs: ["脾胃", "消化系统", "肌肉", "四肢"],
+                            bodyParts: ["腹部", "胃", "肌肉", "皮肤"],
+                            face: ["面相方正", "肤色偏黄", "表情沉稳", "眉宇间正直"],
+                            physique: ["体形壮实", "肌肉发达", "行动稳健", "体格健壮"],
+                            diseases: ["消化系统疾病", "糖尿病", "肥胖", "关节炎", "水肿"]
+                        },
+                        character: {
+                            strengths: ["踏实", "可靠", "责任感强", "勤勉", "意志坚定"],
+                            weaknesses: ["固执", "保守", "缺乏变通", "反应迟缓", "墨守成规"],
+                            traits: ["稳重", "忠诚", "实际", "坚守", "传统"],
+                            behaviors: ["讲信用", "讲原则", "勤俭持家", "认真负责", "循规蹈矩"]
+                        },
+                        career: {
+                            suitable: ["农民", "建筑师", "行政管理", "财务人员", "保险从业者", "地产经纪"],
+                            industries: ["农业", "建筑", "金融", "保险", "房地产", "制造业"],
+                            workStyles: ["勤恳踏实", "注重实效", "追求稳定", "有计划性", "注重细节"]
+                        },
+                        life: {
+                            objects: ["实用家具", "传统器具", "结实耐用物品", "存储设备", "农具"],
+                            clothing: ["素色", "实用", "质地坚固", "传统风格", "朴素"],
+                            hobbies: ["园艺", "建造", "收藏", "传统手工", "实用技能学习"],
+                            living: ["实用为主", "整洁有序", "注重实效", "传统布局", "稳重大方"]
+                        },
+                        food: {
+                            tastes: ["甜味", "厚重", "朴实", "充实", "香甜"],
+                            ingredients: ["粮食", "根茎类", "豆类", "肉类", "土生作物"],
+                            dishes: ["炖菜", "传统美食", "家常菜", "实惠饱腹", "粗粮"],
+                            beverages: ["黄酒", "米酒", "浓茶", "豆浆", "五谷茶"]
+                        },
+                        color: ["黄色", "褐色", "土黄色", "棕色", "沙色"],
+                        direction: ["中央", "四方交汇", "稳定", "中心"],
+                        season: ["季节交替", "长夏", "农历六月", "土旺之时"],
+                        time: ["午后", "季节中期", "固定时段", "稳定时期"],
+                        environment: ["平原", "农村", "城市规划区", "传统社区", "实用建筑"],
+                        society: {
+                            roles: ["管理者", "守护者", "服务者", "承担者", "稳定力量"],
+                            institutions: ["行政机构", "农业组织", "建设部门", "金融机构", "教育系统"],
+                            relationships: ["长幼有序", "尊卑分明", "忠实伙伴", "稳定婚姻", "家族关系"]
+                        },
+                        fortune: {
+                            wealth: ["稳健积累", "固定资产", "长期投资", "财务规划"],
+                            career: ["逐步晋升", "资历积累", "稳固地位", "专业能力"],
+                            relationships: ["稳定持久", "相互支持", "责任担当", "忠诚可靠"]
+                        }
+                    },
+                    "阴": {
+                        name: "阴土",
+                        representative: "己土",
+                        description: "阴土如平原沃土，温和包容，具有滋养万物的特性",
+                        nature: {
+                            plants: ["果树", "粮食作物", "低矮植物", "温性植物"],
+                            animals: ["家畜", "温顺动物", "家养动物", "群居动物"],
+                            weather: ["湿润", "温和", "多云", "细雨"],
+                            geography: ["平原", "田园", "沃土", "湿地", "农田"],
+                            celestialBodies: ["镇星", "土星环", "地轴"]
+                        },
+                        body: {
+                            organs: ["脾", "胃", "口腔", "消化系统"],
+                            bodyParts: ["腹部", "唇", "皮肤", "肌肉"],
+                            face: ["面色黄润", "唇厚", "表情温和", "五官圆润"],
+                            physique: ["体态丰满", "肌肉柔和", "行动温和", "四肢圆润"],
+                            diseases: ["消化不良", "代谢问题", "水肿", "胃病", "营养不良"]
+                        },
+                        character: {
+                            strengths: ["温和", "包容", "体贴", "人缘好", "忍耐力强"],
+                            weaknesses: ["犹豫不决", "缺乏主见", "过于顺从", "保守", "过于谨慎"],
+                            traits: ["谦虚", "随和", "细致", "忍让", "善良"],
+                            behaviors: ["善解人意", "照顾他人", "注重和谐", "待人友善", "处事圆融"]
+                        },
+                        career: {
+                            suitable: ["教师", "服务业", "护士", "餐饮业", "社会工作者", "烹饪师"],
+                            industries: ["教育", "服务", "医疗", "餐饮", "社会服务", "家政"],
+                            workStyles: ["注重和谐", "细致耐心", "善于配合", "关注需求", "注重氛围"]
+                        },
+                        life: {
+                            objects: ["家居用品", "烹饪器具", "舒适家具", "实用装饰", "温馨物品"],
+                            clothing: ["舒适", "温暖", "实用", "大众风格", "中性色调"],
+                            hobbies: ["烹饪", "园艺", "手工", "家务", "照顾植物", "社区服务"],
+                            living: ["温馨舒适", "实用为主", "注重卫生", "整洁有序", "家庭氛围"]
+                        },
+                        food: {
+                            tastes: ["甜味", "温和", "滋补", "中和", "适口"],
+                            ingredients: ["米面", "甜品", "根茎类", "谷物", "温性食物"],
+                            dishes: ["家常菜", "营养餐", "粥品", "甜点", "传统美食"],
+                            beverages: ["温水", "糖水", "甜汤", "米酒", "牛奶"]
+                        },
+                        color: ["淡黄", "米色", "浅棕", "暖色调", "大地色"],
+                        direction: ["中间偏西南", "平缓", "中央", "稳定"],
+                        season: ["长夏", "季末", "农历六月", "湿润季节"],
+                        time: ["下午", "转换时期", "平稳时段", "家庭时光"],
+                        environment: ["家居", "社区", "学校", "医院", "服务场所"],
+                        society: {
+                            roles: ["照顾者", "支持者", "调解者", "服务者", "和谐维系者"],
+                            institutions: ["社区组织", "家庭", "福利机构", "教育系统", "医疗服务"],
+                            relationships: ["母子", "师生", "朋友", "邻里", "服务关系"]
+                        },
+                        fortune: {
+                            wealth: ["稳定收入", "生活保障", "务实理财", "家庭财产"],
+                            career: ["稳步发展", "服务信誉", "专业技能", "口碑积累"],
+                            relationships: ["和谐相处", "互相关照", "长期维系", "情感依靠"]
+                        }
+                    }
+                },
+                "金": {
+                    "阳": {
+                        name: "阳金",
+                        representative: "庚金",
+                        description: "阳金如刚剑利器，坚硬锋利，具有刚毅果断的特性",
+                        nature: {
+                            plants: ["金属质感植物", "刚硬植物", "秋天植物", "白色花朵"],
+                            animals: ["虎", "豹", "鹰", "猛禽", "有力量和速度的动物"],
+                            weather: ["秋风", "肃杀之气", "干燥", "清冽"],
+                            geography: ["高山", "峡谷", "岩石", "矿产区", "金属矿区"],
+                            celestialBodies: ["金星", "西方白虎", "昴宿"]
+                        },
+                        body: {
+                            organs: ["肺", "大肠", "皮肤", "鼻"],
+                            bodyParts: ["骨骼", "皮肤", "牙齿", "筋骨"],
+                            face: ["面色白净", "眉清目秀", "五官分明", "轮廓清晰"],
+                            physique: ["骨骼健硕", "肌肉紧实", "身材挺拔", "英武有力"],
+                            diseases: ["呼吸系统疾病", "肺病", "皮肤问题", "过敏", "创伤"]
+                        },
+                        character: {
+                            strengths: ["坚毅", "果断", "正义感强", "执行力强", "条理分明"],
+                            weaknesses: ["刚愎自用", "固执", "武断", "过于严肃", "缺乏变通"],
+                            traits: ["刚正不阿", "公正", "严谨", "遵守规则", "重视效率"],
+                            behaviors: ["言出必行", "严格自律", "追求完美", "注重秩序", "遵守规则"]
+                        },
+                        career: {
+                            suitable: ["军人", "警察", "法官", "工程师", "IT专业人士", "金融分析师"],
+                            industries: ["军事", "执法", "法律", "工程", "IT", "金融"],
+                            workStyles: ["高效率", "遵守规则", "追求卓越", "严谨", "责任心强"]
+                        },
+                        life: {
+                            objects: ["金属器具", "现代科技产品", "武器", "工具", "精密仪器"],
+                            clothing: ["干练", "正式", "简洁", "质地优良", "设计感强"],
+                            hobbies: ["武术", "健身", "机械", "科技", "精密工作", "收藏"],
+                            living: ["整洁有序", "功能为主", "现代风格", "精致", "注重质量"]
+                        },
+                        food: {
+                            tastes: ["辛辣", "清爽", "干脆", "利落", "刺激"],
+                            ingredients: ["白色食材", "金属含量高食物", "海鲜", "辛辣食物", "干果"],
+                            dishes: ["清炒", "烧烤", "快炒", "简洁料理", "辛辣菜肴"],
+                            beverages: ["白酒", "清酒", "矿泉水", "利口酒", "金属感饮料"]
+                        },
+                        color: ["白色", "银色", "金色", "铁灰色", "冷色调"],
+                        direction: ["西方", "西北偏西", "锐利", "直接"],
+                        season: ["秋季", "白露", "霜降", "金秋"],
+                        time: ["傍晚", "日落", "秋天", "金属锻造时"],
+                        environment: ["现代都市", "办公场所", "军事基地", "科技园区", "金属制品区"],
+                        society: {
+                            roles: ["执行者", "监督者", "执法者", "技术专家", "决策者"],
+                            institutions: ["军队", "警察", "司法系统", "技术部门", "金融机构"],
+                            relationships: ["上下级", "竞争对手", "战友", "执法与守法", "专业合作"]
+                        },
+                        fortune: {
+                            wealth: ["高风险投资", "科技收益", "果断决策", "军功奖励", "专业优势"],
+                            career: ["快速晋升", "专业技能", "决断能力", "领导才能", "执行力"],
+                            relationships: ["忠诚坚定", "相互竞争", "明确界限", "理性合作", "共同目标"]
+                        }
+                    },
+                    "阴": {
+                        name: "阴金",
+                        representative: "辛金",
+                        description: "阴金如首饰珠宝，华美精致，具有灵活精巧的特性",
+                        nature: {
+                            plants: ["白色花朵", "秋季果实", "精致植物", "香草"],
+                            animals: ["猫", "小型猛禽", "精致动物", "灵活敏捷的小动物"],
+                            weather: ["清霜", "秋雨", "晚霞", "金秋"],
+                            geography: ["峡谷", "小溪", "湖泊", "平整地带", "金属装饰"],
+                            celestialBodies: ["白露", "金星环", "西方星宿"]
+                        },
+                        body: {
+                            organs: ["肺", "皮肤", "鼻子", "嗅觉"],
+                            bodyParts: ["头发", "皮肤", "鼻", "面部轮廓"],
+                            face: ["面部精致", "眼神锐利", "轮廓分明", "气质优雅"],
+                            physique: ["身材修长", "动作灵活", "姿态优美", "轻盈敏捷"],
+                            diseases: ["呼吸系统问题", "皮肤敏感", "过敏", "神经紧张", "气管炎"]
+                        },
+                        character: {
+                            strengths: ["敏锐", "精细", "观察力强", "适应力好", "艺术感强"],
+                            weaknesses: ["过于挑剔", "情绪化", "钻牛角尖", "过于敏感", "缺乏耐心"],
+                            traits: ["干练", "精致", "追求完美", "有品位", "注重细节"],
+                            behaviors: ["精益求精", "讲究品质", "善于观察", "注重形象", "追求高标准"]
+                        },
+                        career: {
+                            suitable: ["设计师", "珠宝商", "时尚顾问", "美容师", "医生", "工艺师"],
+                            industries: ["时尚", "珠宝", "美容", "医疗", "精密工业", "艺术"],
+                            workStyles: ["注重细节", "追求完美", "创新精神", "精细作业", "审美能力强"]
+                        },
+                        life: {
+                            objects: ["珠宝首饰", "精致饰品", "艺术品", "精密器具", "时尚用品"],
+                            clothing: ["时尚", "精致", "质地优良", "设计感强", "讲究搭配"],
+                            hobbies: ["收藏", "设计", "美容", "时尚", "品鉴", "精细手工"],
+                            living: ["精致家居", "时尚布置", "注重品质", "讲究细节", "有设计感"]
+                        },
+                        food: {
+                            tastes: ["清香", "微辣", "鲜美", "精致", "层次感"],
+                            ingredients: ["海鲜", "蔬菜", "时令食材", "精致食材", "少油少盐"],
+                            dishes: ["精致菜肴", "创意料理", "装盘精美", "西式料理", "轻食"],
+                            beverages: ["香槟", "白酒", "鸡尾酒", "花果茶", "精致饮品"]
+                        },
+                        color: ["银色", "白色", "淡金色", "珍珠色", "浅色系"],
+                        direction: ["西南", "西方偏南", "精致", "盘旋"],
+                        season: ["秋末", "霜降后", "秋季末期", "初冬"],
+                        time: ["夕阳西下", "晚霞", "金秋时节", "精致创作时"],
+                        environment: ["精品店", "艺术馆", "时尚场所", "医疗机构", "高档场所"],
+                        society: {
+                            roles: ["艺术家", "设计师", "品鉴家", "时尚引领者", "精英专业人士"],
+                            institutions: ["设计公司", "时尚产业", "奢侈品行业", "医疗美容", "精密工业"],
+                            relationships: ["设计与欣赏", "专业合作", "审美共鸣", "精英圈子", "品味相投"]
+                        },
+                        fortune: {
+                            wealth: ["精准投资", "创意收益", "精品价值", "专业技能", "审美变现"],
+                            career: ["专业成就", "品牌知名度", "独特视角", "精细专长", "高端人脉"],
+                            relationships: ["品位相投", "精英交往", "专业互助", "高质量关系", "审美共鸣"]
+                        }
+                    }
+                },
+                "水": {
+                    "阳": {
+                        name: "阳水",
+                        representative: "壬水",
+                        description: "阳水如江河奔流，势不可挡，具有智慧变通的特性",
+                        nature: {
+                            plants: ["水生植物", "大型海藻", "水边植物", "北方植物"],
+                            animals: ["龙", "鱼", "水生动物", "游动迅速的动物"],
+                            weather: ["暴雨", "洪水", "大雪", "寒冷潮湿"],
+                            geography: ["江河", "瀑布", "海洋", "湖泊", "水库"],
+                            celestialBodies: ["水星", "北方玄武", "北斗七星"]
+                        },
+                        body: {
+                            organs: ["肾", "膀胱", "耳朵", "生殖系统"],
+                            bodyParts: ["骨髓", "耳", "下半身", "体液"],
+                            face: ["面色青黑", "耳大", "眼神敏锐", "表情多变"],
+                            physique: ["行动敏捷", "动作灵活", "反应迅速", "适应性强"],
+                            diseases: ["肾病", "泌尿系统问题", "耳疾", "浮肿", "腰痛"]
+                        },
+                        character: {
+                            strengths: ["智慧", "灵活", "应变能力强", "思维敏捷", "洞察力强"],
+                            weaknesses: ["善变", "缺乏持久力", "过于冒险", "难以捉摸", "过于狡猾"],
+                            traits: ["聪明", "善变", "适应力强", "冒险精神", "创新"],
+                            behaviors: ["随机应变", "打破常规", "追求刺激", "不拘一格", "喜欢冒险"]
+                        },
+                        career: {
+                            suitable: ["科学家", "研究员", "探险家", "商人", "投资人", "政治家"],
+                            industries: ["科研", "投资", "贸易", "旅游", "水利", "海洋"],
+                            workStyles: ["创新", "灵活多变", "应变自如", "思维活跃", "冒险精神"]
+                        },
+                        life: {
+                            objects: ["流动物品", "科技产品", "旅行用品", "探险装备", "水相关物品"],
+                            clothing: ["舒适", "功能性", "防水", "多变", "非传统"],
+                            hobbies: ["旅行", "探险", "水上运动", "科学研究", "投资理财"],
+                            living: ["变化多端", "不拘一格", "重视功能", "四处移动", "适应环境"]
+                        },
+                        food: {
+                            tastes: ["咸味", "鲜美", "清淡", "多变", "适口"],
+                            ingredients: ["海鲜", "水产", "盐", "流动食材", "变化多样"],
+                            dishes: ["海鲜料理", "清蒸", "汤类", "创新菜式", "融合菜系"],
+                            beverages: ["矿泉水", "海洋风味饮品", "低度酒", "多变饮料"]
+                        },
+                        color: ["黑色", "深蓝", "墨蓝", "深灰", "水波色"],
+                        direction: ["北方", "流动", "下行", "渗透"],
+                        season: ["冬季", "大雪", "冬至", "寒冬"],
+                        time: ["子夜", "深夜", "冬季", "雨季"],
+                        environment: ["水边", "海洋", "研究所", "创新中心", "流动场所"],
+                        society: {
+                            roles: ["思想家", "创新者", "冒险家", "投资者", "研究者"],
+                            institutions: ["研究机构", "投资公司", "探险组织", "国际贸易", "水利部门"],
+                            relationships: ["师徒", "合作伙伴", "思想交流", "商业合作", "研究搭档"]
+                        },
+                        fortune: {
+                            wealth: ["冒险投资", "创新收益", "流动资产", "国际贸易", "变通获利"],
+                            career: ["多元发展", "跨界成就", "创新突破", "全球视野", "灵活应变"],
+                            relationships: ["广泛交际", "变化多端", "思想交流", "智慧共享", "相互适应"]
+                        }
+                    },
+                    "阴": {
+                        name: "阴水",
+                        representative: "癸水",
+                        description: "阴水如云雾甘霖，滋润万物，具有温润含蓄的特性",
+                        nature: {
+                            plants: ["水生小植物", "苔藓", "浮萍", "湿地植物", "喜阴植物"],
+                            animals: ["鱼", "青蛙", "水鸟", "温和水生动物"],
+                            weather: ["细雨", "雾", "湿润", "冬雪"],
+                            geography: ["小湖", "池塘", "溪流", "泉水", "湿地"],
+                            celestialBodies: ["月亮", "星云", "北方星象"]
+                        },
+                        body: {
+                            organs: ["肾", "膀胱", "泌尿系统", "生殖系统"],
+                            bodyParts: ["耳朵", "体液", "毛发", "腰部"],
+                            face: ["面色白净", "耳垂饱满", "眼神温润", "表情含蓄"],
+                            physique: ["身材柔韧", "动作轻柔", "步伐轻盈", "气质温润"],
+                            diseases: ["肾虚", "水肿", "泌尿系统问题", "生殖系统疾病", "精神抑郁"]
+                        },
+                        character: {
+                            strengths: ["聪慧", "温和", "洞察力强", "感情丰富", "善解人意"],
+                            weaknesses: ["过于敏感", "优柔寡断", "过于内向", "情绪波动", "过于退让"],
+                            traits: ["内敛", "深邃", "温柔", "感性", "富有同情心"],
+                            behaviors: ["深思熟虑", "细腻体贴", "注重内心", "感情投入", "倾听理解"]
+                        },
+                        career: {
+                            suitable: ["作家", "哲学家", "心理学家", "艺术家", "医生", "顾问"],
+                            industries: ["文学", "艺术", "心理", "医疗", "咨询", "教育"],
+                            workStyles: ["注重内涵", "深入思考", "情感投入", "细腻洞察", "创作力强"]
+                        },
+                        life: {
+                            objects: ["书籍", "艺术品", "情感物件", "具有纪念意义的物品", "水相关物品"],
+                            clothing: ["柔软", "舒适", "简约", "深色调", "有质感"],
+                            hobbies: ["阅读", "写作", "音乐", "冥想", "心理探索", "内心成长"],
+                            living: ["安静舒适", "注重内涵", "简约", "隐私性强", "感性空间"]
+                        },
+                        food: {
+                            tastes: ["清淡", "微咸", "温润", "滋补", "回味"],
+                            ingredients: ["豆类", "海产", "补水食品", "温润食材", "养生食材"],
+                            dishes: ["滋补汤品", "清蒸", "煮", "内涵丰富", "养生料理"],
+                            beverages: ["清水", "茶", "温和酒类", "温热饮品", "滋补饮品"]
+                        },
+                        color: ["深蓝", "墨色", "灰蓝", "水墨色", "深色调"],
+                        direction: ["北偏东", "下渗", "内敛", "潜藏"],
+                        season: ["初冬", "小雪", "冬至前", "冬季末"],
+                        time: ["深夜", "黎明前", "冬季", "宁静时刻"],
+                        environment: ["安静处", "水边", "书房", "创作室", "思考空间"],
+                        society: {
+                            roles: ["思想者", "创作者", "心灵导师", "顾问", "情感支持者"],
+                            institutions: ["文学社", "心理咨询", "艺术团体", "水利管理", "医疗机构"],
+                            relationships: ["知己", "心灵契合", "情感连接", "导师与学生", "治愈关系"]
+                        },
+                        fortune: {
+                            wealth: ["稳健积累", "智慧创收", "长期投资", "精神财富", "深度价值"],
+                            career: ["内涵成就", "专业深度", "独特视角", "心灵影响", "创作灵感"],
+                            relationships: ["情感深厚", "心灵默契", "相互理解", "长期陪伴", "深度交流"]
+                        }
+                    }
+                }
+            };
+
+            // 十天干特性数据
+            const tianganData = {
+                "甲": {
+                    name: "甲木",
+                    element: "木",
+                    yangYin: "阳",
+                    nature: "阳木如直立挺拔的树干，向上生长",
+                    character: "刚健、正直、勇往直前",
+                    symbolizes: ["出生", "萌芽", "生机", "初始", "活力"],
+                    strengths: ["决断力强", "有领导才能", "坚韧不拔", "注重道义", "富有理想"],
+                    weaknesses: ["固执", "缺乏灵活性", "好高骛远", "不够圆融"],
+                    naturalSymbols: ["树干", "竹", "高山", "长江", "东方"]
+                },
+                "乙": {
+                    name: "乙木",
+                    element: "木",
+                    yangYin: "阴",
+                    nature: "阴木如藤蔓花草，柔韧灵活，顺势而生",
+                    character: "柔和、灵活、随机应变",
+                    symbolizes: ["成长", "弯曲", "顺应", "柔韧", "包容"],
+                    strengths: ["观察力敏锐", "善解人意", "富有艺术气质", "乐于奉献", "适应性强"],
+                    weaknesses: ["优柔寡断", "情绪化", "缺乏主见", "过于敏感"],
+                    naturalSymbols: ["花草", "藤蔓", "绿叶", "风", "晓雾"]
+                },
+                "丙": {
+                    name: "丙火",
+                    element: "火",
+                    yangYin: "阳",
+                    nature: "阳火如烈日当空，光明磊落",
+                    character: "热情、光明、积极向上",
+                    symbolizes: ["光明", "热力", "扩散", "显露", "活跃"],
+                    strengths: ["魅力四射", "领导能力强", "充满活力", "思维敏捷", "乐观向上"],
+                    weaknesses: ["急躁", "自我", "缺乏耐心", "易冲动"],
+                    naturalSymbols: ["太阳", "火焰", "闪电", "烈日", "南方"]
+                },
+                "丁": {
+                    name: "丁火",
+                    element: "火",
+                    yangYin: "阴",
+                    nature: "阴火如灯烛之火，温暖内敛",
+                    character: "温和、细腻、内敛",
+                    symbolizes: ["温暖", "照明", "内敛", "精细", "情感"],
+                    strengths: ["情感丰富", "洞察力强", "亲和力佳", "善解人意", "精致细腻"],
+                    weaknesses: ["多愁善感", "缺乏决断", "情绪化", "容易疲惫"],
+                    naturalSymbols: ["烛光", "晚霞", "灯火", "温泉", "星光"]
+                },
+                "戊": {
+                    name: "戊土",
+                    element: "土",
+                    yangYin: "阳",
+                    nature: "阳土如高山厚土，稳重踏实",
+                    character: "稳重、忠诚、坚守",
+                    symbolizes: ["稳固", "中正", "厚实", "承载", "保守"],
+                    strengths: ["责任感强", "处事稳健", "意志坚定", "忠诚可靠", "勤勉务实"],
+                    weaknesses: ["固执", "保守", "墨守成规", "反应迟缓"],
+                    naturalSymbols: ["高山", "黄土", "田野", "大地", "中央"]
+                },
+                "己": {
+                    name: "己土",
+                    element: "土",
+                    yangYin: "阴",
+                    nature: "阴土如平原沃土，温和包容",
+                    character: "温和、包容、滋养",
+                    symbolizes: ["柔和", "包容", "滋养", "承接", "和谐"],
+                    strengths: ["人缘好", "善解人意", "包容力强", "谦虚和善", "富有耐心"],
+                    weaknesses: ["缺乏主见", "优柔寡断", "太过重视他人看法", "过于谨慎"],
+                    naturalSymbols: ["沃土", "平原", "田园", "壤泥", "陶土"]
+                },
+                "庚": {
+                    name: "庚金",
+                    element: "金",
+                    yangYin: "阳",
+                    nature: "阳金如刚剑利器，坚硬锋利",
+                    character: "刚毅、果断、坚韧",
+                    symbolizes: ["坚固", "锋利", "决断", "公正", "清冷"],
+                    strengths: ["决断力强", "正义感强", "执行力佳", "条理分明", "遵守规则"],
+                    weaknesses: ["固执", "武断", "过于严厉", "缺乏变通"],
+                    naturalSymbols: ["利剑", "钢铁", "金属器具", "山峰", "西方"]
+                },
+                "辛": {
+                    name: "辛金",
+                    element: "金",
+                    yangYin: "阴",
+                    nature: "阴金如首饰珠宝，华美精致",
+                    character: "优雅、精致、灵活",
+                    symbolizes: ["精致", "锐利", "美丽", "尖细", "敏锐"],
+                    strengths: ["审美能力强", "观察力敏锐", "适应力佳", "善于沟通", "具有艺术才华"],
+                    weaknesses: ["过于敏感", "情绪化", "过于讲究", "容易焦虑"],
+                    naturalSymbols: ["珠宝", "金饰", "白露", "秋风", "霜"]
+                },
+                "壬": {
+                    name: "壬水",
+                    element: "水",
+                    yangYin: "阳",
+                    nature: "阳水如江河奔流，势不可挡",
+                    character: "智慧、变通、进取",
+                    symbolizes: ["智慧", "流动", "奔放", "变化", "深远"],
+                    strengths: ["思维敏捷", "变通能力强", "创新精神", "冒险精神", "善于谋划"],
+                    weaknesses: ["浮躁", "缺乏持久性", "善变", "过于冒险"],
+                    naturalSymbols: ["江河", "瀑布", "海洋", "暴雨", "北方"]
+                },
+                "癸": {
+                    name: "癸水",
+                    element: "水",
+                    yangYin: "阴",
+                    nature: "阴水如云雾甘霖，滋润万物",
+                    character: "温润、含蓄、滋养",
+                    symbolizes: ["滋润", "细腻", "温柔", "潜藏", "智慧"],
+                    strengths: ["思考深入", "洞察力强", "情感丰富", "适应力强", "善于倾听"],
+                    weaknesses: ["情绪波动", "过于内敛", "缺乏决断", "忧虑过多"],
+                    naturalSymbols: ["细雨", "露水", "云雾", "小溪", "湖泊"]
+                }
+            };
+
+            // 十神数据
+            const shenshaData = {
+                "比肩": {
+                    basicMeaning: "与日主同性同五行的天干",
+                    derivation: "取象于人的肩膀，与自己并肩而立，代表兄弟、同性朋友，自我力量的延伸",
+                    abstract: {
+                        characteristics: ["同气连枝", "平等互助", "团队合作", "竞争", "自我意识"],
+                        strengths: ["增强自身力量", "合作共赢", "相互扶持", "集体力量"],
+                        weaknesses: ["竞争消耗", "分散资源", "过度独立", "自我固执"],
+                        lifeMeaning: ["同道人", "志同道合", "自助能力", "独立精神"]
+                    },
+                    concrete: {
+                        people: ["兄弟姐妹", "同性朋友", "同事", "合作伙伴", "竞争对手"],
+                        matters: ["团队协作", "共同创业", "同行业交流", "权力争夺"],
+                        objects: ["手足", "工具", "武器", "辅助物"]
+                    },
+                    elementSpecific: {
+                        "木": "如两棵树木并立，相互支撑又相互竞争阳光",
+                        "火": "如两团火焰并存，相互增强又彼此竞争燃料",
+                        "土": "如两座山峰并峙，稳固却也各自为阵",
+                        "金": "如两把利剑并列，相互辉映又彼此较量锋芒",
+                        "水": "如两条溪流并行，相互汇合又各自寻找出路"
+                    }
+                },
+                "劫财": {
+                    basicMeaning: "与日主同五行异性的天干",
+                    derivation: "取象于财被劫走，代表姐妹、异性朋友，表示资源被分享或损耗",
+                    abstract: {
+                        characteristics: ["分享", "协作", "互补", "消耗", "变动"],
+                        strengths: ["互相配合", "资源共享", "灵活变通", "善于变化"],
+                        weaknesses: ["资源分散", "相互牵制", "变化无常", "缺乏集中"],
+                        lifeMeaning: ["变动不居", "资源流动", "交际能力", "分享精神"]
+                    },
+                    concrete: {
+                        people: ["姐妹", "异性朋友", "亲密同事", "共享资源的人"],
+                        matters: ["资源分配", "财富流动", "家庭开支", "婚嫁嫁妆"],
+                        objects: ["流动资产", "共享物品", "家庭支出", "分配资源"]
+                    },
+                    elementSpecific: {
+                        "木": "如树木与藤蔓互相依存，又共享土壤养分",
+                        "火": "如火炬与烛光互相照应，又共享燃料",
+                        "土": "如山峰与平原相连，形成地貌变化",
+                        "金": "如刚剑与珠宝并存，价值各异但同源",
+                        "水": "如江河与湖泊相通，水量互相影响"
+                    }
+                },
+                "食神": {
+                    basicMeaning: "日主所生且为阳性的天干",
+                    derivation: "取象于饮食，代表营养、享受、创造，表示生活品质、艺术、才华",
+                    abstract: {
+                        characteristics: ["创造", "艺术", "享受", "才华", "乐观"],
+                        strengths: ["才艺表现", "创造力", "乐观态度", "生活情趣"],
+                        weaknesses: ["过度享乐", "不切实际", "缺乏责任", "虚荣"],
+                        lifeMeaning: ["生活品质", "艺术修养", "创造精神", "乐观向上"]
+                    },
+                    concrete: {
+                        people: ["子女", "学生", "艺术家", "厨师", "服务人员"],
+                        matters: ["文艺活动", "教育", "饮食", "娱乐", "创作"],
+                        objects: ["艺术品", "食物", "文学作品", "玩具", "休闲设施"]
+                    },
+                    elementSpecific: {
+                        "木": "木生火，如树木孕育新芽，代表创造力、新生命",
+                        "火": "火生土，如火焰形成灰烬，代表转化创造",
+                        "土": "土生金，如大地孕育矿藏，代表实用性创造",
+                        "金": "金生水，如金属冷凝水滴，代表精致创造",
+                        "水": "水生木，如雨露滋养幼苗，代表滋养创造"
+                    }
+                },
+                "伤官": {
+                    basicMeaning: "日主所生且为阴性的天干",
+                    derivation: "取象于打破规则、挑战权威，代表创新、变革、不拘一格",
+                    abstract: {
+                        characteristics: ["创新", "变革", "叛逆", "灵活", "个性"],
+                        strengths: ["打破常规", "创新思维", "独立精神", "变通能力"],
+                        weaknesses: ["任性", "不守规矩", "破坏性", "过度自由"],
+                        lifeMeaning: ["突破束缚", "创新精神", "自由意志", "变革力量"]
+                    },
+                    concrete: {
+                        people: ["子女", "学生", "改革者", "艺术家", "创新者"],
+                        matters: ["改革", "创新", "叛逆", "突破", "学术研究"],
+                        objects: ["实验品", "创新作品", "非传统物品", "特立独行的事物"]
+                    },
+                    elementSpecific: {
+                        "木": "木生火，如新枝破土而出，代表突破性成长",
+                        "火": "火生土，如野火改变地貌，代表变革转化",
+                        "土": "土生金，如淘炼出珍贵金属，代表价值转化",
+                        "金": "金生水，如金属熔化成流体，代表形态变化",
+                        "水": "水生木，如水滴石穿，代表柔弱创造奇迹"
+                    }
+                },
+                "偏财": {
+                    basicMeaning: "日主所克且为阳性的天干",
+                    derivation: "取象于意外之财、横财，代表非常规收入、机遇",
+                    abstract: {
+                        characteristics: ["机遇", "意外收获", "冒险", "变动", "外来资源"],
+                        strengths: ["把握机会", "创造财富", "开拓视野", "发现价值"],
+                        weaknesses: ["投机心态", "贪婪", "风险意识弱", "不稳定"],
+                        lifeMeaning: ["机会把握", "风险投资", "开放心态", "财富观念"]
+                    },
+                    concrete: {
+                        people: ["贵人", "投资伙伴", "商业伙伴", "异性缘"],
+                        matters: ["投资", "创业", "偶然机会", "意外之财", "资源争取"],
+                        objects: ["投资品", "赠品", "奖金", "彩票", "外来资源"]
+                    },
+                    elementSpecific: {
+                        "木": "木克土，如树根破土，代表从大地获取养分",
+                        "火": "火克金，如火炼金，代表通过变革获得价值",
+                        "土": "土克水，如堤坝控水，代表控制流动资源",
+                        "金": "金克木，如斧伐树，代表通过锐气获取资源",
+                        "水": "水克火，如水灭火，代表通过柔克刚获利"
+                    }
+                },
+                "正财": {
+                    basicMeaning: "日主所克且为阴性的天干",
+                    derivation: "取象于正常收入、稳定财富，代表常规收入、积累",
+                    abstract: {
+                        characteristics: ["积累", "稳定", "常规", "务实", "管理"],
+                        strengths: ["稳定收入", "良好管理", "规划能力", "资源整合"],
+                        weaknesses: ["缺乏突破", "保守", "畏难情绪", "过于依赖"],
+                        lifeMeaning: ["经济基础", "财务规划", "务实精神", "稳健发展"]
+                    },
+                    concrete: {
+                        people: ["配偶", "财务人员", "下属", "服务者"],
+                        matters: ["正常收入", "储蓄", "规划", "理财", "家业"],
+                        objects: ["存款", "固定资产", "收入来源", "家产"]
+                    },
+                    elementSpecific: {
+                        "木": "木克土，如园丁培土种树，代表规划利用资源",
+                        "火": "火克金，如匠人用火锻造金器，代表技艺创造价值",
+                        "土": "土克水，如水井储水，代表储存流动资源",
+                        "金": "金克木，如木匠用刀雕刻，代表精细加工创造价值",
+                        "水": "水克火，如温泉水能源，代表温和持续的资源"
+                    }
+                },
+                "七杀": {
+                    basicMeaning: "克日主且为阳性的天干",
+                    derivation: "取象于权威、力量、挑战，代表压力、权力、竞争",
+                    abstract: {
+                        characteristics: ["权威", "压力", "挑战", "竞争", "控制"],
+                        strengths: ["执行力", "决断力", "竞争意识", "权威掌控"],
+                        weaknesses: ["专制", "固执", "过于强硬", "缺乏灵活性"],
+                        lifeMeaning: ["威严气场", "领导能力", "竞争精神", "规则意识"]
+                    },
+                    concrete: {
+                        people: ["上司", "权威人物", "执法者", "竞争对手", "强势人物"],
+                        matters: ["竞争", "考验", "挑战", "权力争夺", "压力"],
+                        objects: ["武器", "权力象征物", "控制工具", "强制力量"]
+                    },
+                    elementSpecific: {
+                        "木": "金克木，如斧砍树木，代表外部力量的侵袭",
+                        "火": "水克火，如洪水灭火，代表强大冲击",
+                        "土": "木克土，如根系破坏地基，代表暗中威胁",
+                        "金": "火克金，如烈火熔金，代表强烈挑战",
+                        "水": "土克水，如山体阻断河流，代表权威阻力"
+                    }
+                },
+                "正官": {
+                    basicMeaning: "克日主且为阴性的天干",
+                    derivation: "取象于规则、制度、秩序，代表约束、规范、责任",
+                    abstract: {
+                        characteristics: ["规范", "秩序", "责任", "约束", "清晰"],
+                        strengths: ["遵守规则", "责任感", "条理清晰", "规范行为"],
+                        weaknesses: ["教条", "刻板", "缺乏变通", "过于保守"],
+                        lifeMeaning: ["规则意识", "尊重秩序", "责任担当", "法治观念"]
+                    },
+                    concrete: {
+                        people: ["配偶", "长官", "权威人物", "管理者", "师长"],
+                        matters: ["管理", "规范", "制度", "约束", "传统"],
+                        objects: ["规章制度", "证书执照", "官方文件", "法规"]
+                    },
+                    elementSpecific: {
+                        "木": "金克木，如修剪树木，代表规范化外部力量",
+                        "火": "水克火，如细水调节火候，代表温和控制",
+                        "土": "木克土，如林木管理土壤保持，代表规范利用",
+                        "金": "火克金，如冶炼金属，代表规范塑造",
+                        "水": "土克水，如水渠引导水流，代表规范引导"
+                    }
+                },
+                "偏印": {
+                    basicMeaning: "生日主且为阳性的天干",
+                    derivation: "取象于智慧、学识、灵感，代表非传统知识、创造性思维",
+                    abstract: {
+                        characteristics: ["智慧", "灵感", "直觉", "神秘", "非常规"],
+                        strengths: ["创新思维", "灵感涌现", "超前意识", "敏锐感知"],
+                        weaknesses: ["不切实际", "神秘主义", "过于理想化", "忽视现实"],
+                        lifeMeaning: ["智慧启发", "精神追求", "神秘体验", "内在探索"]
+                    },
+                    concrete: {
+                        people: ["师长", "思想家", "智者", "母亲", "精神导师"],
+                        matters: ["学习", "研究", "灵感", "创意", "精神追求"],
+                        objects: ["书籍", "艺术品", "研究成果", "创意作品"]
+                    },
+                    elementSpecific: {
+                        "木": "水生木，如泉水涌出滋养大树，代表源源不断的智慧",
+                        "火": "木生火，如燧木取火，代表智慧火花",
+                        "土": "火生土，如火山喷发形成新地貌，代表创造性智慧",
+                        "金": "土生金，如大地孕育金矿，代表深藏的智慧",
+                        "水": "金生水，如高山流泉，代表精纯的智慧"
+                    }
+                },
+                "正印": {
+                    basicMeaning: "生日主且为阴性的天干",
+                    derivation: "取象于传统、学问、母爱，代表传统知识、养育之恩",
+                    abstract: {
+                        characteristics: ["传统", "养育", "温和", "包容", "基础"],
+                        strengths: ["扎实基础", "温和力量", "包容心", "持续支持"],
+                        weaknesses: ["保守", "依赖", "缺乏创新", "过度保护"],
+                        lifeMeaning: ["文化传承", "家庭教育", "慈爱精神", "根基稳固"]
+                    },
+                    concrete: {
+                        people: ["母亲", "老师", "长辈", "支持者", "保护者"],
+                        matters: ["教育", "养育", "保护", "传承", "学习"],
+                        objects: ["典籍", "传统物品", "教材", "滋养品"]
+                    },
+                    elementSpecific: {
+                        "木": "水生木，如细雨滋润树苗，代表温和养育",
+                        "火": "木生火，如薪火相传，代表传统传承",
+                        "土": "火生土，如温火烤土，代表温和塑造",
+                        "金": "土生金，如大地孕育珍宝，代表价值传承",
+                        "水": "金生水，如甘泉流出，代表纯净传承"
+                    }
+                }
+            };
+
+            // 天干十神关系数据
+            const tianganShenshaRelation = {
+                "甲": {
+                    "比肩": {
+                        gan: "甲",
+                        meaning: "甲木日主见甲木比肩",
+                        description: "阳木日主见阳木，为阳木见阳木，刚见刚，如两棵大树并立，相互依靠却也争夺阳光",
+                        impact: "增强自我力量，但也可能导致竞争与冲突",
+                        favorable: ["事业合作", "共同创业", "竞争中成长", "互相扶持"],
+                        unfavorable: ["过度争斗", "固执己见", "过于独立", "资源争夺"],
+                        lifeApplication: "适合团队合作，共同创业；注意避免过度竞争，保持合理让步"
+                    },
+                    "劫财": {
+                        gan: "乙",
+                        meaning: "甲木日主见乙木劫财",
+                        description: "阳木日主见阴木，为阳木见阴木，刚见柔，如树干与柔枝，互为依存又各有所需",
+                        impact: "获得柔性支持，但资源可能被分散",
+                        favorable: ["互补合作", "资源整合", "灵活应变", "柔中带刚"],
+                        unfavorable: ["资源分散", "方向不一", "能量损耗", "缺乏集中"],
+                        lifeApplication: "善于利用柔性资源，注重互补合作；避免资源过度分散，保持主导地位"
+                    },
+                    "食神": {
+                        gan: "丙",
+                        meaning: "甲木日主见丙火食神",
+                        description: "阳木日主见阳火，为阳木生阳火，如大树孕育火焰，创造热情活力",
+                        impact: "创造力强，能量外放，为生活带来乐趣",
+                        favorable: ["艺术创作", "教育活动", "社交场合", "展示才华"],
+                        unfavorable: ["过度消耗", "不切实际", "虚荣浮华", "能量过度外泄"],
+                        lifeApplication: "适合发展艺术创意，提升生活品质；避免过度追求享乐，注重务实"
+                    },
+                    "伤官": {
+                        gan: "丁",
+                        meaning: "甲木日主见丁火伤官",
+                        description: "阳木日主见阴火，为阳木生阴火，如大树生出温和火焰，创新中带有内敛",
+                        impact: "创新能力强，但较为含蓄，适合精细创作",
+                        favorable: ["精细创作", "创新改革", "艺术表达", "突破传统"],
+                        unfavorable: ["任性妄为", "破坏规则", "创新过度", "忽视稳定"],
+                        lifeApplication: "适合在艺术、教育领域创新；注意保持对传统的尊重，避免过度打破常规"
+                    },
+                    "偏财": {
+                        gan: "戊",
+                        meaning: "甲木日主见戊土偏财",
+                        description: "阳木日主见阳土，为阳木克阳土，如大树根系突破土层，获取养分资源",
+                        impact: "能够开拓财源，获取外部资源，适合投资冒险",
+                        favorable: ["投资创业", "资源开发", "冒险机会", "外部合作"],
+                        unfavorable: ["冒险过度", "贪婪无度", "资源浪费", "忽视风险"],
+                        lifeApplication: "适合投资创业，把握机遇；注意控制风险，避免过度扩张"
+                    },
+                    "正财": {
+                        gan: "己",
+                        meaning: "甲木日主见己土正财",
+                        description: "阳木日主见阴土，为阳木克阴土，如园丁培土种树，规划利用资源",
+                        impact: "能够稳定获取财富，适合长期规划管理",
+                        favorable: ["稳定收入", "财务规划", "资产管理", "长期投资"],
+                        unfavorable: ["墨守成规", "缺乏创新", "过度保守", "错失机会"],
+                        lifeApplication: "适合稳健理财，注重长期规划；避免过度保守，适当把握创新机会"
+                    },
+                    "七杀": {
+                        gan: "庚",
+                        meaning: "甲木日主见庚金七杀",
+                        description: "阳木日主见阳金，为阳木被阳金所克，如大树面临斧斤，面临强大挑战",
+                        impact: "面临强烈压力与挑战，需要勇于应对",
+                        favorable: ["迎接挑战", "锻炼意志", "克服困难", "转危为机"],
+                        unfavorable: ["过度对抗", "固执己见", "消极抵抗", "自我封闭"],
+                        lifeApplication: "面对挑战要勇于应对，借机提升自我；避免过度抵抗，学会适时变通"
+                    },
+                    "正官": {
+                        gan: "辛",
+                        meaning: "甲木日主见辛金正官",
+                        description: "阳木日主见阴金，为阳木被阴金所克，如树木被修剪，受到规范约束",
+                        impact: "需要适应规则与约束，获得规范指导",
+                        favorable: ["遵守秩序", "接受指导", "规范发展", "合理规划"],
+                        unfavorable: ["过度约束", "失去活力", "创新受限", "个性被抑制"],
+                        lifeApplication: "学会在规则框架内发展，尊重权威；保持适度自主，避免失去个性"
+                    },
+                    "偏印": {
+                        gan: "壬",
+                        meaning: "甲木日主见壬水偏印",
+                        description: "阳木日主见阳水，为阳木得阳水滋养，如大树吸收源头活水，获取智慧与灵感",
+                        impact: "获得丰富智慧与灵感，思维活跃创新",
+                        favorable: ["学习新知", "思维创新", "灵感迸发", "智慧决策"],
+                        unfavorable: ["不切实际", "过于理想", "脱离现实", "思想偏激"],
+                        lifeApplication: "善于吸收新知识，发挥创造性思维；注意保持务实态度，避免过于空想"
+                    },
+                    "正印": {
+                        gan: "癸",
+                        meaning: "甲木日主见癸水正印",
+                        description: "阳木日主见阴水，为阳木得阴水滋养，如大树吸收细雨甘露，获得温和滋养",
+                        impact: "获得稳定知识与支持，基础扎实稳健",
+                        favorable: ["传统学习", "沉稳成长", "基础扎实", "稳定支持"],
+                        unfavorable: ["思想保守", "缺乏创新", "过度依赖", "失去活力"],
+                        lifeApplication: "注重传统知识学习，打好基础；避免过度保守，适当接受新思想"
+                    }
+                },
+                "乙": {
+                    "劫财": {
+                        gan: "甲",
+                        meaning: "乙木日主见甲木劫财",
+                        description: "阴木日主见阳木，为阴木见阳木，柔见刚，如藤蔓依附大树，寻求支持又被分散资源",
+                        impact: "获得强有力支持，但容易被主导分散资源",
+                        favorable: ["获得支持", "借力发展", "资源共享", "强弱互补"],
+                        unfavorable: ["资源被夺", "主动性弱", "依赖心强", "个性被掩盖"],
+                        lifeApplication: "善于借助外力发展，但要保持独立性；避免过度依赖，培养自主能力"
+                    },
+                    "比肩": {
+                        gan: "乙",
+                        meaning: "乙木日主见乙木比肩",
+                        description: "阴木日主见阴木，为阴木见阴木，柔见柔，如藤蔓交织在一起，柔韧中共存",
+                        impact: "获得同类支持，但力量相对较弱",
+                        favorable: ["和谐共存", "灵活协作", "资源共享", "互相理解"],
+                        unfavorable: ["力量分散", "竞争微弱", "缺乏突破", "依赖心强"],
+                        lifeApplication: "适合与同类合作，发挥柔性优势；需要引入刚性力量，避免过于柔弱"
+                    },
+                    "伤官": {
+                        gan: "丙",
+                        meaning: "乙木日主见丙火伤官",
+                        description: "阴木日主见阳火，为阴木生阳火，如藤蔓被阳光照耀，爆发活力与创新",
+                        impact: "创新能力强，但较为激进，需要平衡",
+                        favorable: ["创意爆发", "变革创新", "突破传统", "热情表达"],
+                        unfavorable: ["过于激进", "缺乏节制", "忽视规则", "能量耗散"],
+                        lifeApplication: "适合在艺术、创意领域发挥才华；注意保持适度节制，避免过度激进"
+                    },
+                    "食神": {
+                        gan: "丁",
+                        meaning: "乙木日主见丁火食神",
+                        description: "阴木日主见阴火，为阴木生阴火，如细枝上燃起温和火焰，创造精致艺术",
+                        impact: "创造力细腻，艺术性强，注重品质",
+                        favorable: ["艺术创作", "精细设计", "生活美学", "情感表达"],
+                        unfavorable: ["过于追求完美", "忽视实际", "沉迷享乐", "缺乏责任"],
+                        lifeApplication: "适合发展精细艺术，提升生活品质；避免过度追求完美，注重实用价值"
+                    },
+                    "正财": {
+                        gan: "戊",
+                        meaning: "乙木日主见戊土正财",
+                        description: "阴木日主见阳土，为阴木克阳土，如细根渗入坚硬土壤，巧妙获取资源",
+                        impact: "通过精细规划获取稳定财富，适合精细管理",
+                        favorable: ["精细管理", "稳定收入", "务实投资", "资源整合"],
+                        unfavorable: ["过度谨慎", "眼光局限", "缺乏魄力", "进展缓慢"],
+                        lifeApplication: "适合精细化管理财务，稳健投资；需要开阔视野，不要过于保守"
+                    },
+                    "偏财": {
+                        gan: "己",
+                        meaning: "乙木日主见己土偏财",
+                        description: "阴木日主见阴土，为阴木克阴土，如藤蔓在柔软土壤中扩展，灵活获取资源",
+                        impact: "善于发现机会，灵活获取财富，适应性强",
+                        favorable: ["灵活投资", "机会把握", "多元发展", "人脉资源"],
+                        unfavorable: ["投机心态", "缺乏规划", "朝三暮四", "资源分散"],
+                        lifeApplication: "善于把握灵活机会，拓展多元收入；需要增强规划性，避免过度分散"
+                    },
+                    "正官": {
+                        gan: "庚",
+                        meaning: "乙木日主见庚金正官",
+                        description: "阴木日主见阳金，为阴木被阳金所克，如藤蔓面临锋利金属，面临强制规范",
+                        impact: "需要适应严格规则，面临强势约束",
+                        favorable: ["规范行为", "严格自律", "接受指导", "结构化发展"],
+                        unfavorable: ["过度压制", "个性丧失", "创新受限", "活力减弱"],
+                        lifeApplication: "学会在严格规则下生存，提高自律性；保持适度柔韧，避免完全屈服"
+                    },
+                    "七杀": {
+                        gan: "辛",
+                        meaning: "乙木日主见辛金七杀",
+                        description: "阴木日主见阴金，为阴木被阴金所克，如藤蔓被精致剪刀修剪，面临精细挑战",
+                        impact: "面临精细化挑战，需要灵活应对",
+                        favorable: ["精益求精", "提高标准", "适应变化", "灵活应对"],
+                        unfavorable: ["应对不及", "过度妥协", "信心不足", "过于敏感"],
+                        lifeApplication: "面对挑战要提高精细化水平；保持自信，避免过度自我怀疑"
+                    },
+                    "正印": {
+                        gan: "壬",
+                        meaning: "乙木日主见壬水正印",
+                        description: "阴木日主见阳水，为阴木得阳水滋养，如藤蔓吸收活水，获得强大滋养",
+                        impact: "获得充沛能量与知识，思想活跃开放",
+                        favorable: ["吸收新知", "思维开阔", "创新学习", "能量充沛"],
+                        unfavorable: ["过度依赖", "无所适从", "思想混乱", "缺乏主见"],
+                        lifeApplication: "积极吸收多元知识，开阔思路；培养独立思考能力，避免盲从"
+                    },
+                    "偏印": {
+                        gan: "癸",
+                        meaning: "乙木日主见癸水偏印",
+                        description: "阴木日主见阴水，为阴木得阴水滋养，如藤蔓吸收细雨，获得温和滋润",
+                        impact: "获得温和知识与支持，成长稳定和谐",
+                        favorable: ["温和学习", "稳定支持", "细腻思考", "情感丰富"],
+                        unfavorable: ["过于内向", "缺乏主见", "依赖性强", "进取心弱"],
+                        lifeApplication: "注重细腻学习，培养情感智慧；增强独立性，避免过度依赖"
+                    }
+                },
+                "丙": {
+                    "偏印": {
+                        gan: "甲",
+                        meaning: "丙火日主见甲木偏印",
+                        description: "阳火日主见阳木，为阳火得阳木所生，如烈火获得充足燃料，思想充沛活跃",
+                        impact: "获得强大支持与养分，思维活跃创新",
+                        favorable: ["智慧启发", "思想活跃", "精神丰富", "创新理念"],
+                        unfavorable: ["过度消耗", "急于求成", "忽视细节", "能量难控"],
+                        lifeApplication: "善用丰富智慧，发展创新思维；注意节制消耗，保持可持续发展"
+                    },
+                    "正印": {
+                        gan: "乙",
+                        meaning: "丙火日主见乙木正印",
+                        description: "阳火日主见阴木，为阳火得阴木所生，如火焰得到柔韧燃料，获得持久稳定支持",
+                        impact: "获得稳定知识与养分，发展更为持久",
+                        favorable: ["稳定支持", "持久发展", "传统学习", "基础扎实"],
+                        unfavorable: ["依赖思维", "墨守成规", "缺乏创新", "活力受限"],
+                        lifeApplication: "注重传统知识积累，打好基础；保持一定创新性，避免过于守旧"
+                    },
+                    "比肩": {
+                        gan: "丙",
+                        meaning: "丙火日主见丙火比肩",
+                        description: "阳火日主见阳火，为阳火见阳火，如两团烈火并存，互相增强又竞争资源",
+                        impact: "力量增强，热情高涨，但也可能相互竞争",
+                        favorable: ["力量增强", "热情高涨", "团队合作", "共同进步"],
+                        unfavorable: ["相互竞争", "能量过剩", "资源消耗", "控制不足"],
+                        lifeApplication: "适合热情协作，共同发展；注意控制能量，避免过度消耗"
+                    },
+                    "劫财": {
+                        gan: "丁",
+                        meaning: "丙火日主见丁火劫财",
+                        description: "阳火日主见阴火，为阳火见阴火，如烈火与烛光共存，互补又分散能量",
+                        impact: "获得柔性支持，但资源可能被分散",
+                        favorable: ["柔和互补", "资源共享", "平衡发展", "情感丰富"],
+                        unfavorable: ["能量分散", "方向不一", "力量减弱", "缺乏集中"],
+                        lifeApplication: "善用柔性资源，发挥互补优势；注意集中资源，避免过度分散"
+                    },
+                    "食神": {
+                        gan: "戊",
+                        meaning: "丙火日主见戊土食神",
+                        description: "阳火日主见阳土，为阳火生阳土，如烈火锻造坚硬土壤，创造稳固成果",
+                        impact: "创造实用价值，注重实际成果",
+                        favorable: ["实用创造", "成果展示", "稳健发展", "实际价值"],
+                        unfavorable: ["过于务实", "缺乏灵活", "创新不足", "固化思维"],
+                        lifeApplication: "注重创造实用价值，脚踏实地；保持一定创新性，避免过于保守"
+                    },
+                    "伤官": {
+                        gan: "己",
+                        meaning: "丙火日主见己土伤官",
+                        description: "阳火日主见阴土，为阳火生阴土，如火焰塑造柔软土壤，创造灵活变化",
+                        impact: "创新中注重灵活，善于变通改革",
+                        favorable: ["灵活创新", "变通改革", "打破常规", "创造性思维"],
+                        unfavorable: ["变化过多", "缺乏稳定", "规划不足", "过于任性"],
+                        lifeApplication: "善用灵活创新能力，推动变革；注意保持适度稳定，避免过度变化"
+                    },
+                    "偏财": {
+                        gan: "庚",
+                        meaning: "丙火日主见庚金偏财",
+                        description: "阳火日主见阳金，为阳火克阳金，如烈火冶炼金属，通过变革获取价值",
+                        impact: "通过变革创新获取财富，适合高风险高回报",
+                        favorable: ["变革创新", "价值提升", "突破性发展", "冒险获利"],
+                        unfavorable: ["风险过高", "急于求成", "忽视安全", "资源耗损"],
+                        lifeApplication: "善于通过变革创造价值；注意控制风险，保持适度谨慎"
+                    },
+                    "正财": {
+                        gan: "辛",
+                        meaning: "丙火日主见辛金正财",
+                        description: "阳火日主见阴金，为阳火克阴金，如匠人用火锻造精美金器，创造精致价值",
+                        impact: "通过技艺和精细工作获取稳定财富",
+                        favorable: ["精细创作", "技艺专长", "品质提升", "稳定收益"],
+                        unfavorable: ["过于追求完美", "耗时耗力", "效率不高", "忽视大局"],
+                        lifeApplication: "注重提升专业技艺，创造精品；适当提高效率，避免过度追求完美"
+                    },
+                    "七杀": {
+                        gan: "壬",
+                        meaning: "丙火日主见壬水七杀",
+                        description: "阳火日主见阳水，为阳火被阳水所克，如烈火遇到洪水，面临强大挑战",
+                        impact: "面临强势压力与挑战，需要勇敢应对",
+                        favorable: ["迎接挑战", "化危为机", "突破自我", "提升适应力"],
+                        unfavorable: ["压力过大", "畏难情绪", "抵抗过度", "能量消耗"],
+                        lifeApplication: "勇于面对挑战，提升应变能力；学会变通适应，避免硬碰硬对抗"
+                    },
+                    "正官": {
+                        gan: "癸",
+                        meaning: "丙火日主见癸水正官",
+                        description: "阳火日主见阴水，为阳火被阴水所克，如火焰被细雨调节，受到温和规范",
+                        impact: "需要适应规则约束，但压力较为温和",
+                        favorable: ["规范行为", "秩序意识", "适度收敛", "理性发展"],
+                        unfavorable: ["活力受限", "热情减弱", "创新受阻", "个性被抑制"],
+                        lifeApplication: "学会在规则下保持活力，接受合理约束；保持适度自主，不失本色"
+                    }
+                },
+                "丁": {
+                    "正印": {
+                        gan: "甲",
+                        meaning: "丁火日主见甲木正印",
+                        description: "阴火日主见阳木，为阴火得阳木所生，如烛光依靠坚实木柴，获得稳定支持",
+                        impact: "获得可靠的知识和支持，稳定发展",
+                        favorable: ["稳定支持", "传统学习", "扎实基础", "持续发展"],
+                        unfavorable: ["过度依赖", "缺乏创新", "个性受限", "主动性弱"],
+                        lifeApplication: "依靠可靠支持发展，打好基础；培养独立创新能力，避免过度依赖"
+                    },
+                    "偏印": {
+                        gan: "乙",
+                        meaning: "丁火日主见乙木偏印",
+                        description: "阴火日主见阴木，为阴火得阴木所生，如烛光依靠柔软枝条，获得温和滋养",
+                        impact: "获得温和灵活的支持，成长恬静",
+                        favorable: ["温和支持", "灵活成长", "细腻思考", "和谐发展"],
+                        unfavorable: ["支持不足", "成长缓慢", "缺乏力量", "过于温和"],
+                        lifeApplication: "善用温和支持，发展细腻特质；适当引入刚性力量，增强发展动力"
+                    },
+                    "劫财": {
+                        gan: "丙",
+                        meaning: "丁火日主见丙火劫财",
+                        description: "阴火日主见阳火，为阴火见阳火，如烛光遇烈火，被强势力量影响",
+                        impact: "与强者合作，资源可能被主导或分散",
+                        favorable: ["借势发展", "扩大影响", "能量提升", "热情激发"],
+                        unfavorable: ["被强势主导", "个性被掩盖", "资源失控", "地位不平等"],
+                        lifeApplication: "善用强势资源发展，但要保持独特性；避免完全被主导，维持自我特色"
+                    },
+                    "比肩": {
+                        gan: "丁",
+                        meaning: "丁火日主见丁火比肩",
+                        description: "阴火日主见阴火，为阴火见阴火，如烛光相映，温和互补",
+                        impact: "获得同类支持，温和协作，但力量偏弱",
+                        favorable: ["和谐合作", "相互理解", "情感共鸣", "温和力量"],
+                        unfavorable: ["力量不足", "缺乏突破", "影响有限", "过于温和"],
+                        lifeApplication: "适合与同类和谐合作；需要引入强力支持，避免发展乏力"
+                    },
+                    "伤官": {
+                        gan: "戊",
+                        meaning: "丁火日主见戊土伤官",
+                        description: "阴火日主见阳土，为阴火生阳土，如温火烤制陶土，创造稳定成果",
+                        impact: "创新能力用于稳固发展，作品实用性强",
+                        favorable: ["稳健创新", "实用创造", "务实发展", "基础牢固"],
+                        unfavorable: ["创新有限", "突破不足", "过于保守", "缺乏活力"],
+                        lifeApplication: "将创新能力用于稳健发展；适当增加突破性，避免过于保守"
+                    },
+                    "食神": {
+                        gan: "己",
+                        meaning: "丁火日主见己土食神",
+                        description: "阴火日主见阴土，为阴火生阴土，如温火塑造柔软土壤，创造精细艺术",
+                        impact: "创造力细腻，作品精致，注重艺术性",
+                        favorable: ["艺术创作", "精细设计", "情感表达", "生活美学"],
+                        unfavorable: ["过于精细", "实用性弱", "效率不高", "过度追求完美"],
+                        lifeApplication: "发挥精细创作能力，注重艺术品质；兼顾实用性，避免过于追求完美"
+                    },
+                    "正财": {
+                        gan: "庚",
+                        meaning: "丁火日主见庚金正财",
+                        description: "阴火日主见阳金，为阴火克阳金，如温火熔炼坚硬金属，通过细致工作获益",
+                        impact: "通过精细化工作获取稳定收入，适合技术型工作",
+                        favorable: ["精细工作", "技术专长", "稳定收入", "品质管理"],
+                        unfavorable: ["工作繁琐", "进展缓慢", "压力较大", "创新不足"],
+                        lifeApplication: "通过精细专业工作创造价值；适当提高效率，避免过度拘泥细节"
+                    },
+                    "偏财": {
+                        gan: "辛",
+                        meaning: "丁火日主见辛金偏财",
+                        description: "阴火日主见阴金，为阴火克阴金，如温火塑造精美金饰，通过艺术创造价值",
+                        impact: "通过艺术和创意获取财富，适合创意产业",
+                        favorable: ["艺术创收", "创意设计", "品质收益", "审美价值"],
+                        unfavorable: ["市场不稳", "收入波动", "实用性不足", "过于理想化"],
+                        lifeApplication: "通过艺术创意创造价值；注意市场需求，增强实用性与稳定性"
+                    },
+                    "正官": {
+                        gan: "壬",
+                        meaning: "丁火日主见壬水正官",
+                        description: "阴火日主见阳水，为阴火被阳水所克，如烛光被急流冲击，面临强大规范",
+                        impact: "需要适应严格规则，面临较强约束",
+                        favorable: ["规范发展", "秩序意识", "接受指导", "结构化成长"],
+                        unfavorable: ["压力过大", "个性受限", "创新困难", "特质被抑制"],
+                        lifeApplication: "学会在规则框架内发展；保持自我特色，避免完全被规则同化"
+                    },
+                    "七杀": {
+                        gan: "癸",
+                        meaning: "丁火日主见癸水七杀",
+                        description: "阴火日主见阴水，为阴火被阴水所克，如烛光被细雨浸润，面临柔和挑战",
+                        impact: "面临温和约束与挑战，需要灵活适应",
+                        favorable: ["柔和适应", "灵活应变", "细腻应对", "潜移默化"],
+                        unfavorable: ["应对不足", "过度妥协", "缺乏主见", "特性消失"],
+                        lifeApplication: "灵活应对挑战，保持适应性；坚持自我核心，避免过度妥协"
+                    }
+                },
+                "戊": {
+                    "七杀": {
+                        gan: "甲",
+                        meaning: "戊土日主见甲木七杀",
+                        description: "阳土日主见阳木，为阳土被阳木所克，如山石被树根破裂，面临强大挑战",
+                        impact: "面临强势挑战与压力，需要稳健应对",
+                        favorable: ["直面挑战", "稳健应对", "化敌为友", "借力发展"],
+                        unfavorable: ["固执抵抗", "守旧不变", "被动挨打", "过度防御"],
+                        lifeApplication: "以稳健态度应对挑战；适当变通，避免固执己见"
+                    },
+                    "正官": {
+                        gan: "乙",
+                        meaning: "戊土日主见乙木正官",
+                        description: "阳土日主见阴木，为阳土被阴木所克，如土壤被根系渗透，面临柔和规范",
+                        impact: "需要适应规则约束，但方式较为温和",
+                        favorable: ["循序渐进", "规范发展", "有序改变", "接受引导"],
+                        unfavorable: ["被动变化", "缺乏主见", "变通困难", "过度守旧"],
+                        lifeApplication: "顺应规则变化，保持稳健发展；保持适度主动，避免完全被动"
+                    },
+                    "偏印": {
+                        gan: "丙",
+                        meaning: "戊土日主见丙火偏印",
+                        description: "阳土日主见阳火，为阳土得阳火所生，如高山被阳光照耀，获得强大智慧",
+                        impact: "获得活跃的思想和支持，开阔思维",
+                        favorable: ["思维活跃", "创新发展", "开拓视野", "热情支持"],
+                        unfavorable: ["思想偏激", "过于理想", "缺乏务实", "能量过剩"],
+                        lifeApplication: "吸收活跃思想，开阔视野；保持实际态度，避免过于理想化"
+                    },
+                    "正印": {
+                        gan: "丁",
+                        meaning: "戊土日主见丁火正印",
+                        description: "阳土日主见阴火，为阳土得阴火所生，如山丘被温煦阳光滋养，获得温和智慧",
+                        impact: "获得温和持久的知识支持，发展稳定",
+                        favorable: ["温和支持", "稳定成长", "细腻智慧", "持久发展"],
+                        unfavorable: ["活力不足", "发展缓慢", "创新有限", "依赖性强"],
+                        lifeApplication: "善用温和知识支持，稳步发展；适当增加主动性，避免过度依赖"
+                    },
+                    "比肩": {
+                        gan: "戊",
+                        meaning: "戊土日主见戊土比肩",
+                        description: "阳土日主见阳土，为阳土见阳土，如高山并峙，相互支撑又各自独立",
+                        impact: "力量增强，稳固协作，但可能竞争资源",
+                        favorable: ["力量增强", "稳定合作", "互相支持", "团结一致"],
+                        unfavorable: ["竞争资源", "各自为政", "变通困难", "僵化不变"],
+                        lifeApplication: "发挥团队协作优势，互相支持；保持适度灵活，避免过于刚愎自用"
+                    },
+                    "劫财": {
+                        gan: "己",
+                        meaning: "戊土日主见己土劫财",
+                        description: "阳土日主见阴土，为阳土见阴土，如山峦与平原相连，刚柔并济",
+                        impact: "获得柔性支持，资源共享，兼具刚柔特性",
+                        favorable: ["刚柔并济", "资源整合", "互补发展", "和谐共处"],
+                        unfavorable: ["力量分散", "定位模糊", "主次不分", "相互牵制"],
+                        lifeApplication: "善用刚柔互补优势，整合资源；明确主次，避免力量过度分散"
+                    },
+                    "食神": {
+                        gan: "庚",
+                        meaning: "戊土日主见庚金食神",
+                        description: "阳土日主见阳金，为阳土生阳金，如山中孕育金矿，创造坚固价值",
+                        impact: "创造力转化为实际价值，作品坚实耐用",
+                        favorable: ["价值创造", "实用作品", "稳固成果", "长期收益"],
+                        unfavorable: ["缺乏灵活", "创新不足", "过于实用", "忽视美感"],
+                        lifeApplication: "创造具有实用价值的作品；适当增加创新性，注重艺术性"
+                    },
+                    "伤官": {
+                        gan: "辛",
+                        meaning: "戊土日主见辛金伤官",
+                        description: "阳土日主见阴金，为阳土生阴金，如大地孕育珠宝，创造精致价值",
+                        impact: "创新能力用于精细创作，作品精致有品质",
+                        favorable: ["精致创作", "品质提升", "审美创新", "细节完善"],
+                        unfavorable: ["过于追求完美", "效率低下", "实用性不足", "钻牛角尖"],
+                        lifeApplication: "注重创作品质与细节；兼顾实用性，避免过度追求完美"
+                    },
+                    "偏财": {
+                        gan: "壬",
+                        meaning: "戊土日主见壬水偏财",
+                        description: "阳土日主见阳水，为阳土克阳水，如山体截留江河，掌控流动资源",
+                        impact: "能够掌控变化资源，适合管理流动资产",
+                        favorable: ["资源管理", "掌控变化", "机会把握", "开拓创新"],
+                        unfavorable: ["资源流失", "掌控不足", "应变迟缓", "过度保守"],
+                        lifeApplication: "善于管理变化资源，把握机会；增强应变能力，避免过于保守"
+                    },
+                    "正财": {
+                        gan: "癸",
+                        meaning: "戊土日主见癸水正财",
+                        description: "阳土日主见阴水，为阳土克阴水，如水井蓄水，稳定管理流动资源",
+                        impact: "通过规划管理获取稳定财富，适合长期投资",
+                        favorable: ["稳健理财", "规划管理", "持续收益", "长期投资"],
+                        unfavorable: ["错失机会", "变通不足", "过于谨慎", "创新缺乏"],
+                        lifeApplication: "制定长期财务规划，稳健理财；保持一定灵活性，避免错失机会"
+                    }
+                },
+                "己": {
+                    "正官": {
+                        gan: "甲",
+                        meaning: "己土日主见甲木正官",
+                        description: "阴土日主见阳木，为阴土被阳木所克，如平地被树根突破，面临强大规范",
+                        impact: "需要适应严格规则，接受管理指导",
+                        favorable: ["规范发展", "吸收养分", "提升秩序", "接受指导"],
+                        unfavorable: ["压力过大", "变通困难", "过度约束", "个性受限"],
+                        lifeApplication: "学会在规则框架内发展；保持柔韧适应能力，在规范中寻找空间"
+                    },
+                    "七杀": {
+                        gan: "乙",
+                        meaning: "己土日主见乙木七杀",
+                        description: "阴土日主见阴木，为阴土被阴木所克，如田园被藤蔓缠绕，面临柔性挑战",
+                        impact: "面临柔性挑战，需要灵活应对",
+                        favorable: ["柔性应对", "灵活变通", "顺势而为", "借力发展"],
+                        unfavorable: ["过度迁就", "应对不足", "方向迷失", "自我消失"],
+                        lifeApplication: "以柔韧态度应对挑战，保持灵活；坚持核心立场，避免过度妥协"
+                    },
+                    "正印": {
+                        gan: "丙",
+                        meaning: "己土日主见丙火正印",
+                        description: "阴土日主见阳火，为阴土得阳火所生，如平原被阳光普照，获得智慧启发",
+                        impact: "获得活跃的思想和支持，思维开阔",
+                        favorable: ["思想活跃", "热情支持", "开阔视野", "创新思维"],
+                        unfavorable: ["过于激进", "能量过剩", "脱离现实", "稳定不足"],
+                        lifeApplication: "吸收活跃思想，开阔视野；保持适度稳定，避免过于激进"
+                    },
+                    "偏印": {
+                        gan: "丁",
+                        meaning: "己土日主见丁火偏印",
+                        description: "阴土日主见阴火，为阴土得阴火所生，如沃土被温火滋养，获得温和智慧",
+                        impact: "获得温和持久的支持和知识，成长稳定",
+                        favorable: ["温和滋养", "细腻思考", "情感丰富", "稳定成长"],
+                        unfavorable: ["力量不足", "进展缓慢", "过于内敛", "创新有限"],
+                        lifeApplication: "善用细腻思维，温和发展；适当增强主动性，提高发展速度"
+                    },
+                    "劫财": {
+                        gan: "戊",
+                        meaning: "己土日主见戊土劫财",
+                        description: "阴土日主见阳土，为阴土见阳土，如平原与高山相接，获得坚实支持",
+                        impact: "获得强有力支持，但可能被主导",
+                        favorable: ["强力支持", "资源共享", "稳定发展", "基础牢固"],
+                        unfavorable: ["被强势主导", "个性被掩盖", "被动依附", "主动性弱"],
+                        lifeApplication: "善用强势支持发展；保持个人特色，避免完全被主导"
+                    },
+                    "比肩": {
+                        gan: "己",
+                        meaning: "己土日主见己土比肩",
+                        description: "阴土日主见阴土，为阴土见阴土，如沃土相连，温和共存",
+                        impact: "获得同类支持，和谐发展，但力量偏弱",
+                        favorable: ["和谐共处", "相互理解", "资源共享", "温和发展"],
+                        unfavorable: ["力量不足", "缺乏突破", "过于和缓", "进取心弱"],
+                        lifeApplication: "在和谐环境中发展优势；适当引入刚性力量，增强发展动力"
+                    },
+                    "伤官": {
+                        gan: "庚",
+                        meaning: "己土日主见庚金伤官",
+                        description: "阴土日主见阳金，为阴土生阳金，如田地孕育金属，创造坚固价值",
+                        impact: "创新能力用于实际创造，作品坚实有力",
+                        favorable: ["实用创新", "坚实成果", "价值创造", "突破传统"],
+                        unfavorable: ["过于强硬", "灵活不足", "温和减弱", "失去柔性"],
+                        lifeApplication: "将创新用于实际价值创造；保持柔性特质，避免过于强硬"
+                    },
+                    "食神": {
+                        gan: "辛",
+                        meaning: "己土日主见辛金食神",
+                        description: "阴土日主见阴金，为阴土生阴金，如良田孕育珠宝，创造精致价值",
+                        impact: "创造力细腻，作品精美，注重艺术性",
+                        favorable: ["艺术创作", "精致设计", "品质生活", "审美表达"],
+                        unfavorable: ["过于追求完美", "效率不高", "实用性不足", "沉迷享乐"],
+                        lifeApplication: "发挥细腻创造力，注重作品品质；兼顾实用性，保持效率"
+                    },
+                    "正财": {
+                        gan: "壬",
+                        meaning: "己土日主见壬水正财",
+                        description: "阴土日主见阳水，为阴土克阳水，如农田引水灌溉，规划利用流动资源",
+                        impact: "通过规划管理获取财富，适合系统投资",
+                        favorable: ["系统规划", "资源整合", "有序发展", "长期收益"],
+                        unfavorable: ["应变不足", "过于保守", "错失机会", "面对变化吃力"],
+                        lifeApplication: "制定系统财务规划；增强应变能力，避免过度保守"
+                    },
+                    "偏财": {
+                        gan: "癸",
+                        meaning: "己土日主见癸水偏财",
+                        description: "阴土日主见阴水，为阴土克阴水，如田园中的小溪，温和利用流动资源",
+                        impact: "通过温和方式获取财富，适合灵活投资",
+                        favorable: ["温和获利", "灵活投资", "细水长流", "持续收益"],
+                        unfavorable: ["收益有限", "进展缓慢", "缺乏突破", "规模不大"],
+                        lifeApplication: "采用温和方式获取财富；适当提高主动性，扩大发展规模"
+                    }
+                },
+                "庚": {
+                    "偏财": {
+                        gan: "甲",
+                        meaning: "庚金日主见甲木偏财",
+                        description: "阳金日主见阳木，为阳金克阳木，如利剑砍伐大树，强势获取资源",
+                        impact: "通过果断决策获取财富，适合开拓性投资",
+                        favorable: ["果断投资", "开拓市场", "资源获取", "强势收益"],
+                        unfavorable: ["过于强硬", "资源损耗", "持续性差", "阻力较大"],
+                        lifeApplication: "以果断态度开拓财源；注意资源可持续性，避免过度强硬"
+                    },
+                    "正财": {
+                        gan: "乙",
+                        meaning: "庚金日主见乙木正财",
+                        description: "阳金日主见阴木，为阳金克阴木，如精工雕刻木材，精细获取资源",
+                        impact: "通过精细工作获取稳定财富，注重品质",
+                        favorable: ["精细管理", "品质收益", "持续收入", "专业技能"],
+                        unfavorable: ["过于苛求", "效率不高", "压力较大", "变通不足"],
+                        lifeApplication: "通过精细专业工作获取稳定收入；适当提高效率，避免过度苛求"
+                    },
+                    "七杀": {
+                        gan: "丙",
+                        meaning: "庚金日主见丙火七杀",
+                        description: "阳金日主见阳火，为阳金被阳火所克，如刚剑在烈火中熔化，面临强大挑战",
+                        impact: "面临强势压力与变革，需要适应转变",
+                        favorable: ["锻造提升", "适应变化", "转危为机", "重塑自我"],
+                        unfavorable: ["抵抗变化", "固守成规", "能量消耗", "被动接受"],
+                        lifeApplication: "以开放态度接受锻造与变革；积极调整适应，避免顽固抵抗"
+                    },
+                    "正官": {
+                        gan: "丁",
+                        meaning: "庚金日主见丁火正官",
+                        description: "阳金日主见阴火，为阳金被阴火所克，如金属在温火中塑形，面临温和规范",
+                        impact: "需要适应规则调整，但方式较为温和",
+                        favorable: ["温和调整", "形态优化", "规范提升", "品质改善"],
+                        unfavorable: ["锐气减弱", "刚性受损", "特质模糊", "决断力减弱"],
+                        lifeApplication: "接受温和规范调整，提升自身品质；保持适度锐气，维持核心特质"
+                    },
+                    "偏印": {
+                        gan: "戊",
+                        meaning: "庚金日主见戊土偏印",
+                        description: "阳金日主见阳土，为阳金得阳土所生，如宝剑从矿山中提炼，获得坚实支持",
+                        impact: "获得稳固支持和实用知识，思维务实",
+                        favorable: ["实用知识", "稳固支持", "踏实思考", "可靠基础"],
+                        unfavorable: ["思想保守", "缺乏灵活", "墨守成规", "创新不足"],
+                        lifeApplication: "汲取实用知识，打好基础；保持开放思维，避免过于保守"
+                    },
+                    "正印": {
+                        gan: "己",
+                        meaning: "庚金日主见己土正印",
+                        description: "阳金日主见阴土，为阳金得阴土所生，如利器从沃土中孕育，获得温和滋养",
+                        impact: "获得温和支持和传统知识，成长稳定",
+                        favorable: ["温和滋养", "传统支持", "稳定成长", "柔性知识"],
+                        unfavorable: ["力量不足", "进展缓慢", "锐意减弱", "保守思想"],
+                        lifeApplication: "善用温和传统知识支持；保持锐意进取，避免过度保守"
+                    },
+                    "比肩": {
+                        gan: "庚",
+                        meaning: "庚金日主见庚金比肩",
+                        description: "阳金日主见阳金，为阳金见阳金，如利剑相照，锋芒毕露",
+                        impact: "力量增强，锐意进取，但可能相互竞争",
+                        favorable: ["力量增强", "锐意进取", "效率提升", "专业合作"],
+                        unfavorable: ["锋芒相对", "过度竞争", "资源争夺", "缺乏融通"],
+                        lifeApplication: "发挥专业协作优势，提高效率；保持适度融通，避免过度竞争"
+                    },
+                    "劫财": {
+                        gan: "辛",
+                        meaning: "庚金日主见辛金劫财",
+                        description: "阳金日主见阴金，为阳金见阴金，如刚剑与珠宝并存，刚柔相济",
+                        impact: "获得精细支持，资源共享，兼具刚柔特性",
+                        favorable: ["刚柔并济", "精细协作", "资源互补", "品质提升"],
+                        unfavorable: ["力量分散", "定位模糊", "特质减弱", "方向不一"],
+                        lifeApplication: "善用刚柔互补优势，整合资源；明确主次定位，避免特质模糊"
+                    },
+                    "食神": {
+                        gan: "壬",
+                        meaning: "庚金日主见壬水食神",
+                        description: "阳金日主见阳水，为阳金生阳水，如利剑化为江河，创造强大流动力",
+                        impact: "创造力强大活跃，作品影响广泛",
+                        favorable: ["创意丰富", "影响广泛", "思维活跃", "开创性强"],
+                        unfavorable: ["变化过快", "缺乏稳定", "不够精细", "难以把控"],
+                        lifeApplication: "发挥强大创造力，扩大影响力；适当增加稳定性，加强把控能力"
+                    },
+                    "伤官": {
+                        gan: "癸",
+                        meaning: "庚金日主见癸水伤官",
+                        description: "阳金日主见阴水，为阳金生阴水，如金属凝结细雨，创造温润柔和之力",
+                        impact: "创新能力用于精细创作，作品温润深刻",
+                        favorable: ["细腻创新", "温和表达", "深度思考", "独特见解"],
+                        unfavorable: ["锐气减弱", "力度不足", "过于内敛", "影响有限"],
+                        lifeApplication: "发挥细腻创新能力，创造深度作品；适当增强表现力，扩大影响范围"
+                    }
+                },
+                "辛": {
+                    "正财": {
+                        gan: "甲",
+                        meaning: "辛金日主见甲木正财",
+                        description: "阴金日主见阳木，为阴金克阳木，如巧匠雕刻树木，精细获取资源",
+                        impact: "通过精细工作获取财富，适合艺术创作",
+                        favorable: ["精细创作", "艺术价值", "专业技能", "品质收益"],
+                        unfavorable: ["耗时费力", "效率不高", "压力较大", "消耗过度"],
+                        lifeApplication: "通过精细艺术创作获取收益；注意提高效率，避免过度消耗"
+                    },
+                    "偏财": {
+                        gan: "乙",
+                        meaning: "辛金日主见乙木偏财",
+                        description: "阴金日主见阴木，为阴金克阴木，如细工雕刻藤蔓，巧妙获取资源",
+                        impact: "通过灵活创意获取财富，适合设计创新",
+                        favorable: ["灵活创意", "设计收益", "巧妙获利", "艺术价值"],
+                        unfavorable: ["力量不足", "规模有限", "不够稳定", "过于精细"],
+                        lifeApplication: "善用灵活创意获取财富；适当扩大规模，增强稳定性"
+                    },
+                    "正官": {
+                        gan: "丙",
+                        meaning: "辛金日主见丙火正官",
+                        description: "阴金日主见阳火，为阴金被阳火所克，如珠宝在烈火中锻造，面临强势规范",
+                        impact: "需要适应严格规范，接受锻造提升",
+                        favorable: ["品质提升", "接受锻造", "规范发展", "提高标准"],
+                        unfavorable: ["压力过大", "特质消失", "过度妥协", "创新受限"],
+                        lifeApplication: "接受规范锻造，提升品质；保持核心特质，避免完全同化"
+                    },
+                    "七杀": {
+                        gan: "丁",
+                        meaning: "辛金日主见丁火七杀",
+                        description: "阴金日主见阴火，为阴金被阴火所克，如金饰在温火中塑形，面临精细挑战",
+                        impact: "面临精细化挑战，需要灵活适应",
+                        favorable: ["形态优化", "精细适应", "品质改善", "柔性调整"],
+                        unfavorable: ["特质弱化", "过度敏感", "应对不足", "自信不足"],
+                        lifeApplication: "以灵活态度接受精细调整；保持自信与特质，避免过度迷失"
+                    },
+                    "正印": {
+                        gan: "戊",
+                        meaning: "辛金日主见戊土正印",
+                        description: "阴金日主见阳土，为阴金得阳土所生，如珠宝从山石中孕育，获得坚实支持",
+                        impact: "获得稳固支持和实用知识，基础扎实",
+                        favorable: ["稳固支持", "实用知识", "扎实基础", "可靠后盾"],
+                        unfavorable: ["灵活受限", "精细减弱", "过于务实", "创新不足"],
+                        lifeApplication: "利用稳固支持打好基础；保持精细特质，避免过于粗犷"
+                    },
+                    "偏印": {
+                        gan: "己",
+                        meaning: "辛金日主见己土偏印",
+                        description: "阴金日主见阴土，为阴金得阴土所生，如金饰从沃土中提炼，获得温和滋养",
+                        impact: "获得温和支持和灵活知识，成长和谐",
+                        favorable: ["温和支持", "和谐成长", "柔性智慧", "细腻思考"],
+                        unfavorable: ["力量不足", "进展缓慢", "依赖性强", "突破困难"],
+                        lifeApplication: "善用和谐支持，培养细腻思维；增强独立性，提高发展速度"
+                    },
+                    "劫财": {
+                        gan: "庚",
+                        meaning: "辛金日主见庚金劫财",
+                        description: "阴金日主见阳金，为阴金见阳金，如珠宝与利剑相映，柔和与锋芒并存",
+                        impact: "获得强有力支持，但可能被主导",
+                        favorable: ["强力支持", "借势发展", "资源共享", "形象提升"],
+                        unfavorable: ["个性被掩盖", "被强势主导", "定位困难", "光芒被盖"],
+                        lifeApplication: "善用强势支持，借力发展；保持特色与定位，避免被完全主导"
+                    },
+                    "比肩": {
+                        gan: "辛",
+                        meaning: "辛金日主见辛金比肩",
+                        description: "阴金日主见阴金，为阴金见阴金，如珠光宝气相映，相互衬托",
+                        impact: "获得同类支持，相互衬托，品质提升",
+                        favorable: ["相互衬托", "品质互鉴", "和谐共存", "资源共享"],
+                        unfavorable: ["缺乏突破", "过于类似", "竞争情况", "差异化不足"],
+                        lifeApplication: "在和谐环境中相互促进；注重差异化发展，避免同质化竞争"
+                    },
+                    "伤官": {
+                        gan: "壬",
+                        meaning: "辛金日主见壬水伤官",
+                        description: "阴金日主见阳水，为阴金生阳水，如珠宝化为清泉，创造活跃流动之美",
+                        impact: "创新能力强而活跃，适合变革创新",
+                        favorable: ["创意活跃", "变革创新", "突破传统", "思维流动"],
+                        unfavorable: ["过于激进", "缺乏稳定", "精细减弱", "方向不明"],
+                        lifeApplication: "发挥活跃创新能力，推动变革；保持适度稳定，明确发展方向"
+                    },
+                    "食神": {
+                        gan: "癸",
+                        meaning: "辛金日主见癸水食神",
+                        description: "阴金日主见阴水，为阴金生阴水，如金饰化为细雨，创造温润细腻之美",
+                        impact: "创造力细腻温和，作品具有深度与内涵",
+                        favorable: ["细腻创作", "深度表达", "内涵丰富", "艺术品质"],
+                        unfavorable: ["影响有限", "过于内敛", "缺乏冲击力", "传播不足"],
+                        lifeApplication: "创造具有内涵的精致作品；适当增强表现力，扩大影响范围"
+                    }
+                },
+                "壬": {
+                    "食神": {
+                        gan: "甲",
+                        meaning: "壬水日主见甲木食神",
+                        description: "阳水日主见阳木，为阳水生阳木，如江河滋养大树，创造生机勃勃的力量",
+                        impact: "创造力强大活跃，作品生机勃勃",
+                        favorable: ["活力创作", "强劲表现", "生机勃勃", "影响广泛"],
+                        unfavorable: ["缺乏节制", "过于外放", "消耗过大", "方向散乱"],
+                        lifeApplication: "发挥强大创造力，创造具有生命力的作品；注意节制与聚焦"
+                    },
+                    "伤官": {
+                        gan: "乙",
+                        meaning: "壬水日主见乙木伤官",
+                        description: "阳水日主见阴木，为阳水生阴木，如江河滋养柔枝，创造灵活多变的美",
+                        impact: "创新能力灵活多变，善于变通改革",
+                        favorable: ["灵活创新", "适应变化", "多样发展", "柔韧突破"],
+                        unfavorable: ["缺乏聚焦", "过于分散", "变化过多", "深度不足"],
+                        lifeApplication: "发挥灵活创新能力，适应多元发展；适当增加聚焦，深化发展方向"
+                    },
+                    "偏财": {
+                        gan: "丙",
+                        meaning: "壬水日主见丙火偏财",
+                        description: "阳水日主见阳火，为阳水克阳火，如大水压制烈火，强势获取资源",
+                        impact: "通过强势手段获取财富，适合冒险投资",
+                        favorable: ["强势获利", "突破阻碍", "冒险投资", "大胆行动"],
+                        unfavorable: ["过度冒险", "风险过高", "敌意过强", "可持续性差"],
+                        lifeApplication: "善用强势优势开拓财源；注意控制风险，保持可持续性"
+                    },
+                    "正财": {
+                        gan: "丁",
+                        meaning: "壬水日主见丁火正财",
+                        description: "阳水日主见阴火，为阳水克阴火，如清流调节烛光，温和获取价值",
+                        impact: "通过调和控制获取财富，适合稳健投资",
+                        favorable: ["稳健获利", "调和控制", "持续收益", "风险可控"],
+                        unfavorable: ["收益有限", "进展缓慢", "过于保守", "错失机会"],
+                        lifeApplication: "采用调和手段稳健获利；适当增加主动性，把握更多机会"
+                    },
+                    "七杀": {
+                        gan: "戊",
+                        meaning: "壬水日主见戊土七杀",
+                        description: "阳水日主见阳土，为阳水被阳土所克，如江河被高山阻断，面临强大挑战",
+                        impact: "面临强势阻力，需要灵活应对",
+                        favorable: ["灵活应变", "寻找突破", "借力发展", "曲线前进"],
+                        unfavorable: ["硬碰硬", "消耗过大", "过度对抗", "忽视变通"],
+                        lifeApplication: "以灵活态度应对强势挑战；寻找迂回路径，避免硬碰硬对抗"
+                    },
+                    "正官": {
+                        gan: "己",
+                        meaning: "壬水日主见己土正官",
+                        description: "阳水日主见阴土，为阳水被阴土所克，如江河被沃土引导，面临温和规范",
+                        impact: "需要适应规则引导，但方式较为温和",
+                        favorable: ["规范引导", "有序发展", "稳定流向", "合理约束"],
+                        unfavorable: ["限制流动", "活力减弱", "创新受限", "适应困难"],
+                        lifeApplication: "接受合理引导，保持有序发展；在规范内寻找灵活空间"
+                    },
+                    "偏印": {
+                        gan: "庚",
+                        meaning: "壬水日主见庚金偏印",
+                        description: "阳水日主见阳金，为阳水得阳金所生，如江河源于高山之巅，获得强大智慧",
+                        impact: "获得清晰锐利的思想和支持，思维敏锐",
+                        favorable: ["思维敏锐", "清晰思考", "决策果断", "逻辑性强"],
+                        unfavorable: ["过于锋利", "缺乏柔性", "武断思维", "情感缺失"],
+                        lifeApplication: "善用敏锐思维，提高决策效率；增加柔性考量，平衡理性与情感"
+                    },
+                    "正印": {
+                        gan: "辛",
+                        meaning: "壬水日主见辛金正印",
+                        description: "阳水日主见阴金，为阳水得阴金所生，如江河源于精致山泉，获得精细智慧",
+                        impact: "获得精细的知识和支持，思维细腻",
+                        favorable: ["精细思考", "细腻洞察", "审美能力", "品质意识"],
+                        unfavorable: ["过于讲究", "犹豫不决", "行动迟缓", "效率不高"],
+                        lifeApplication: "运用细腻思维进行深入分析；保持一定决断力，避免过度犹豫"
+                    },
+                    "比肩": {
+                        gan: "壬",
+                        meaning: "壬水日主见壬水比肩",
+                        description: "阳水日主见阳水，为阳水见阳水，如两江交汇，浩荡奔流",
+                        impact: "力量增强，变通能力强，但可能相互竞争",
+                        favorable: ["力量增强", "资源丰富", "变通能力强", "活力充沛"],
+                        unfavorable: ["方向混乱", "过度竞争", "力量分散", "缺乏节制"],
+                        lifeApplication: "整合资源力量，扩大影响；明确发展方向，避免过度分散"
+                    },
+                    "劫财": {
+                        gan: "癸",
+                        meaning: "壬水日主见癸水劫财",
+                        description: "阳水日主见阴水，为阳水见阴水，如江河与湖泊相通，刚柔并济",
+                        impact: "获得柔性支持，资源共享，兼具刚柔特性",
+                        favorable: ["刚柔并济", "资源互补", "平衡发展", "深度与广度"],
+                        unfavorable: ["能量分散", "定位模糊", "方向不一", "特质减弱"],
+                        lifeApplication: "善用刚柔互补优势，平衡发展；明确各自定位，避免身份混淆"
+                    }
+                },
+                "癸": {
+                    "伤官": {
+                        gan: "甲",
+                        meaning: "癸水日主见甲木伤官",
+                        description: "阴水日主见阳木，为阴水生阳木，如细雨滋养大树，创造强健有力的变化",
+                        impact: "创新能力与外在表现形成对比，内柔外刚",
+                        favorable: ["内外结合", "深度创新", "隐性变革", "内在爆发"],
+                        unfavorable: ["力量失衡", "表里不一", "能量耗散", "方向混乱"],
+                        lifeApplication: "将内在智慧转化为外显创新；保持内外平衡，明确发展方向"
+                    },
+                    "食神": {
+                        gan: "乙",
+                        meaning: "癸水日主见乙木食神",
+                        description: "阴水日主见阴木，为阴水生阴木，如细雨滋养柔枝，创造柔美细腻的艺术",
+                        impact: "创造力温和细腻，作品柔美有内涵",
+                        favorable: ["细腻创作", "内涵表达", "艺术情感", "柔美意境"],
+                        unfavorable: ["力量不足", "影响有限", "过于内敛", "传播困难"],
+                        lifeApplication: "创造具有内涵的细腻作品；适当增强表现力，扩大影响范围"
+                    },
+                    "正财": {
+                        gan: "丙",
+                        meaning: "癸水日主见丙火正财",
+                        description: "阴水日主见阳火，为阴水克阳火，如细雨调节烈火，巧妙获取价值",
+                        impact: "通过调和平衡获取财富，适合精细管理",
+                        favorable: ["精细管理", "调和控制", "稳定获利", "风险可控"],
+                        unfavorable: ["力量不足", "收益有限", "过程漫长", "进展缓慢"],
+                        lifeApplication: "采用精细化管理获取稳定收益；适当增强主动性，提高发展速度"
+                    },
+                    "偏财": {
+                        gan: "丁",
+                        meaning: "癸水日主见丁火偏财",
+                        description: "阴水日主见阴火，为阴水克阴火，如细雨浸润烛光，温和获取价值",
+                        impact: "通过温和方式获取财富，适合细致投资",
+                        favorable: ["温和获利", "细致投资", "持续收益", "风险极低"],
+                        unfavorable: ["收益微小", "规模有限", "耗时过长", "突破困难"],
+                        lifeApplication: "通过温和细致方式累积财富；适当扩大规模，适时寻求突破"
+                    },
+                    "正官": {
+                        gan: "戊",
+                        meaning: "癸水日主见戊土正官",
+                        description: "阴水日主见阳土，为阴水被阳土所克，如细流被山体阻断，面临强大规范",
+                        impact: "需要适应严格规则，面临较强约束",
+                        favorable: ["规范发展", "结构清晰", "稳定方向", "有序成长"],
+                        unfavorable: ["压力过大", "流动受限", "创新困难", "活力减弱"],
+                        lifeApplication: "在规则框架内寻找发展空间；保持内在活力，避免完全被限制"
+                    },
+                    "七杀": {
+                        gan: "己",
+                        meaning: "癸水日主见己土七杀",
+                        description: "阴水日主见阴土，为阴水被阴土所克，如细雨被沃土吸收，面临温和挑战",
+                        impact: "面临温和约束与挑战，需要适应融合",
+                        favorable: ["温和适应", "融入环境", "稳定发展", "中和挑战"],
+                        unfavorable: ["特质消失", "过度融入", "边界模糊", "独立性弱"],
+                        lifeApplication: "以适应态度面对温和约束；保持核心特质，避免完全融入"
+                    },
+                    "正印": {
+                        gan: "庚",
+                        meaning: "癸水日主见庚金正印",
+                        description: "阴水日主见阳金，为阴水得阳金所生，如细雨源于高山之巅，获得清晰指引",
+                        impact: "获得清晰有力的支持和知识，思路开阔",
+                        favorable: ["清晰指引", "思路开阔", "方向明确", "支持有力"],
+                        unfavorable: ["压力较大", "自主性减弱", "过度依赖", "个性受限"],
+                        lifeApplication: "善用清晰指引发展；保持适度自主，培养独立思考能力"
+                    },
+                    "偏印": {
+                        gan: "辛",
+                        meaning: "癸水日主见辛金偏印",
+                        description: "阴水日主见阴金，为阴水得阴金所生，如细雨源于精致泉水，获得精细滋养",
+                        impact: "获得精细的知识和支持，思维细腻",
+                        favorable: ["细腻思考", "精细支持", "内涵丰富", "思维深刻"],
+                        unfavorable: ["过于敏感", "犹豫不决", "缺乏行动", "实践不足"],
+                        lifeApplication: "运用细腻思维进行深入思考；增强实践能力，避免过度沉浸内心"
+                    },
+                    "劫财": {
+                        gan: "壬",
+                        meaning: "癸水日主见壬水劫财",
+                        description: "阴水日主见阳水，为阴水见阳水，如细流汇入江河，被强势力量影响",
+                        impact: "获得强有力支持，但可能被主导或吞没",
+                        favorable: ["力量增强", "借势发展", "资源丰富", "视野开阔"],
+                        unfavorable: ["被强势吞没", "个性消失", "依赖性强", "自主性弱"],
+                        lifeApplication: "善用强势支持壮大自己；保持自身特色，避免完全被主导"
+                    },
+                    "比肩": {
+                        gan: "癸",
+                        meaning: "癸水日主见癸水比肩",
+                        description: "阴水日主见阴水，为阴水见阴水，如细雨相融，温和共存",
+                        impact: "获得同类支持，和谐共存，但力量偏弱",
+                        favorable: ["和谐共存", "相互理解", "资源共享", "温和发展"],
+                        unfavorable: ["力量不足", "影响有限", "缺乏突破", "进展缓慢"],
+                        lifeApplication: "在和谐环境中稳步发展；适当引入刚性力量，增强发展动力"
+                    }
+                }
+            };
+
+            // 生成万物类象内容
+            function generateWanwuLeixiang(elementFilter = 'all', yinYangFilter = 'all', categoryFilter = 'all') {
+                let html = '';
+
+                // 构建数据结构
+                const elements = ['木', '火', '土', '金', '水'];
+                const yinYang = ['阳', '阴'];
+
+                elements.forEach(element => {
+                    // 如果设置了元素过滤器且不匹配当前元素，则跳过
+                    if (elementFilter !== 'all' && elementFilter !== element) return;
+
+                    html += `<div class="category-container">
+                        <div class="category-title">
+                            <span class="element-icon icon-${element === '木' ? 'wood' : element === '火' ? 'fire' : element === '土' ? 'earth' : element === '金' ? 'metal' : 'water'}"></span>
+                            ${element}行
+                        </div>`;
+
+                    yinYang.forEach(yinyang => {
+                        // 如果设置了阴阳过滤器且不匹配当前阴阳，则跳过
+                        if (yinYangFilter !== 'all' && yinYangFilter !== yinyang) return;
+
+                        const data = wanwuData[element][yinyang];
+
+                        html += `<div class="subcategory">
+                            <div class="subcategory-title">${data.name}（${data.representative}）</div>
+                            <p>${data.description}</p>`;
+
+                        // 根据类别过滤显示内容
+                        if (categoryFilter === 'all' || categoryFilter === 'nature') {
+                            html += `
+                                <div class="detail-group">
+                                    <div class="detail-title">自然界</div>
+                                    <p><b>植物：</b>${data.nature.plants.join("、")}</p>
+                                    <p><b>动物：</b>${data.nature.animals.join("、")}</p>
+                                    <p><b>天气：</b>${data.nature.weather.join("、")}</p>
+                                    <p><b>地理：</b>${data.nature.geography.join("、")}</p>
+                                    <p><b>天体：</b>${data.nature.celestialBodies.join("、")}</p>
+                                </div>`;
+                        }
+
+                        if (categoryFilter === 'all' || categoryFilter === 'body') {
+                            html += `
+                                <div class="detail-group">
+                                    <div class="detail-title">人体</div>
+                                    <p><b>脏腑：</b>${data.body.organs.join("、")}</p>
+                                    <p><b>身体部位：</b>${data.body.bodyParts.join("、")}</p>
+                                    <p><b>面部特征：</b>${data.body.face.join("、")}</p>
+                                    <p><b>体型特征：</b>${data.body.physique.join("、")}</p>
+                                    <p><b>易患疾病：</b>${data.body.diseases.join("、")}</p>
+                                </div>`;
+                        }
+
+                        if (categoryFilter === 'all' || categoryFilter === 'character') {
+                            html += `
+                                <div class="detail-group">
+                                    <div class="detail-title">性格特征</div>
+                                    <p><b>优势：</b>${data.character.strengths.join("、")}</p>
+                                    <p><b>挑战：</b>${data.character.weaknesses.join("、")}</p>
+                                    <p><b>性格特质：</b>${data.character.traits.join("、")}</p>
+                                    <p><b>行为模式：</b>${data.character.behaviors.join("、")}</p>
+                                </div>`;
+                        }
+
+                        if (categoryFilter === 'all' || categoryFilter === 'career') {
+                            html += `
+                                <div class="detail-group">
+                                    <div class="detail-title">职业行业</div>
+                                    <p><b>适合职业：</b>${data.career.suitable.join("、")}</p>
+                                    <p><b>相关行业：</b>${data.career.industries.join("、")}</p>
+                                    <p><b>工作风格：</b>${data.career.workStyles.join("、")}</p>
+                                </div>`;
+                        }
+
+                        if (categoryFilter === 'all' || categoryFilter === 'life') {
+                            html += `
+                                <div class="detail-group">
+                                    <div class="detail-title">生活用品</div>
+                                    <p><b>常用物品：</b>${data.life.objects.join("、")}</p>
+                                    <p><b>服饰特点：</b>${data.life.clothing.join("、")}</p>
+                                    <p><b>爱好：</b>${data.life.hobbies.join("、")}</p>
+                                    <p><b>生活方式：</b>${data.life.living.join("、")}</p>
+                                </div>`;
+                        }
+
+                        if (categoryFilter === 'all' || categoryFilter === 'food') {
+                            html += `
+                                <div class="detail-group">
+                                    <div class="detail-title">饮食</div>
+                                    <p><b>口味：</b>${data.food.tastes.join("、")}</p>
+                                    <p><b>食材：</b>${data.food.ingredients.join("、")}</p>
+                                    <p><b>菜肴：</b>${data.food.dishes.join("、")}</p>
+                                    <p><b>饮品：</b>${data.food.beverages.join("、")}</p>
+                                </div>`;
+                        }
+
+                        if (categoryFilter === 'all' || categoryFilter === 'color') {
+                            html += `
+                                <div class="detail-group">
+                                    <div class="detail-title">颜色</div>
+                                    <p>${data.color.join("、")}</p>
+                                </div>`;
+                        }
+
+                        if (categoryFilter === 'all' || categoryFilter === 'direction') {
+                            html += `
+                                <div class="detail-group">
+                                    <div class="detail-title">方位</div>
+                                    <p>${data.direction.join("、")}</p>
+                                </div>`;
+                        }
+
+                        if (categoryFilter === 'all' || categoryFilter === 'season') {
+                            html += `
+                                <div class="detail-group">
+                                    <div class="detail-title">季节</div>
+                                    <p>${data.season.join("、")}</p>
+                                </div>`;
+                        }
+
+                        if (categoryFilter === 'all' || categoryFilter === 'time') {
+                            html += `
+                                <div class="detail-group">
+                                    <div class="detail-title">时间</div>
+                                    <p>${data.time.join("、")}</p>
+                                </div>`;
+                        }
+
+                        if (categoryFilter === 'all' || categoryFilter === 'environment') {
+                            html += `
+                                <div class="detail-group">
+                                    <div class="detail-title">环境</div>
+                                    <p>${data.environment.join("、")}</p>
+                                </div>`;
+                        }
+
+                        if (categoryFilter === 'all' || categoryFilter === 'society') {
+                            html += `
+                                <div class="detail-group">
+                                    <div class="detail-title">社会</div>
+                                    <p><b>社会角色：</b>${data.society.roles.join("、")}</p>
+                                    <p><b>相关机构：</b>${data.society.institutions.join("、")}</p>
+                                    <p><b>人际关系：</b>${data.society.relationships.join("、")}</p>
+                                </div>`;
+                        }
+
+                        if (categoryFilter === 'all' || categoryFilter === 'fortune') {
+                            html += `
+                                <div class="detail-group">
+                                    <div class="detail-title">运势</div>
+                                    <p><b>财富：</b>${data.fortune.wealth.join("、")}</p>
+                                    <p><b>事业：</b>${data.fortune.career.join("、")}</p>
+                                    <p><b>人际：</b>${data.fortune.relationships.join("、")}</p>
+                                </div>`;
+                        }
+
+                        html += `</div>`;
+                    });
+
+                    html += `</div>`;
+                });
+
+                document.getElementById('wanwuContainer').innerHTML = html;
+            }
+
+            // 生成十天干特性
+            function generateTianganCharacteristics() {
+                let html = '';
+
+                Object.keys(tianganData).forEach(gan => {
+                    const data = tianganData[gan];
+
+                    html += `
+                        <div class="grid-item">
+                            <h4>${data.name}</h4>
+                            <p><b>五行属性：</b>${data.element}</p>
+                            <p><b>阴阳属性：</b>${data.yangYin}</p>
+                            <p><b>自然特性：</b>${data.nature}</p>
+                            <p><b>性格特点：</b>${data.character}</p>
+                            <p><b>象征意义：</b>${data.symbolizes.join("、")}</p>
+                            <p><b>优势：</b>${data.strengths.join("、")}</p>
+                            <p><b>挑战：</b>${data.weaknesses.join("、")}</p>
+                            <div class="tag-area">
+                                ${data.naturalSymbols.map(symbol => `<span class="tag ${data.element === '木' ? 'wood' : data.element === '火' ? 'fire' : data.element === '土' ? 'earth' : data.element === '金' ? 'metal' : 'water'}">${symbol}</span>`).join('')}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                document.getElementById('tianganGrid').innerHTML = html;
+            }
+
+            // 生成十神特性
+            function generateShenshaCharacteristics() {
+                let html = '';
+
+                Object.keys(shenshaData).forEach(shensha => {
+                    const data = shenshaData[shensha];
+
+                    html += `
+                        <div class="grid-item">
+                            <h4>${shensha}</h4>
+                            <p><b>基本含义：</b>${data.basicMeaning}</p>
+                            <p><b>推导过程：</b>${data.derivation}</p>
+                            <p><b>特质：</b>${data.abstract.characteristics.join("、")}</p>
+                            <p><b>优势：</b>${data.abstract.strengths.join("、")}</p>
+                            <p><b>挑战：</b>${data.abstract.weaknesses.join("、")}</p>
+                            <p><b>人生意义：</b>${data.abstract.lifeMeaning.join("、")}</p>
+                            <p><b>代表人物：</b>${data.concrete.people.join("、")}</p>
+                            <p><b>代表事务：</b>${data.concrete.matters.join("、")}</p>
+                        </div>
+                    `;
+                });
+
+                document.getElementById('shenshaGrid').innerHTML = html;
+            }
+            const tianGan = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"];
+            // 天干对应五行
+            const ganToElement = {
+                "甲": "木", "乙": "木",
+                "丙": "火", "丁": "火",
+                "戊": "土", "己": "土",
+                "庚": "金", "辛": "金",
+                "壬": "水", "癸": "水"
+            };
+
+            // 天干阴阳属性
+            const ganToYangYin = {
+                "甲": "阳", "丙": "阳", "戊": "阳", "庚": "阳", "壬": "阳",
+                "乙": "阴", "丁": "阴", "己": "阴", "辛": "阴", "癸": "阴"
+            };
+            // 十神关系矩阵
+            const shenshaMatrix = {
+                "甲": ["比肩", "劫财", "食神", "伤官", "偏财", "正财", "七杀", "正官", "偏印", "正印"],
+                "乙": ["劫财", "比肩", "伤官", "食神", "正财", "偏财", "正官", "七杀", "正印", "偏印"],
+                "丙": ["偏印", "正印", "比肩", "劫财", "食神", "伤官", "偏财", "正财", "七杀", "正官"],
+                "丁": ["正印", "偏印", "劫财", "比肩", "伤官", "食神", "正财", "偏财", "正官", "七杀"],
+                "戊": ["七杀", "正官", "偏印", "正印", "比肩", "劫财", "食神", "伤官", "偏财", "正财"],
+                "己": ["正官", "七杀", "正印", "偏印", "劫财", "比肩", "伤官", "食神", "正财", "偏财"],
+                "庚": ["偏财", "正财", "七杀", "正官", "偏印", "正印", "比肩", "劫财", "食神", "伤官"],
+                "辛": ["正财", "偏财", "正官", "七杀", "正印", "偏印", "劫财", "比肩", "伤官", "食神"],
+                "壬": ["食神", "伤官", "偏财", "正财", "七杀", "正官", "偏印", "正印", "比肩", "劫财"],
+                "癸": ["伤官", "食神", "正财", "偏财", "正官", "七杀", "正印", "偏印", "劫财", "比肩"]
+            };
+            // 生成天干十神关系矩阵表格
+            function generateRelationMatrixTable() {
+                let tableHtml = '';
+                tianGan.forEach(rizhu => {
+                    let row = `<tr><td><strong>${rizhu}${ganToElement[rizhu]}</strong></td>`;
+                    tianGan.forEach(gan => {
+                        const index = tianGan.indexOf(gan);
+                        const shenshaName = shenshaMatrix[rizhu][index];
+                        // 添加不同十神的颜色标识
+                        const className =
+                            shenshaName === "比肩" ? "bixian" :
+                                shenshaName === "劫财" ? "jiecai" :
+                                    shenshaName === "食神" ? "shishen" :
+                                        shenshaName === "伤官" ? "shangguan" :
+                                            shenshaName === "偏财" ? "piancai" :
+                                                shenshaName === "正财" ? "zhengcai" :
+                                                    shenshaName === "七杀" ? "qisha" :
+                                                        shenshaName === "正官" ? "zhengguan" :
+                                                            shenshaName === "偏印" ? "pianyin" :
+                                                                "zhengyin";
+
+                        row += `<td><span class="relation-tag ${className}">${shenshaName}</span></td>`;
+                    });
+                    row += '</tr>';
+                    tableHtml += row;
+                });
+                document.getElementById('relationMatrixTable').innerHTML = tableHtml;
+            }
+
+            // 生成天干与十神关系详情
+            function generateShenshaRelationDetail(rizhu, shensha) {
+                if (!rizhu || !shensha) {
+                    document.getElementById('shenshaRelationContent').innerHTML = `
+                        <div class="detail-group">
+                            <p>请选择日主和十神进行查询</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                let foundGans = [];
+
+                // 查找对应的天干
+                tianGan.forEach(gan => {
+                    const index = tianGan.indexOf(gan);
+                    if (shenshaMatrix[rizhu][index] === shensha) {
+                        foundGans.push(gan);
+                    }
+                });
+
+                if (foundGans.length === 0) {
+                    html = `
+                        <div class="detail-group">
+                            <p>未找到${rizhu}日主对应的${shensha}十神关系</p>
+                        </div>
+                    `;
+                } else {
+                    html = `
+                        <h3 class="sub-title">${rizhu}${ganToElement[rizhu]}日主的${shensha}关系分析</h3>
+                        <div class="detail-group">
+                            <p>${rizhu}${ganToElement[rizhu]}日主见到以下天干时，会形成${shensha}关系：${foundGans.map(g => g + ganToElement[g]).join('、')}</p>
+                        </div>
+                    `;
+
+                    // 获取十神基本数据
+                    const basicData = shenshaData[shensha];
+
+                    html += `
+                        <div class="detail-group">
+                            <div class="detail-title">${shensha}的基本含义</div>
+                            <p>${basicData.basicMeaning}</p>
+                            <p><b>推导过程：</b>${basicData.derivation}</p>
+                            <p><b>核心特质：</b>${basicData.abstract.characteristics.join("、")}</p>
+                            <p><b>优势：</b>${basicData.abstract.strengths.join("、")}</p>
+                            <p><b>挑战：</b>${basicData.abstract.weaknesses.join("、")}</p>
+                            <p><b>人生意义：</b>${basicData.abstract.lifeMeaning.join("、")}</p>
+                        </div>
+                        
+                        <div class="detail-group">
+                            <div class="detail-title">${rizhu}${ganToElement[rizhu]}日主的${shensha}具体表现</div>
+                            <p><b>${ganToElement[rizhu]}的特殊象征：</b>${basicData.elementSpecific[ganToElement[rizhu]]}</p>
+                        </div>
+                    `;
+
+                    // 添加每个天干的具体关系
+                    foundGans.forEach(gan => {
+                        const relationData = tianganShenshaRelation[rizhu][shensha];
+                        if (relationData) {
+                            const className =
+                                shensha === "比肩" ? "bixian" :
+                                    shensha === "劫财" ? "jiecai" :
+                                        shensha === "食神" ? "shishen" :
+                                            shensha === "伤官" ? "shangguan" :
+                                                shensha === "偏财" ? "piancai" :
+                                                    shensha === "正财" ? "zhengcai" :
+                                                        shensha === "七杀" ? "qisha" :
+                                                            shensha === "正官" ? "zhengguan" :
+                                                                shensha === "偏印" ? "pianyin" :
+                                                                    "zhengyin";
+
+                            html += `
+                                <div class="shenshaRelation">
+                                    <div class="relation-title">
+                                        <span class="relation-tag ${className}">${shensha}</span>
+                                        ${rizhu}${ganToElement[rizhu]}日主见${gan}${ganToElement[gan]}
+                                    </div>
+                                    <div class="relation-body">
+                                        <p><b>关系描述：</b>${relationData.description}</p>
+                                        <p><b>影响作用：</b>${relationData.impact}</p>
+                                        <p><b>有利方面：</b>${relationData.favorable.join("、")}</p>
+                                        <p><b>不利方面：</b>${relationData.unfavorable.join("、")}</p>
+                                        <p><b>生活应用：</b>${relationData.lifeApplication}</p>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    });
+                }
+
+                document.getElementById('shenshaRelationContent').innerHTML = html;
+            }
+
+            // 元素过滤器事件绑定
+            document.querySelectorAll('#elementFilter .filter-button').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    document.querySelectorAll('#elementFilter .filter-button').forEach(b => {
+                        b.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    const elementFilter = this.getAttribute('data-element');
+                    const yinYangFilter = document.querySelector('#yinYangFilter .filter-button.active').getAttribute('data-yinyang');
+                    const categoryFilter = document.querySelector('#categoryFilter .filter-button.active').getAttribute('data-category');
+                    generateWanwuLeixiang(elementFilter, yinYangFilter, categoryFilter);
+                });
+            });
+
+            // 阴阳过滤器事件绑定
+            document.querySelectorAll('#yinYangFilter .filter-button').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    document.querySelectorAll('#yinYangFilter .filter-button').forEach(b => {
+                        b.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    const elementFilter = document.querySelector('#elementFilter .filter-button.active').getAttribute('data-element');
+                    const yinYangFilter = this.getAttribute('data-yinyang');
+                    const categoryFilter = document.querySelector('#categoryFilter .filter-button.active').getAttribute('data-category');
+                    generateWanwuLeixiang(elementFilter, yinYangFilter, categoryFilter);
+                });
+            });
+
+            // 类别过滤器事件绑定
+            document.querySelectorAll('#categoryFilter .filter-button').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    document.querySelectorAll('#categoryFilter .filter-button').forEach(b => {
+                        b.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    const elementFilter = document.querySelector('#elementFilter .filter-button.active').getAttribute('data-element');
+                    const yinYangFilter = document.querySelector('#yinYangFilter .filter-button.active').getAttribute('data-yinyang');
+                    const categoryFilter = this.getAttribute('data-category');
+                    generateWanwuLeixiang(elementFilter, yinYangFilter, categoryFilter);
+                });
+            });
+
+            // 十神关系查询按钮事件绑定
+            document.getElementById('relationSearchBtn').addEventListener('click', function () {
+                const rizhu = document.getElementById('rizhuSelect').value;
+                const shensha = document.getElementById('shenshaSelect').value;
+                generateShenshaRelationDetail(rizhu, shensha);
+            });
+
+            // 标签切换功能
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', function () {
+                    // 移除所有标签的active类
+                    document.querySelectorAll('.tab-button').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+
+                    // 添加当前标签的active类
+                    this.classList.add('active');
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+
+                    // 根据不同标签加载相应内容
+                    if (tabId === 'tab-wanwu') {
+                        generateWanwuLeixiang();
+                    } else if (tabId === 'tab-tiangan') {
+                        generateTianganCharacteristics();
+                    } else if (tabId === 'tab-shensha') {
+                        generateShenshaCharacteristics();
+                    } else if (tabId === 'tab-relation') {
+                        generateRelationMatrixTable();
+                        generateShenshaRelationDetail('', '');
+                    }
+                });
+            });
+
+            // 初始化加载
+            generateWanwuLeixiang();
+        });
+    </script>
+</body>
+
+</html>
