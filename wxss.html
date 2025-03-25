@@ -1,0 +1,1324 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日主五行特性与十神查询系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .intro {
+            max-width: 800px;
+            margin: 0 auto 20px;
+            text-align: justify;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+        }
+        
+        .query-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .selector {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .selector button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .selector button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* 五行颜色 */
+        .wood {
+            background-color: #7FB06E;
+            color: white;
+        }
+        
+        .fire {
+            background-color: #E74C3C;
+            color: white;
+        }
+        
+        .earth {
+            background-color: #F39C12;
+            color: white;
+        }
+        
+        .metal {
+            background-color: #BDC3C7;
+            color: black;
+        }
+        
+        .water {
+            background-color: #3498DB;
+            color: white;
+        }
+        
+        #result {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            min-height: 200px;
+            transition: all 0.3s ease;
+            display: none;
+        }
+        
+        #result.active {
+            display: block;
+        }
+        
+        .result-title {
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            margin-bottom: 10px;
+            padding: 8px 15px;
+            border-radius: 5px;
+            color: white;
+        }
+        
+        .content {
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .subsection {
+            margin-bottom: 15px;
+        }
+        
+        .subsection-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .shishen-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .shishen-card {
+            padding: 15px;
+            border-radius: 8px;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .shishen-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .shishen-name {
+            font-weight: bold;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        @media (max-width: 768px) {
+            .shishen-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .selector {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .selector button {
+                width: 100%;
+            }
+        }
+        
+        .tab-container {
+            margin-top: 20px;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .tab-btn {
+            padding: 8px 15px;
+            background-color: #eee;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .tab-btn.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>日主五行特性与十神查询系统</h1>
+        <div class="intro">
+            <p>本系统基于传统八字理论，提供日主天干五行特性的详细解析以及与十神的关系分析。五行（木、火、土、金、水）对应十天干（甲乙丙丁戊己庚辛壬癸），通过不同天干的组合形成十神（比肩、劫财、食神、伤官、偏财、正财、七杀、正官、偏印、正印）。</p>
+        </div>
+    </header>
+    
+    <main>
+        <section class="query-section">
+            <h2>选择您的日主天干</h2>
+            <div class="selector">
+                <button class="wood" onclick="showInfo('甲')">甲木</button>
+                <button class="wood" onclick="showInfo('乙')">乙木</button>
+                <button class="fire" onclick="showInfo('丙')">丙火</button>
+                <button class="fire" onclick="showInfo('丁')">丁火</button>
+                <button class="earth" onclick="showInfo('戊')">戊土</button>
+                <button class="earth" onclick="showInfo('己')">己土</button>
+                <button class="metal" onclick="showInfo('庚')">庚金</button>
+                <button class="metal" onclick="showInfo('辛')">辛金</button>
+                <button class="water" onclick="showInfo('壬')">壬水</button>
+                <button class="water" onclick="showInfo('癸')">癸水</button>
+            </div>
+        </section>
+        
+        <section id="result">
+            <!-- 结果将在这里显示 -->
+        </section>
+    </main>
+
+    <script>
+        // 天干五行基本数据
+        const tianganData = {
+            '甲': {
+                element: '木',
+                yin_yang: '阳',
+                color: '#7FB06E',
+                nature: '东方之木，刚健挺拔',
+                characteristics: '挺拔、生长、向上、刚健、冲天、正直、诚实',
+                description: '甲木如参天大树，根深叶茂，挺拔向上，具有强大的生命力和穿透力。性格刚健正直，不屈不挠，追求卓越。',
+                metaphor: '甲木象征参天大树、栋梁，具有向上生发之力，代表冲天的气势与坚韧不拔的品质。',
+                personality: '刚毅果断，正直不阿，有理想抱负，具领导才能，注重名誉，执行力强，但偶有固执己见，不愿妥协的特性。',
+                career: '适合管理、法律、教育、军事、政府行政等需要决断力和领导力的职业。',
+                health: '与肝胆系统相关，易有头痛、眼疾、高血压等问题，应注意情绪管理和肝脏保健。',
+                relationships: '爱情上重视责任与承诺，家庭观念强，但有时较为严肃，需要学习表达柔情。',
+                shishen: {
+                    '比肩': {
+                        gans: '甲',
+                        natural: '同根大树，并肩生长',
+                        concrete: '同辈、朋友、同事、战友、竞争者',
+                        abstract: '协助力量、合作精神、竞争关系、团队合作',
+                        positive: '有强大的伙伴支持，可共同发展壮大',
+                        negative: '竞争激烈，争夺资源，彼此制约'
+                    },
+                    '劫财': {
+                        gans: '乙',
+                        natural: '同根不同形的树木，争夺养分',
+                        concrete: '兄弟姐妹、亲密朋友、同行竞争者',
+                        abstract: '分享、分散、分配、竞争、消耗',
+                        positive: '带来活力与动力，促进自我提升',
+                        negative: '消耗资源，造成不必要的内耗'
+                    },
+                    '食神': {
+                        gans: '丙',
+                        natural: '木生火，温暖光明',
+                        concrete: '子女、艺术、才华、创造力、愉悦',
+                        abstract: '智慧、创造力、艺术才能、幸福感',
+                        positive: '带来快乐与成就感，展现才华与智慧',
+                        negative: '过度享乐，忽视实际，消耗过度'
+                    },
+                    '伤官': {
+                        gans: '丁',
+                        natural: '木生火，但火势强烈',
+                        concrete: '叛逆、不守规矩、创新、突破',
+                        abstract: '革新能力、批判精神、创造性思维',
+                        positive: '打破常规，创新突破，独立思考',
+                        negative: '叛逆过度，目无规矩，自我损伤'
+                    },
+                    '偏财': {
+                        gans: '戊',
+                        natural: '木克土，获取养分',
+                        concrete: '意外收获、投资收益、副业收入',
+                        abstract: '机遇、外部资源、额外财富',
+                        positive: '带来意外之财，拓展资源渠道',
+                        negative: '不稳定收入，投机心态，贪婪'
+                    },
+                    '正财': {
+                        gans: '己',
+                        natural: '木克土，化为己用',
+                        concrete: '正当财富、稳定收入、储蓄',
+                        abstract: '物质基础、经济能力、财富管理',
+                        positive: '稳定的经济来源，良好的财务规划',
+                        negative: '过于看重金钱，守财奴心态'
+                    },
+                    '七杀': {
+                        gans: '庚',
+                        natural: '金克木，锋利切割',
+                        concrete: '权威、上司、竞争对手、挑战',
+                        abstract: '权力、压力、挑战、考验',
+                        positive: '磨砺意志，激发潜能，锻造坚韧品质',
+                        negative: '面临严峻挑战，遭受打击，过度压力'
+                    },
+                    '正官': {
+                        gans: '辛',
+                        natural: '金克木，规范引导',
+                        concrete: '规则、制度、长辈、管理者',
+                        abstract: '规范、秩序、约束、管理',
+                        positive: '提供规范与秩序，增强自律性',
+                        negative: '束缚发展，限制自由，过度约束'
+                    },
+                    '偏印': {
+                        gans: '壬',
+                        natural: '水生木，滋养生长',
+                        concrete: '知识、学习、智慧、灵感',
+                        abstract: '智慧启发、直觉、潜意识、创新思维',
+                        positive: '开启智慧，激发创新，提供灵感',
+                        negative: '思想混乱，不切实际，过度理想化'
+                    },
+                    '正印': {
+                        gans: '癸',
+                        natural: '水生木，温润滋养',
+                        concrete: '学历、文凭、母亲、保护力量',
+                        abstract: '知识体系、保护力、涵养、内在修为',
+                        positive: '提供知识与支持，增强内在修养',
+                        negative: '过度依赖，缺乏独立性，拘泥成规'
+                    }
+                }
+            },
+            '乙': {
+                element: '木',
+                yin_yang: '阴',
+                color: '#7FB06E',
+                nature: '东方之木，柔韧灵活',
+                characteristics: '柔韧、适应、巧变、灵活、委婉、温和、韧性',
+                description: '乙木如花草藤蔓，柔韧灵活，善于适应环境，具有极强的韧性和生命力。性格温和委婉，处事灵活变通。',
+                metaphor: '乙木象征藤蔓、花草，具有柔中带刚的特质，能屈能伸，以柔克刚，展现生命的韧性与智慧。',
+                personality: '温和亲切，通情达理，善解人意，处事灵活，有韧性，适应力强，但有时优柔寡断，过于顾及他人感受。',
+                career: '适合外交、公关、人力资源、文艺、设计、护理等需要人际沟通和创意的职业。',
+                health: '与肝胆系统相关，易有头痛、眼疾、神经衰弱等问题，应注意情绪调节和充分休息。',
+                relationships: '善解人意，富有同情心，在人际关系中扮演调和者角色，但需要学习表达自己的需求。',
+                shishen: {
+                    '劫财': {
+                        gans: '甲',
+                        natural: '同根不同形的树木，争夺养分',
+                        concrete: '兄弟姐妹、亲密朋友、同行竞争者',
+                        abstract: '分享、分散、分配、竞争、消耗',
+                        positive: '带来活力与动力，促进自我提升',
+                        negative: '消耗资源，造成不必要的内耗'
+                    },
+                    '比肩': {
+                        gans: '乙',
+                        natural: '同根藤蔓，相互缠绕生长',
+                        concrete: '同辈、朋友、同事、志同道合者',
+                        abstract: '协助力量、合作精神、互补关系',
+                        positive: '有志同道合的伙伴，互相支持',
+                        negative: '缺乏独立性，过度依赖他人'
+                    },
+                    '食神': {
+                        gans: '丙',
+                        natural: '木生火，温暖光明',
+                        concrete: '子女、艺术、才华、创造力、愉悦',
+                        abstract: '智慧、创造力、艺术才能、幸福感',
+                        positive: '带来快乐与成就感，展现才华与智慧',
+                        negative: '过度享乐，忽视实际，消耗过度'
+                    },
+                    '伤官': {
+                        gans: '丁',
+                        natural: '木生火，但火势强烈',
+                        concrete: '叛逆、不守规矩、创新、突破',
+                        abstract: '革新能力、批判精神、创造性思维',
+                        positive: '打破常规，创新突破，独立思考',
+                        negative: '叛逆过度，目无规矩，自我损伤'
+                    },
+                    '偏财': {
+                        gans: '戊',
+                        natural: '木克土，获取养分',
+                        concrete: '意外收获、投资收益、副业收入',
+                        abstract: '机遇、外部资源、额外财富',
+                        positive: '带来意外之财，拓展资源渠道',
+                        negative: '不稳定收入，投机心态，贪婪'
+                    },
+                    '正财': {
+                        gans: '己',
+                        natural: '木克土，化为己用',
+                        concrete: '正当财富、稳定收入、储蓄',
+                        abstract: '物质基础、经济能力、财富管理',
+                        positive: '稳定的经济来源，良好的财务规划',
+                        negative: '过于看重金钱，守财奴心态'
+                    },
+                    '七杀': {
+                        gans: '庚',
+                        natural: '金克木，锋利切割',
+                        concrete: '权威、上司、竞争对手、挑战',
+                        abstract: '权力、压力、挑战、考验',
+                        positive: '磨砺意志，激发潜能，锻造坚韧品质',
+                        negative: '面临严峻挑战，遭受打击，过度压力'
+                    },
+                    '正官': {
+                        gans: '辛',
+                        natural: '金克木，规范引导',
+                        concrete: '规则、制度、长辈、管理者',
+                        abstract: '规范、秩序、约束、管理',
+                        positive: '提供规范与秩序，增强自律性',
+                        negative: '束缚发展，限制自由，过度约束'
+                    },
+                    '偏印': {
+                        gans: '壬',
+                        natural: '水生木，滋养生长',
+                        concrete: '知识、学习、智慧、灵感',
+                        abstract: '智慧启发、直觉、潜意识、创新思维',
+                        positive: '开启智慧，激发创新，提供灵感',
+                        negative: '思想混乱，不切实际，过度理想化'
+                    },
+                    '正印': {
+                        gans: '癸',
+                        natural: '水生木，温润滋养',
+                        concrete: '学历、文凭、母亲、保护力量',
+                        abstract: '知识体系、保护力、涵养、内在修为',
+                        positive: '提供知识与支持，增强内在修养',
+                        negative: '过度依赖，缺乏独立性，拘泥成规'
+                    }
+                }
+            },
+            '丙': {
+                element: '火',
+                yin_yang: '阳',
+                color: '#E74C3C',
+                nature: '南方之火，燃烧炽热',
+                characteristics: '炽热、明亮、上升、扩张、活力、热情、开朗',
+                description: '丙火如烈日当空，光明磊落，热情奔放，具有强大的温暖与照明能力。性格开朗乐观，充满活力与激情。',
+                metaphor: '丙火象征太阳、烈焰，具有向上燃烧之力，代表光明与热情，照亮周围的一切。',
+                personality: '热情洋溢，乐观开朗，精力充沛，有领导魅力，待人真诚，但有时冲动急躁，缺乏耐心与细致。',
+                career: '适合演艺、销售、市场营销、公关、演讲、厨师等需要热情与表现力的职业。',
+                health: '与心脏、血液循环系统相关，易有心脏病、高血压、失眠等问题，应注意情绪管理和适当休息。',
+                relationships: '爱情上热情似火，表达直接，但需要学习持久的关怀和细致的体贴。',
+                shishen: {
+                    '比肩': {
+                        gans: '丙',
+                        natural: '同源烈火，并肩燃烧',
+                        concrete: '同辈、朋友、同事、战友、竞争者',
+                        abstract: '协助力量、合作精神、竞争关系',
+                        positive: '增强热情与能量，共同照亮前进道路',
+                        negative: '相互消耗，争夺资源，热度过高'
+                    },
+                    '劫财': {
+                        gans: '丁',
+                        natural: '不同形态的火，争夺燃料',
+                        concrete: '兄弟姐妹、亲密朋友、同行竞争者',
+                        abstract: '分享、分散、分配、竞争、消耗',
+                        positive: '带来温暖与活力，促进自我提升',
+                        negative: '消耗能量，造成不必要的内耗'
+                    },
+                    '食神': {
+                        gans: '戊',
+                        natural: '火生土，热能转化为物质',
+                        concrete: '子女、艺术、才华、创造力、愉悦',
+                        abstract: '智慧、创造力、艺术才能、幸福感',
+                        positive: '带来快乐与成就感，展现才华与智慧',
+                        negative: '过度享乐，忽视实际，消耗过度'
+                    },
+                    '伤官': {
+                        gans: '己',
+                        natural: '火生土，但土过厚重',
+                        concrete: '叛逆、不守规矩、创新、突破',
+                        abstract: '革新能力、批判精神、创造性思维',
+                        positive: '打破常规，创新突破，独立思考',
+                        negative: '叛逆过度，目无规矩，自我损伤'
+                    },
+                    '偏财': {
+                        gans: '庚',
+                        natural: '火克金，熔炼为用',
+                        concrete: '意外收获、投资收益、副业收入',
+                        abstract: '机遇、外部资源、额外财富',
+                        positive: '带来意外之财，拓展资源渠道',
+                        negative: '不稳定收入，投机心态，贪婪'
+                    },
+                    '正财': {
+                        gans: '辛',
+                        natural: '火克金，转化为财',
+                        concrete: '正当财富、稳定收入、储蓄',
+                        abstract: '物质基础、经济能力、财富管理',
+                        positive: '稳定的经济来源，良好的财务规划',
+                        negative: '过于看重金钱，守财奴心态'
+                    },
+                    '七杀': {
+                        gans: '壬',
+                        natural: '水克火，熄灭威胁',
+                        concrete: '权威、上司、竞争对手、挑战',
+                        abstract: '权力、压力、挑战、考验',
+                        positive: '磨砺意志，激发潜能，锻造坚韧品质',
+                        negative: '面临严峻挑战，遭受打击，过度压力'
+                    },
+                    '正官': {
+                        gans: '癸',
+                        natural: '水克火，规范引导',
+                        concrete: '规则、制度、长辈、管理者',
+                        abstract: '规范、秩序、约束、管理',
+                        positive: '提供规范与秩序，增强自律性',
+                        negative: '束缚发展，限制自由，过度约束'
+                    },
+                    '偏印': {
+                        gans: '甲',
+                        natural: '木生火，提供燃料',
+                        concrete: '知识、学习、智慧、灵感',
+                        abstract: '智慧启发、直觉、潜意识、创新思维',
+                        positive: '开启智慧，激发创新，提供灵感',
+                        negative: '思想混乱，不切实际，过度理想化'
+                    },
+                    '正印': {
+                        gans: '乙',
+                        natural: '木生火，滋养能量',
+                        concrete: '学历、文凭、母亲、保护力量',
+                        abstract: '知识体系、保护力、涵养、内在修为',
+                        positive: '提供知识与支持，增强内在修养',
+                        negative: '过度依赖，缺乏独立性，拘泥成规'
+                    }
+                }
+            },
+            '丁': {
+                element: '火',
+                yin_yang: '阴',
+                color: '#E74C3C',
+                nature: '南方之火，温暖内敛',
+                characteristics: '温暖、明亮、内敛、持久、照明、温和、细腻',
+                description: '丁火如灯烛之光，温暖明亮，持久细腻，具有照明与温暖的能力。性格温和细腻，富有耐心和持久力。',
+                metaphor: '丁火象征蜡烛、灯光，内敛而持久，代表细腻的情感与持续的能量。',
+                personality: '温和友善，细腻体贴，有耐心，富有同情心，情感丰富，但有时情绪化，缺乏决断力。',
+                career: '适合艺术、设计、文学、心理咨询、护理、教育等需要细腻情感和耐心的职业。',
+                health: '与心脏、血液循环系统相关，易有心悸、失眠、情绪波动等问题，应注意情绪稳定和规律作息。',
+                relationships: '爱情上温柔体贴，细腻入微，但需要学习表达自己的需求和建立边界。',
+                shishen: {
+                    '劫财': {
+                        gans: '丙',
+                        natural: '不同形态的火，争夺燃料',
+                        concrete: '兄弟姐妹、亲密朋友、同行竞争者',
+                        abstract: '分享、分散、分配、竞争、消耗',
+                        positive: '带来温暖与活力，促进自我提升',
+                        negative: '消耗能量，造成不必要的内耗'
+                    },
+                    '比肩': {
+                        gans: '丁',
+                        natural: '同源小火，相互依存',
+                        concrete: '同辈、朋友、同事、志同道合者',
+                        abstract: '协助力量、合作精神、互补关系',
+                        positive: '有志同道合的伙伴，互相支持',
+                        negative: '缺乏独立性，过度依赖他人'
+                    },
+                    '食神': {
+                        gans: '戊',
+                        natural: '火生土，热能转化为物质',
+                        concrete: '子女、艺术、才华、创造力、愉悦',
+                        abstract: '智慧、创造力、艺术才能、幸福感',
+                        positive: '带来快乐与成就感，展现才华与智慧',
+                        negative: '过度享乐，忽视实际，消耗过度'
+                    },
+                    '伤官': {
+                        gans: '己',
+                        natural: '火生土，但土过厚重',
+                        concrete: '叛逆、不守规矩、创新、突破',
+                        abstract: '革新能力、批判精神、创造性思维',
+                        positive: '打破常规，创新突破，独立思考',
+                        negative: '叛逆过度，目无规矩，自我损伤'
+                    },
+                    '偏财': {
+                        gans: '庚',
+                        natural: '火克金，熔炼为用',
+                        concrete: '意外收获、投资收益、副业收入',
+                        abstract: '机遇、外部资源、额外财富',
+                        positive: '带来意外之财，拓展资源渠道',
+                        negative: '不稳定收入，投机心态，贪婪'
+                    },
+                    '正财': {
+                        gans: '辛',
+                        natural: '火克金，转化为财',
+                        concrete: '正当财富、稳定收入、储蓄',
+                        abstract: '物质基础、经济能力、财富管理',
+                        positive: '稳定的经济来源，良好的财务规划',
+                        negative: '过于看重金钱，守财奴心态'
+                    },
+                    '七杀': {
+                        gans: '壬',
+                        natural: '水克火，熄灭威胁',
+                        concrete: '权威、上司、竞争对手、挑战',
+                        abstract: '权力、压力、挑战、考验',
+                        positive: '磨砺意志，激发潜能，锻造坚韧品质',
+                        negative: '面临严峻挑战，遭受打击，过度压力'
+                    },
+                    '正官': {
+                        gans: '癸',
+                        natural: '水克火，规范引导',
+                        concrete: '规则、制度、长辈、管理者',
+                        abstract: '规范、秩序、约束、管理',
+                        positive: '提供规范与秩序，增强自律性',
+                        negative: '束缚发展，限制自由，过度约束'
+                    },
+                    '偏印': {
+                        gans: '甲',
+                        natural: '木生火，提供燃料',
+                        concrete: '知识、学习、智慧、灵感',
+                        abstract: '智慧启发、直觉、潜意识、创新思维',
+                        positive: '开启智慧，激发创新，提供灵感',
+                        negative: '思想混乱，不切实际，过度理想化'
+                    },
+                    '正印': {
+                        gans: '乙',
+                        natural: '木生火，滋养能量',
+                        concrete: '学历、文凭、母亲、保护力量',
+                        abstract: '知识体系、保护力、涵养、内在修为',
+                        positive: '提供知识与支持，增强内在修养',
+                        negative: '过度依赖，缺乏独立性，拘泥成规'
+                    }
+                }
+            },
+            '戊': {
+                element: '土',
+                yin_yang: '阳',
+                color: '#F39C12',
+                nature: '中央之土，厚重肥沃',
+                characteristics: '厚重、稳固、包容、承载、肥沃、诚信、踏实',
+                description: '戊土如山岳大地，厚重稳固，包容万物，具有极强的承载能力。性格踏实可靠，重视诚信与责任。',
+                metaphor: '戊土象征山岳、高原，坚实稳固，代表信念与包容，承载万物而不动摇。',
+                personality: '踏实稳重，诚信可靠，责任感强，有耐心，包容力强，但有时固执保守，缺乏变通。',
+                career: '适合农业、建筑、房地产、餐饮、物流、行政等需要稳定性和实践能力的职业。',
+                health: '与脾胃系统相关，易有消化不良、肥胖、代谢问题，应注意饮食规律和适量运动。',
+                relationships: '重视家庭，注重实际，可靠踏实，但有时缺乏浪漫和情感表达。',
+                shishen: {
+                    '比肩': {
+                        gans: '戊',
+                        natural: '同质厚土，并列山岳',
+                        concrete: '同辈、朋友、同事、战友、竞争者',
+                        abstract: '协助力量、合作精神、竞争关系',
+                        positive: '增强稳定性与包容力，共同承载责任',
+                        negative: '过于保守，缺乏创新，相互制约'
+                    },
+                    '劫财': {
+                        gans: '己',
+                        natural: '同质不同形的土，争夺资源',
+                        concrete: '兄弟姐妹、亲密朋友、同行竞争者',
+                        abstract: '分享、分散、分配、竞争、消耗',
+                        positive: '带来稳定与调和，促进自我完善',
+                        negative: '消耗资源，相互掣肘，发展受限'
+                    },
+                    '食神': {
+                        gans: '庚',
+                        natural: '土生金，转化为器物',
+                        concrete: '子女、艺术、才华、创造力、愉悦',
+                        abstract: '智慧、创造力、艺术才能、幸福感',
+                        positive: '带来快乐与成就感，展现才华与智慧',
+                        negative: '过度享乐，忽视实际，消耗过度'
+                    },
+                    '伤官': {
+                        gans: '辛',
+                        natural: '土生金，但金过于锐利',
+                        concrete: '叛逆、不守规矩、创新、突破',
+                        abstract: '革新能力、批判精神、创造性思维',
+                        positive: '打破常规，创新突破，独立思考',
+                        negative: '叛逆过度，目无规矩，自我损伤'
+                    },
+                    '偏财': {
+                        gans: '壬',
+                        natural: '土克水，控制利用',
+                        concrete: '意外收获、投资收益、副业收入',
+                        abstract: '机遇、外部资源、额外财富',
+                        positive: '带来意外之财，拓展资源渠道',
+                        negative: '不稳定收入，投机心态，贪婪'
+                    },
+                    '正财': {
+                        gans: '癸',
+                        natural: '土克水，化为己用',
+                        concrete: '正当财富、稳定收入、储蓄',
+                        abstract: '物质基础、经济能力、财富管理',
+                        positive: '稳定的经济来源，良好的财务规划',
+                        negative: '过于看重金钱，守财奴心态'
+                    },
+                    '七杀': {
+                        gans: '甲',
+                        natural: '木克土，破坏威胁',
+                        concrete: '权威、上司、竞争对手、挑战',
+                        abstract: '权力、压力、挑战、考验',
+                        positive: '磨砺意志，激发潜能，锻造坚韧品质',
+                        negative: '面临严峻挑战，遭受打击，过度压力'
+                    },
+                    '正官': {
+                        gans: '乙',
+                        natural: '木克土，规范引导',
+                        concrete: '规则、制度、长辈、管理者',
+                        abstract: '规范、秩序、约束、管理',
+                        positive: '提供规范与秩序，增强自律性',
+                        negative: '束缚发展，限制自由，过度约束'
+                    },
+                    '偏印': {
+                        gans: '丙',
+                        natural: '火生土，烧结坚固',
+                        concrete: '知识、学习、智慧、灵感',
+                        abstract: '智慧启发、直觉、潜意识、创新思维',
+                        positive: '开启智慧，激发创新，提供灵感',
+                        negative: '思想混乱，不切实际，过度理想化'
+                    },
+                    '正印': {
+                        gans: '丁',
+                        natural: '火生土，温暖滋养',
+                        concrete: '学历、文凭、母亲、保护力量',
+                        abstract: '知识体系、保护力、涵养、内在修为',
+                        positive: '提供知识与支持，增强内在修养',
+                        negative: '过度依赖，缺乏独立性，拘泥成规'
+                    }
+                }
+            },
+            '己': {
+                element: '土',
+                yin_yang: '阴',
+                color: '#F39C12',
+                nature: '中央之土，柔和滋润',
+                characteristics: '柔和、滋润、包容、承接、温润、善良、细腻',
+                description: '己土如田园沃土，柔和滋润，温和包容，具有孕育万物的能力。性格温和善良，重视和谐与关怀。',
+                metaphor: '己土象征沃土、田园，温润而肥沃，代表包容与滋养，孕育万物而不求回报。',
+                personality: '温和包容，善良体贴，顾家爱人，和谐为本，但有时缺乏主见，过度妥协。',
+                career: '适合教育、护理、餐饮、农业、园艺、服务业等需要耐心和细心的职业。',
+                health: '与脾胃系统相关，易有消化不良、水肿、代谢缓慢等问题，应注意饮食调理和适量运动。',
+                relationships: '顾家重情，善解人意，注重和谐，但有时过度付出，忽略自身需求。',
+                shishen: {
+                    '劫财': {
+                        gans: '戊',
+                        natural: '同质不同形的土，争夺资源',
+                        concrete: '兄弟姐妹、亲密朋友、同行竞争者',
+                        abstract: '分享、分散、分配、竞争、消耗',
+                        positive: '带来稳定与调和，促进自我完善',
+                        negative: '消耗资源，相互掣肘，发展受限'
+                    },
+                    '比肩': {
+                        gans: '己',
+                        natural: '同质沃土，相互滋养',
+                        concrete: '同辈、朋友、同事、志同道合者',
+                        abstract: '协助力量、合作精神、互补关系',
+                        positive: '有志同道合的伙伴，互相支持',
+                        negative: '缺乏独立性，过度依赖他人'
+                    },
+                    '食神': {
+                        gans: '庚',
+                        natural: '土生金，转化为器物',
+                        concrete: '子女、艺术、才华、创造力、愉悦',
+                        abstract: '智慧、创造力、艺术才能、幸福感',
+                        positive: '带来快乐与成就感，展现才华与智慧',
+                        negative: '过度享乐，忽视实际，消耗过度'
+                    },
+                    '伤官': {
+                        gans: '辛',
+                        natural: '土生金，但金过于锐利',
+                        concrete: '叛逆、不守规矩、创新、突破',
+                        abstract: '革新能力、批判精神、创造性思维',
+                        positive: '打破常规，创新突破，独立思考',
+                        negative: '叛逆过度，目无规矩，自我损伤'
+                    },
+                    '偏财': {
+                        gans: '壬',
+                        natural: '土克水，控制利用',
+                        concrete: '意外收获、投资收益、副业收入',
+                        abstract: '机遇、外部资源、额外财富',
+                        positive: '带来意外之财，拓展资源渠道',
+                        negative: '不稳定收入，投机心态，贪婪'
+                    },
+                    '正财': {
+                        gans: '癸',
+                        natural: '土克水，化为己用',
+                        concrete: '正当财富、稳定收入、储蓄',
+                        abstract: '物质基础、经济能力、财富管理',
+                        positive: '稳定的经济来源，良好的财务规划',
+                        negative: '过于看重金钱，守财奴心态'
+                    },
+                    '七杀': {
+                        gans: '甲',
+                        natural: '木克土，破坏威胁',
+                        concrete: '权威、上司、竞争对手、挑战',
+                        abstract: '权力、压力、挑战、考验',
+                        positive: '磨砺意志，激发潜能，锻造坚韧品质',
+                        negative: '面临严峻挑战，遭受打击，过度压力'
+                    },
+                    '正官': {
+                        gans: '乙',
+                        natural: '木克土，规范引导',
+                        concrete: '规则、制度、长辈、管理者',
+                        abstract: '规范、秩序、约束、管理',
+                        positive: '提供规范与秩序，增强自律性',
+                        negative: '束缚发展，限制自由，过度约束'
+                    },
+                    '偏印': {
+                        gans: '丙',
+                        natural: '火生土，烧结坚固',
+                        concrete: '知识、学习、智慧、灵感',
+                        abstract: '智慧启发、直觉、潜意识、创新思维',
+                        positive: '开启智慧，激发创新，提供灵感',
+                        negative: '思想混乱，不切实际，过度理想化'
+                    },
+                    '正印': {
+                        gans: '丁',
+                        natural: '火生土，温暖滋养',
+                        concrete: '学历、文凭、母亲、保护力量',
+                        abstract: '知识体系、保护力、涵养、内在修为',
+                        positive: '提供知识与支持，增强内在修养',
+                        negative: '过度依赖，缺乏独立性，拘泥成规'
+                    }
+                }
+            },
+            '庚': {
+                element: '金',
+                yin_yang: '阳',
+                color: '#BDC3C7',
+                nature: '西方之金，刚硬锐利',
+                characteristics: '刚硬、锐利、坚固、决断、锋芒、果敢、坚毅',
+                description: '庚金如刀剑斧钺，刚硬锐利，果敢决断，具有极强的切割和决断能力。性格坚毅果断，做事干脆利落。',
+                metaphor: '庚金象征刀剑、兵器，锋利而威严，代表决断与果敢，能斩断迷惘与阻碍。',
+                personality: '果断坚毅，公正严明，原则性强，做事彻底，守时守信，但有时过于严厉，缺乏变通与柔情。',
+                career: '适合军事、警察、法律、管理、金融、科技等需要决断力和执行力的职业。',
+                health: '与肺部、大肠系统相关，易有呼吸系统问题、皮肤干燥，应注意保湿和呼吸系统保健。',
+                relationships: '讲求原则与责任，重视承诺，但需要学习表达情感和理解他人感受。',
+                shishen: {
+                    '比肩': {
+                        gans: '庚',
+                        natural: '同源刚金，并肩锋利',
+                        concrete: '同辈、朋友、同事、战友、竞争者',
+                        abstract: '协助力量、合作精神、竞争关系',
+                        positive: '增强决断力与执行力，共同克服困难',
+                        negative: '相互争锋，锋芒毕露，过于强硬'
+                    },
+                    '劫财': {
+                        gans: '辛',
+                        natural: '不同形态的金，争夺资源',
+                        concrete: '兄弟姐妹、亲密朋友、同行竞争者',
+                        abstract: '分享、分散、分配、竞争、消耗',
+                        positive: '带来灵活与变通，促进自我完善',
+                        negative: '消耗资源，相互制约，削弱锋芒'
+                    },
+                    '食神': {
+                        gans: '壬',
+                        natural: '金生水，转化为流动',
+                        concrete: '子女、艺术、才华、创造力、愉悦',
+                        abstract: '智慧、创造力、艺术才能、幸福感',
+                        positive: '带来快乐与成就感，展现才华与智慧',
+                        negative: '过度享乐，忽视实际，消耗过度'
+                    },
+                    '伤官': {
+                        gans: '癸',
+                        natural: '金生水，但水过于泛滥',
+                        concrete: '叛逆、不守规矩、创新、突破',
+                        abstract: '革新能力、批判精神、创造性思维',
+                        positive: '打破常规，创新突破，独立思考',
+                        negative: '叛逆过度，目无规矩，自我损伤'
+                    },
+                    '偏财': {
+                        gans: '甲',
+                        natural: '金克木，控制利用',
+                        concrete: '意外收获、投资收益、副业收入',
+                        abstract: '机遇、外部资源、额外财富',
+                        positive: '带来意外之财，拓展资源渠道',
+                        negative: '不稳定收入，投机心态，贪婪'
+                    },
+                    '正财': {
+                        gans: '乙',
+                        natural: '金克木，化为己用',
+                        concrete: '正当财富、稳定收入、储蓄',
+                        abstract: '物质基础、经济能力、财富管理',
+                        positive: '稳定的经济来源，良好的财务规划',
+                        negative: '过于看重金钱，守财奴心态'
+                    },
+                    '七杀': {
+                        gans: '丙',
+                        natural: '火克金，熔化威胁',
+                        concrete: '权威、上司、竞争对手、挑战',
+                        abstract: '权力、压力、挑战、考验',
+                        positive: '磨砺意志，激发潜能，锻造坚韧品质',
+                        negative: '面临严峻挑战，遭受打击，过度压力'
+                    },
+                    '正官': {
+                        gans: '丁',
+                        natural: '火克金，规范引导',
+                        concrete: '规则、制度、长辈、管理者',
+                        abstract: '规范、秩序、约束、管理',
+                        positive: '提供规范与秩序，增强自律性',
+                        negative: '束缚发展，限制自由，过度约束'
+                    },
+                    '偏印': {
+                        gans: '戊',
+                        natural: '土生金，提供物质',
+                        concrete: '知识、学习、智慧、灵感',
+                        abstract: '智慧启发、直觉、潜意识、创新思维',
+                        positive: '开启智慧，激发创新，提供灵感',
+                        negative: '思想混乱，不切实际，过度理想化'
+                    },
+                    '正印': {
+                        gans: '己',
+                        natural: '土生金，滋养能量',
+                        concrete: '学历、文凭、母亲、保护力量',
+                        abstract: '知识体系、保护力、涵养、内在修为',
+                        positive: '提供知识与支持，增强内在修养',
+                        negative: '过度依赖，缺乏独立性，拘泥成规'
+                    }
+                }
+            },
+            '辛': {
+                element: '金',
+                yin_yang: '阴',
+                color: '#BDC3C7',
+                nature: '西方之金，柔和精致',
+                characteristics: '柔和、精致、巧变、灵敏、细腻、巧妙、灵活',
+                description: '辛金如珠宝首饰，精致柔和，灵巧变通，具有极强的审美和变通能力。性格细腻灵活，做事巧思妙想。',
+                metaphor: '辛金象征珠宝、首饰，精致而灵巧，代表美感与智慧，能以柔克刚，灵活应变。',
+                personality: '灵活细腻，思维敏锐，善于变通，有艺术感，察言观色，但有时优柔寡断，过于在意他人评价。',
+                career: '适合艺术、设计、珠宝、美容、外交、公关等需要审美和人际技巧的职业。',
+                health: '与肺部、大肠系统相关，易有呼吸系统问题、皮肤敏感，应注意呼吸系统保健和皮肤护理。',
+                relationships: '善解人意，体贴入微，擅长营造和谐氛围，但需要学习表达自己的需求和建立边界。',
+                shishen: {
+                    '劫财': {
+                        gans: '庚',
+                        natural: '不同形态的金，争夺资源',
+                        concrete: '兄弟姐妹、亲密朋友、同行竞争者',
+                        abstract: '分享、分散、分配、竞争、消耗',
+                        positive: '带来规范与坚毅，促进自我完善',
+                        negative: '消耗资源，相互制约，缺乏主见'
+                    },
+                    '比肩': {
+                        gans: '辛',
+                        natural: '同源柔金，相互映衬',
+                        concrete: '同辈、朋友、同事、志同道合者',
+                        abstract: '协助力量、合作精神、互补关系',
+                        positive: '有志同道合的伙伴，互相支持',
+                        negative: '缺乏独立性，过度依赖他人'
+                    },
+                    '食神': {
+                        gans: '壬',
+                        natural: '金生水，转化为流动',
+                        concrete: '子女、艺术、才华、创造力、愉悦',
+                        abstract: '智慧、创造力、艺术才能、幸福感',
+                        positive: '带来快乐与成就感，展现才华与智慧',
+                        negative: '过度享乐，忽视实际，消耗过度'
+                    },
+                    '伤官': {
+                        gans: '癸',
+                        natural: '金生水，但水过于泛滥',
+                        concrete: '叛逆、不守规矩、创新、突破',
+                        abstract: '革新能力、批判精神、创造性思维',
+                        positive: '打破常规，创新突破，独立思考',
+                        negative: '叛逆过度，目无规矩，自我损伤'
+                    },
+                    '偏财': {
+                        gans: '甲',
+                        natural: '金克木，控制利用',
+                        concrete: '意外收获、投资收益、副业收入',
+                        abstract: '机遇、外部资源、额外财富',
+                        positive: '带来意外之财，拓展资源渠道',
+                        negative: '不稳定收入，投机心态，贪婪'
+                    },
+                    '正财': {
+                        gans: '乙',
+                        natural: '金克木，化为己用',
+                        concrete: '正当财富、稳定收入、储蓄',
+                        abstract: '物质基础、经济能力、财富管理',
+                        positive: '稳定的经济来源，良好的财务规划',
+                        negative: '过于看重金钱，守财奴心态'
+                    },
+                    '七杀': {
+                        gans: '丙',
+                        natural: '火克金，熔化威胁',
+                        concrete: '权威、上司、竞争对手、挑战',
+                        abstract: '权力、压力、挑战、考验',
+                        positive: '磨砺意志，激发潜能，锻造坚韧品质',
+                        negative: '面临严峻挑战，遭受打击，过度压力'
+                    },
+                    '正官': {
+                        gans: '丁',
+                        natural: '火克金，规范引导',
+                        concrete: '规则、制度、长辈、管理者',
+                        abstract: '规范、秩序、约束、管理',
+                        positive: '提供规范与秩序，增强自律性',
+                        negative: '束缚发展，限制自由，过度约束'
+                    },
+                    '偏印': {
+                        gans: '戊',
+                        natural: '土生金，提供物质',
+                        concrete: '知识、学习、智慧、灵感',
+                        abstract: '智慧启发、直觉、潜意识、创新思维',
+                        positive: '开启智慧，激发创新，提供灵感',
+                        negative: '思想混乱，不切实际，过度理想化'
+                    },
+                    '正印': {
+                        gans: '己',
+                        natural: '土生金，滋养能量',
+                        concrete: '学历、文凭、母亲、保护力量',
+                        abstract: '知识体系、保护力、涵养、内在修为',
+                        positive: '提供知识与支持，增强内在修养',
+                        negative: '过度依赖，缺乏独立性，拘泥成规'
+                    }
+                }
+            },
+            '壬': {
+                element: '水',
+                yin_yang: '阳',
+                color: '#3498DB',
+                nature: '北方之水，奔流不息',
+                characteristics: '奔流、活动、变化、智慧、勇敢、进取、冒险',
+                description: '壬水如江河湖海，奔流不息，变化多端，具有极强的适应力和冒险精神。性格开拓进取，勇于冒险，思维活跃。',
+                metaphor: '壬水象征江河、大海，浩瀚而奔流不息，代表智慧与勇气，能克服障碍，不断前进。',
+                personality: '思维活跃，善于变通，勇于冒险，进取心强，适应力强，但有时冒进冲动，缺乏稳定性。',
+                career: '适合科研、探险、投资、贸易、传媒、IT等需要创新思维和冒险精神的职业。',
+                health: '与肾脏、泌尿系统相关，易有肾虚、腰痛、水肿等问题，应注意保暖和肾脏保健。',
+                relationships: '追求自由与刺激，浪漫多变，但需要学习稳定的承诺和责任感。',
+                shishen: {
+                    '比肩': {
+                        gans: '壬',
+                        natural: '同源大水，并流奔涌',
+                        concrete: '同辈、朋友、同事、战友、竞争者',
+                        abstract: '协助力量、合作精神、竞争关系',
+                        positive: '增强智慧与冒险精神，共同开拓创新',
+                        negative: '相互冲击，波涛汹涌，过于冒进'
+                    },
+                    '劫财': {
+                        gans: '癸',
+                        natural: '不同形态的水，争夺流向',
+                        concrete: '兄弟姐妹、亲密朋友、同行竞争者',
+                        abstract: '分享、分散、分配、竞争、消耗',
+                        positive: '带来智慧与灵感，促进思维发展',
+                        negative: '消耗能量，方向不明，缺乏聚焦'
+                    },
+                    '食神': {
+                        gans: '甲',
+                        natural: '水生木，滋养生长',
+                        concrete: '子女、艺术、才华、创造力、愉悦',
+                        abstract: '智慧、创造力、艺术才能、幸福感',
+                        positive: '带来快乐与成就感，展现才华与智慧',
+                        negative: '过度享乐，忽视实际，消耗过度'
+                    },
+                    '伤官': {
+                        gans: '乙',
+                        natural: '水生木，但木过于吸收',
+                        concrete: '叛逆、不守规矩、创新、突破',
+                        abstract: '革新能力、批判精神、创造性思维',
+                        positive: '打破常规，创新突破，独立思考',
+                        negative: '叛逆过度，目无规矩，自我损伤'
+                    },
+                    '偏财': {
+                        gans: '丙',
+                        natural: '水克火，控制利用',
+                        concrete: '意外收获、投资收益、副业收入',
+                        abstract: '机遇、外部资源、额外财富',
+                        positive: '带来意外之财，拓展资源渠道',
+                        negative: '不稳定收入，投机心态，贪婪'
+                    },
+                    '正财': {
+                        gans: '丁',
+                        natural: '水克火，化为己用',
+                        concrete: '正当财富、稳定收入、储蓄',
+                        abstract: '物质基础、经济能力、财富管理',
+                        positive: '稳定的经济来源，良好的财务规划',
+                        negative: '过于看重金钱，守财奴心态'
+                    },
+                    '七杀': {
+                        gans: '戊',
+                        natural: '土克水，阻隔威胁',
+                        concrete: '权威、上司、竞争对手、挑战',
+                        abstract: '权力、压力、挑战、考验',
+                        positive: '磨砺意志，激发潜能，锻造坚韧品质',
+                        negative: '面临严峻挑战，遭受打击，过度压力'
+                    },
+                    '正官': {
+                        gans: '己',
+                        natural: '土克水，规范引导',
+                        concrete: '规则、制度、长辈、管理者',
+                        abstract: '规范、秩序、约束、管理',
+                        positive: '提供规范与秩序，增强自律性',
+                        negative: '束缚发展，限制自由，过度约束'
+                    },
+                    '偏印': {
+                        gans: '庚',
+                        natural: '金生水，提供源泉',
+                        concrete: '知识、学习、智慧、灵感',
+                        abstract: '智慧启发、直觉、潜意识、创新思维',
+                        positive: '开启智慧，激发创新，提供灵感',
+                        negative: '思想混乱，不切实际，过度理想化'
+                    },
+                    '正印': {
+                        gans: '辛',
+                        natural: '金生水，滋养智慧',
+                        concrete: '学历、文凭、母亲、保护力量',
+                        abstract: '知识体系、保护力、涵养、内在修为',
+                        positive: '提供知识与支持，增强内在修养',
+                        negative: '过度依赖，缺乏独立性，拘泥成规'
+                    }
+                }
+            },
+            '癸': {
+                element: '水',
+                yin_yang: '阴',
+                color: '#3498DB',
+                nature: '北方之水，静润深邃',
+                characteristics: '静润、滋养、深邃、智慧、柔和、含蓄、深沉',
+                description: '癸水如雨露甘霖，静润深邃，滋养万物，具有极强的包容性和深度。性格温和深沉，思维灵敏深刻。',
+                metaphor: '癸水象征雨露、泉水，静谧而滋养，代表灵感与深度，润物无声，蕴含智慧。',
+                personality: '温和敏感，思维深刻，善于倾听，有同理心，情感丰富，但有时过度敏感，缺乏自信。',
+                career: '适合艺术、文学、心理咨询、医疗、研究、教育等需要洞察力和同理心的职业。',
+                health: '与肾脏、泌尿系统相关，易有肾虚、水肿、情绪不稳等问题，应注意情绪管理和肾脏保健。',
+                relationships: '感情丰富，体贴入微，善解人意，但有时情绪波动大，需要学习稳定情绪和界限感。',
+                shishen: {
+                    '劫财': {
+                        gans: '壬',
+                        natural: '不同形态的水，争夺流向',
+                        concrete: '兄弟姐妹、亲密朋友、同行竞争者',
+                        abstract: '分享、分散、分配、竞争、消耗',
+                        positive: '带来活力与动力，促进自我表达',
+                        negative: '消耗能量，方向不明，内心混乱'
+                    },
+                    '比肩': {
+                        gans: '癸',
+                        natural: '同源细水，相互滋润',
+                        concrete: '同辈、朋友、同事、志同道合者',
+                        abstract: '协助力量、合作精神、互补关系',
+                        positive: '有志同道合的伙伴，互相支持',
+                        negative: '缺乏独立性，过度依赖他人'
+                    },
+                    '食神': {
+                        gans: '甲',
+                        natural: '水生木，滋养生长',
+                        concrete: '子女、艺术、才华、创造力、愉悦',
+                        abstract: '智慧、创造力、艺术才能、幸福感',
+                        positive: '带来快乐与成就感，展现才华与智慧',
+                        negative: '过度享乐，忽视实际，消耗过度'
+                    },
+                    '伤官': {
+                        gans: '乙',
+                        natural: '水生木，但木过于吸收',
+                        concrete: '叛逆、不守规矩、创新、突破',
+                        abstract: '革新能力、批判精神、创造性思维',
+                        positive: '打破常规，创新突破，独立思考',
+                        negative: '叛逆过度，目无规矩，自我损伤'
+                    },
+                    '偏财': {
+                        gans: '丙',
+                        natural: '水克火，控制利用',
+                        concrete: '意外收获、投资收益、副业收入',
+                        abstract: '机遇、外部资源、额外财富',
+                        positive: '带来意外之财，拓展资源渠道',
+                        negative: '不稳定收入，投机心态，贪婪'
+                    },
+                    '正财': {
+                        gans: '丁',
+                        natural: '水克火，化为己用',
+                        concrete: '正当财富、稳定收入、储蓄',
+                        abstract: '物质基础、经济能力、财富管理',
+                        positive: '稳定的经济来源，良好的财务规划',
+                        negative: '过于看重金钱，守财奴心态'
+                    },
+                    '七杀': {
+                        gans: '戊',
+                        natural: '土克水，阻隔威胁',
+                        concrete: '权威、上司、竞争对手、挑战',
+                        abstract: '权力、压力、挑战、考验',
+                        positive: '磨砺意志，激发潜能，锻造坚韧品质',
+                        negative: '面临严峻挑战，遭受打击，过度压力'
+                    },
+                    '正官': {
+                        gans: '己',
+                        natural: '土克水，规范引导',
+                        concrete: '规则、制度、长辈、管理者',
+                        abstract: '规范、秩序、约束、管理',
+                        positive: '提供规范与秩序，增强自律性',
+                        negative: '束缚发展，限制自由，过度约束'
+                    },
+                    '偏印': {
+                        gans: '庚',
+                        natural: '金生水，提供源泉',
+                        concrete: '知识、学习、智慧、灵感',
+                        abstract: '智慧启发、直觉、潜意识、创新思维',
+                        positive: '开启智慧，激发创新，提供灵感',
+                        negative: '思想混乱，不切实际，过度理想化'
+                    },
+                    '正印': {
+                        gans: '辛',
+                        natural: '金生水，滋养智慧',
+                        concrete: '学历、文凭、母亲、保护力量',
+                        abstract: '知识体系、保护力、涵养、内在修为',
+                        positive: '提供知识与支持，增强内在修养',
+                        negative: '过度依赖，缺乏独立性，拘泥成规'
+                    }
+                }
+            }
+        };
+
+        // 显示日主信息
+        function showInfo(tiangan) {
+            const data = tianganData[tiangan];
+            if (!data) return;
+
+            const result = document.getElementById('result');
+            result.className = 'active';
+            result.style.borderTop = `5px solid ${data.color}`;
+
+            let html = `
+                <h2 class="result-title">${tiangan}${data.element} - 日主五行特性与十神分析</h2>
+                
+                <div class="section">
+                    <h3 class="section-title" style="background-color: ${data.color};">日主五行基本特性</h3>
+                    <div class="content">
+                        <p><strong>五行属性：</strong>${data.element}</p>
+                        <p><strong>阴阳属性：</strong>${data.yin_yang}</p>
+                        <p><strong>自然特性：</strong>${data.nature}</p>
+                        <p><strong>性格特征：</strong>${data.characteristics}</p>
+                        <p><strong>详细描述：</strong>${data.description}</p>
+                        <p><strong>象征比喻：</strong>${data.metaphor}</p>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h3 class="section-title" style="background-color: ${data.color};">日主性格与现实应用</h3>
+                    <div class="tab-container">
+                        <div class="tab-buttons">
+                            <button class="tab-btn active" onclick="showTab('personality-tab', this)">性格特点</button>
+                            <button class="tab-btn" onclick="showTab('career-tab', this)">事业发展</button>
+                            <button class="tab-btn" onclick="showTab('health-tab', this)">健康状况</button>
+                            <button class="tab-btn" onclick="showTab('relationships-tab', this)">人际关系</button>
+                        </div>
+                        <div id="personality-tab" class="tab-content active">
+                            <p>${data.personality}</p>
+                        </div>
+                        <div id="career-tab" class="tab-content">
+                            <p>${data.career}</p>
+                        </div>
+                        <div id="health-tab" class="tab-content">
+                            <p>${data.health}</p>
+                        </div>
+                        <div id="relationships-tab" class="tab-content">
+                            <p>${data.relationships}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h3 class="section-title" style="background-color: ${data.color};">${tiangan}${data.element} 与十神的关系分析</h3>
+                    <div class="content">
+                        <p>十神是八字命理学中重要的概念，代表日主与其他天干的关系。每个十神都有其独特的特性和影响。以下是${tiangan}${data.element}作为日主时的十神分析。</p>
+                        
+                        <div class="shishen-grid">`;
+            
+            // 循环添加十神卡片
+            for (const [shishen, details] of Object.entries(data.shishen)) {
+                html += `
+                    <div class="shishen-card">
+                        <div class="shishen-name">${shishen}（${details.gans}）</div>
+                        <div class="subsection">
+                            <div class="subsection-title">自然象征</div>
+                            <p>${details.natural}</p>
+                        </div>
+                        <div class="subsection">
+                            <div class="subsection-title">现实对应</div>
+                            <p><strong>具体：</strong>${details.concrete}</p>
+                            <p><strong>抽象：</strong>${details.abstract}</p>
+                        </div>
+                        <div class="subsection">
+                            <div class="subsection-title">影响分析</div>
+                            <p><strong>积极作用：</strong>${details.positive}</p>
+                            <p><strong>消极作用：</strong>${details.negative}</p>
+                        </div>
+                    </div>`;
+            }
+            
+            html += `
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            result.innerHTML = html;
+        }
+        
+        // 切换标签页
+        function showTab(tabId, button) {
+            // 隐藏所有内容
+            const tabContents = document.getElementsByClassName('tab-content');
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove('active');
+            }
+            
+            // 取消所有按钮的活跃状态
+            const tabButtons = document.getElementsByClassName('tab-btn');
+            for (let i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].classList.remove('active');
+            }
+            
+            // 显示选中的内容并激活按钮
+            document.getElementById(tabId).classList.add('active');
+            button.classList.add('active');
+        }
+    </script>
+
+
+</body></html>
