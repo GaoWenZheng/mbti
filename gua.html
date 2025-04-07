@@ -248,7 +248,7 @@
 </head>
 
 <body>
-    <h1>周易六十四卦抽签器</h1>
+    <h1>六十四卦</h1>
 
     <div class="controls">
         <button id="drawBtn">抽签</button>
@@ -287,91 +287,91 @@
             "坤": "土"  // 地
         };
 
-        // 八卦对应的卦码
-        const trigramCodes = {
+        // 八卦对应的卦码（下标0是底爻）
+        const trigramPatterns = {
             "乾": [1, 1, 1], // 天 ☰
-            "兑": [0, 1, 1], // 泽 ☱
+            "兑": [1, 1, 0], // 泽 ☱
             "离": [1, 0, 1], // 火 ☲
-            "震": [0, 0, 1], // 雷 ☳
-            "巽": [1, 1, 0], // 风 ☴
+            "震": [1, 0, 0], // 雷 ☳
+            "巽": [0, 1, 1], // 风 ☴
             "坎": [0, 1, 0], // 水 ☵
-            "艮": [1, 0, 0], // 山 ☶
+            "艮": [0, 0, 1], // 山 ☶
             "坤": [0, 0, 0]  // 地 ☷
         };
 
-        // 六十四卦的名称、基本含义、吉凶、上下卦
-        const hexagramData = [
-            { index: 1, name: "乾为天", desc: "乾：元，亨，利，贞。象征天，刚健中正、自强不息，代表领导者、创造力。", fortune: "大吉", upper: "乾", lower: "乾" },
-            { index: 2, name: "坤为地", desc: "坤：元，亨，利牝马之贞。象征地，柔顺厚德、包容万物，代表顺从、包容。", fortune: "大吉", upper: "坤", lower: "坤" },
-            { index: 3, name: "水雷屯", desc: "屯：元，亨，利，贞，勿用有攸往，利建侯。象征初始困难，需坚持不懈。", fortune: "小吉", upper: "坎", lower: "震" },
-            { index: 4, name: "山水蒙", desc: "蒙：亨。匪我求童蒙，童蒙求我。象征蒙昧无知，需要启蒙教育。", fortune: "中平", upper: "艮", lower: "坎" },
-            { index: 5, name: "水天需", desc: "需：有孚，光亨，贞吉。利涉大川。象征等待时机，须有信心和耐心。", fortune: "小吉", upper: "坎", lower: "乾" },
-            { index: 6, name: "天水讼", desc: "讼：有孚，窒惕，中吉，终凶。象征争讼，宜慎重处理纠纷。", fortune: "小凶", upper: "乾", lower: "坎" },
-            { index: 7, name: "地水师", desc: "师：贞，丈人，吉，无咎。象征统率众人，整齐划一，有组织有纪律。", fortune: "小吉", upper: "坤", lower: "坎" },
-            { index: 8, name: "水地比", desc: "比：吉。原筮，元，永贞，无咎。象征亲近团结，志同道合。", fortune: "小吉", upper: "坎", lower: "坤" },
-            { index: 9, name: "风天小畜", desc: "小畜：亨。密云不雨，自我西郊。象征小有蓄积，涵养待进。", fortune: "中平", upper: "巽", lower: "乾" },
-            { index: 10, name: "天泽履", desc: "履：履虎尾，不咥人，亨。象征谨慎行事，循序渐进。", fortune: "小吉", upper: "乾", lower: "兑" },
-            { index: 11, name: "地天泰", desc: "泰：小往大来，吉，亨。象征通泰，天地交通，阴阳协调。", fortune: "大吉", upper: "坤", lower: "乾" },
-            { index: 12, name: "天地否", desc: "否：否之匪人，不利君子贞，大往小来。象征闭塞不通，万物不交。", fortune: "大凶", upper: "乾", lower: "坤" },
-            { index: 13, name: "天火同人", desc: "同人：同人于野，亨。利涉大川，利君子贞。象征人际和谐，志同道合。", fortune: "小吉", upper: "乾", lower: "离" },
-            { index: 14, name: "火天大有", desc: "大有：元，亨。象征丰盛，大有收获。", fortune: "大吉", upper: "离", lower: "乾" },
-            { index: 15, name: "地山谦", desc: "谦：亨，君子有终。象征谦虚谨慎，自我反省。", fortune: "大吉", upper: "坤", lower: "艮" },
-            { index: 16, name: "雷地豫", desc: "豫：利建侯，行师。象征喜悦，顺利愉快。", fortune: "小吉", upper: "震", lower: "坤" },
-            { index: 17, name: "泽雷随", desc: "随：元，亨，利，贞，无咎。象征顺从，随时变通。", fortune: "小吉", upper: "兑", lower: "震" },
-            { index: 18, name: "山风蛊", desc: "蛊：元，亨，利涉大川。先甲三日，后甲三日。象征整治弊端，革故鼎新。", fortune: "小凶", upper: "艮", lower: "巽" },
-            { index: 19, name: "地泽临", desc: "临：元，亨，利，贞。至于八月有凶。象征临近，监督管理。", fortune: "小吉", upper: "坤", lower: "兑" },
-            { index: 20, name: "风地观", desc: "观：盥而不荐，有孚颙若。象征观察，审视形势。", fortune: "中平", upper: "巽", lower: "坤" },
-            { index: 21, name: "火雷噬嗑", desc: "噬嗑：亨。利用狱。象征法纪严明，惩恶扬善。", fortune: "小吉", upper: "离", lower: "震" },
-            { index: 22, name: "山火贲", desc: "贲：亨。小利有攸往。象征文饰美化，适度装饰。", fortune: "小吉", upper: "艮", lower: "离" },
-            { index: 23, name: "山地剥", desc: "剥：不利有攸往。象征剥落衰败，渐次消亡。", fortune: "大凶", upper: "艮", lower: "坤" },
-            { index: 24, name: "地雷复", desc: "复：亨。出入无疾，朋来无咎。反复其道，七日来复，利有攸往。象征回归复始，转危为安。", fortune: "小吉", upper: "坤", lower: "震" },
-            { index: 25, name: "天雷无妄", desc: "无妄：元，亨，利，贞。其匪正有眚，不利有攸往。象征自然无伪，真实无妄。", fortune: "小吉", upper: "乾", lower: "震" },
-            { index: 26, name: "山天大畜", desc: "大畜：利贞，不家食吉，利涉大川。象征蓄养大德，厚积薄发。", fortune: "小吉", upper: "艮", lower: "乾" },
-            { index: 27, name: "山雷颐", desc: "颐：贞吉。观颐，自求口实。象征养身养性，修养德行。", fortune: "小吉", upper: "艮", lower: "震" },
-            { index: 28, name: "泽风大过", desc: "大过：栋撓，利有攸往，亨。象征超越常规，果断行动。", fortune: "小凶", upper: "兑", lower: "巽" },
-            { index: 29, name: "坎为水", desc: "坎：习坎，有孚，维心亨，行有尚。象征险难重重，处险不惊。", fortune: "小凶", upper: "坎", lower: "坎" },
-            { index: 30, name: "离为火", desc: "离：利贞，亨。畜牝牛，吉。象征光明显著，附丽外物。", fortune: "小吉", upper: "离", lower: "离" },
-            { index: 31, name: "泽山咸", desc: "咸：亨，利贞，取女吉。象征感应相随，心意相通。", fortune: "小吉", upper: "兑", lower: "艮" },
-            { index: 32, name: "雷风恒", desc: "恒：亨，无咎，利贞，利有攸往。象征长久稳定，恒心持久。", fortune: "小吉", upper: "震", lower: "巽" },
-            { index: 33, name: "天山遁", desc: "遁：亨，小利贞。象征退避回避，明哲保身。", fortune: "小吉", upper: "乾", lower: "艮" },
-            { index: 34, name: "雷天大壮", desc: "大壮：利贞。象征刚强壮大，积极进取。", fortune: "小吉", upper: "震", lower: "乾" },
-            { index: 35, name: "火地晋", desc: "晋：康侯用锡马蕃庶，昼日三接。象征晋升进步，稳步上升。", fortune: "小吉", upper: "离", lower: "坤" },
-            { index: 36, name: "地火明夷", desc: "明夷：利艰贞。象征外暗内明，韬光养晦。", fortune: "大凶", upper: "坤", lower: "离" },
-            { index: 37, name: "风火家人", desc: "家人：利女贞。象征齐家治国，安家乐业。", fortune: "小吉", upper: "巽", lower: "离" },
-            { index: 38, name: "火泽睽", desc: "睽：小事吉。象征背离乖违，求同存异。", fortune: "小凶", upper: "离", lower: "兑" },
-            { index: 39, name: "水山蹇", desc: "蹇：利西南，不利东北；利见大人，贞吉。象征艰难险阻，进退维谷。", fortune: "小凶", upper: "坎", lower: "艮" },
-            { index: 40, name: "雷水解", desc: "解：利西南，无所往，其来复吉。有攸往，夙吉。象征解除困难，柳暗花明。", fortune: "小吉", upper: "震", lower: "坎" },
-            { index: 41, name: "山泽损", desc: "损：有孚，元吉，无咎，可贞，利有攸往。曷之用，二簋可用享。象征损上益下，有舍有得。", fortune: "小吉", upper: "艮", lower: "兑" },
-            { index: 42, name: "风雷益", desc: "益：利有攸往，利涉大川。象征增益进益，有所裨益。", fortune: "小吉", upper: "巽", lower: "震" },
-            { index: 43, name: "泽天夬", desc: "夬：扬于王庭，孚号，有厉，告自邑，不利即戎，利有攸往。象征决断果断，坚决果敢。", fortune: "小吉", upper: "兑", lower: "乾" },
-            { index: 44, name: "天风姤", desc: "姤：女壮，勿用取女。象征邂逅相遇，阴长阳消。", fortune: "小凶", upper: "乾", lower: "巽" },
-            { index: 45, name: "泽地萃", desc: "萃：亨。王假有庙，利见大人，亨，利贞。用大牲吉，利有攸往。象征汇聚集合，群策群力。", fortune: "小吉", upper: "兑", lower: "坤" },
-            { index: 46, name: "地风升", desc: "升：元亨，用见大人，勿恤，南征吉。象征上升发展，蒸蒸日上。", fortune: "小吉", upper: "坤", lower: "巽" },
-            { index: 47, name: "泽水困", desc: "困：亨，贞，大人吉，无咎，有言不信。象征困境窘迫，处困不惊。", fortune: "小凶", upper: "兑", lower: "坎" },
-            { index: 48, name: "水风井", desc: "井：改邑不改井，无丧无得，往来井井。汔至，亦未繘井，羸其瓶，凶。象征源源不断，取之不竭。", fortune: "中平", upper: "坎", lower: "巽" },
-            { index: 49, name: "泽火革", desc: "革：己日乃孚。元亨利贞，悔亡。象征革故鼎新，改革创新。", fortune: "小吉", upper: "兑", lower: "离" },
-            { index: 50, name: "火风鼎", desc: "鼎：元吉，亨。象征稳重中正，饮食之道。", fortune: "大吉", upper: "离", lower: "巽" },
-            { index: 51, name: "震为雷", desc: "震：亨。震来虩虩，笑言哑哑。震惊百里，不丧匕鬯。象征震动惊惧，敬畏警惕。", fortune: "小凶", upper: "震", lower: "震" },
-            { index: 52, name: "艮为山", desc: "艮：艮其背，不获其身，行其庭，不见其人，无咎。象征止而不行，稳重谨慎。", fortune: "中平", upper: "艮", lower: "艮" },
-            { index: 53, name: "风山渐", desc: "渐：女归吉，利贞。象征循序渐进，按部就班。", fortune: "小吉", upper: "巽", lower: "艮" },
-            { index: 54, name: "雷泽归妹", desc: "归妹：征凶，无攸利。象征少女出嫁，有序有度。", fortune: "小凶", upper: "震", lower: "兑" },
-            { index: 55, name: "雷火丰", desc: "丰：亨，王假之，勿忧，宜日中。象征丰盛盛大，兴盛鼎盛。", fortune: "大吉", upper: "震", lower: "离" },
-            { index: 56, name: "火山旅", desc: "旅：小亨，旅贞吉。象征行旅在外，谨慎小心。", fortune: "小凶", upper: "离", lower: "艮" },
-            { index: 57, name: "风水涣", desc: "涣：亨。王假有庙，利涉大川，利贞。象征分散解困，疏导开解。", fortune: "小吉", upper: "巽", lower: "坎" },
-            { index: 58, name: "水泽节", desc: "节：亨。苦节不可贞。象征节制适度，有节有度。", fortune: "小吉", upper: "坎", lower: "兑" },
-            { index: 59, name: "风泽中孚", desc: "中孚：豚鱼吉，利涉大川，利贞。象征诚信不欺，忠诚守信。", fortune: "小吉", upper: "巽", lower: "兑" },
-            { index: 60, name: "雷山小过", desc: "小过：亨，利贞，可小事，不可大事。飞鸟遗之音，不宜上，宜下，大吉。象征小有越过，过犹不及。", fortune: "小吉", upper: "震", lower: "艮" },
-            { index: 61, name: "水火既济", desc: "既济：亨，小利贞，初吉终乱。象征功成事遂，圆满成功。", fortune: "大吉", upper: "坎", lower: "离" },
-            { index: 62, name: "火水未济", desc: "未济：亨，小狐汔济，濡其尾，无攸利。象征未能完成，尚待努力。", fortune: "小凶", upper: "离", lower: "坎" },
-            { index: 63, name: "兑为泽", desc: "兑：亨，利贞。象征喜悦欢快，愉悦之情。", fortune: "小吉", upper: "兑", lower: "兑" },
-            { index: 64, name: "巽为风", desc: "巽：小亨，利有攸往，利见大人。象征顺从谦逊，柔和顺利。", fortune: "小吉", upper: "巽", lower: "巽" }
-        ];
-
-        // 创建卦象查找映射表
-        const hexagramMap = {};
-        for (let i = 0; i < hexagramData.length; i++) {
-            hexagramMap[hexagramData[i].index - 1] = hexagramData[i];
+        // 卦码对应的八卦名称
+        const patternToTrigram = {};
+        for (const [name, pattern] of Object.entries(trigramPatterns)) {
+            patternToTrigram[pattern.join('')] = name;
         }
+
+        // 六十四卦的名称、基本含义、吉凶
+        const hexagramData = {
+            "乾乾": { name: "乾为天", desc: "乾：元，亨，利，贞。象征天，刚健中正、自强不息，代表领导者、创造力。", fortune: "大吉" },
+            "坤坤": { name: "坤为地", desc: "坤：元，亨，利牝马之贞。象征地，柔顺厚德、包容万物，代表顺从、包容。", fortune: "大吉" },
+            "坎震": { name: "水雷屯", desc: "屯：元，亨，利，贞，勿用有攸往，利建侯。象征初始困难，需坚持不懈。", fortune: "小吉" },
+            "艮坎": { name: "山水蒙", desc: "蒙：亨。匪我求童蒙，童蒙求我。象征蒙昧无知，需要启蒙教育。", fortune: "中平" },
+            "坎乾": { name: "水天需", desc: "需：有孚，光亨，贞吉。利涉大川。象征等待时机，须有信心和耐心。", fortune: "小吉" },
+            "乾坎": { name: "天水讼", desc: "讼：有孚，窒惕，中吉，终凶。象征争讼，宜慎重处理纠纷。", fortune: "小凶" },
+            "坤坎": { name: "地水师", desc: "师：贞，丈人，吉，无咎。象征统率众人，整齐划一，有组织有纪律。", fortune: "小吉" },
+            "坎坤": { name: "水地比", desc: "比：吉。原筮，元，永贞，无咎。象征亲近团结，志同道合。", fortune: "小吉" },
+            "巽乾": { name: "风天小畜", desc: "小畜：亨。密云不雨，自我西郊。象征小有蓄积，涵养待进。", fortune: "中平" },
+            "乾兑": { name: "天泽履", desc: "履：履虎尾，不咥人，亨。象征谨慎行事，循序渐进。", fortune: "小吉" },
+            "坤乾": { name: "地天泰", desc: "泰：小往大来，吉，亨。象征通泰，天地交通，阴阳协调。", fortune: "大吉" },
+            "乾坤": { name: "天地否", desc: "否：否之匪人，不利君子贞，大往小来。象征闭塞不通，万物不交。", fortune: "大凶" },
+            "乾离": { name: "天火同人", desc: "同人：同人于野，亨。利涉大川，利君子贞。象征人际和谐，志同道合。", fortune: "小吉" },
+            "离乾": { name: "火天大有", desc: "大有：元，亨。象征丰盛，大有收获。", fortune: "大吉" },
+            "坤艮": { name: "地山谦", desc: "谦：亨，君子有终。象征谦虚谨慎，自我反省。", fortune: "大吉" },
+            "震坤": { name: "雷地豫", desc: "豫：利建侯，行师。象征喜悦，顺利愉快。", fortune: "小吉" },
+            "兑震": { name: "泽雷随", desc: "随：元，亨，利，贞，无咎。象征顺从，随时变通。", fortune: "小吉" },
+            "艮巽": { name: "山风蛊", desc: "蛊：元，亨，利涉大川。先甲三日，后甲三日。象征整治弊端，革故鼎新。", fortune: "小凶" },
+            "坤兑": { name: "地泽临", desc: "临：元，亨，利，贞。至于八月有凶。象征临近，监督管理。", fortune: "小吉" },
+            "巽坤": { name: "风地观", desc: "观：盥而不荐，有孚颙若。象征观察，审视形势。", fortune: "中平" },
+            "离震": { name: "火雷噬嗑", desc: "噬嗑：亨。利用狱。象征法纪严明，惩恶扬善。", fortune: "小吉" },
+            "艮离": { name: "山火贲", desc: "贲：亨。小利有攸往。象征文饰美化，适度装饰。", fortune: "小吉" },
+            "艮坤": { name: "山地剥", desc: "剥：不利有攸往。象征剥落衰败，渐次消亡。", fortune: "大凶" },
+            "坤震": { name: "地雷复", desc: "复：亨。出入无疾，朋来无咎。反复其道，七日来复，利有攸往。象征回归复始，转危为安。", fortune: "小吉" },
+            "乾震": { name: "天雷无妄", desc: "无妄：元，亨，利，贞。其匪正有眚，不利有攸往。象征自然无伪，真实无妄。", fortune: "小吉" },
+            "艮乾": { name: "山天大畜", desc: "大畜：利贞，不家食吉，利涉大川。象征蓄养大德，厚积薄发。", fortune: "小吉" },
+            "艮震": { name: "山雷颐", desc: "颐：贞吉。观颐，自求口实。象征养身养性，修养德行。", fortune: "小吉" },
+            "兑巽": { name: "泽风大过", desc: "大过：栋撓，利有攸往，亨。象征超越常规，果断行动。", fortune: "小凶" },
+            "坎坎": { name: "坎为水", desc: "坎：习坎，有孚，维心亨，行有尚。象征险难重重，处险不惊。", fortune: "小凶" },
+            "离离": { name: "离为火", desc: "离：利贞，亨。畜牝牛，吉。象征光明显著，附丽外物。", fortune: "小吉" },
+            "兑艮": { name: "泽山咸", desc: "咸：亨，利贞，取女吉。象征感应相随，心意相通。", fortune: "小吉" },
+            "震巽": { name: "雷风恒", desc: "恒：亨，无咎，利贞，利有攸往。象征长久稳定，恒心持久。", fortune: "小吉" },
+            "乾艮": { name: "天山遁", desc: "遁：亨，小利贞。象征退避回避，明哲保身。", fortune: "小吉" },
+            "震乾": { name: "雷天大壮", desc: "大壮：利贞。象征刚强壮大，积极进取。", fortune: "小吉" },
+            "离坤": { name: "火地晋", desc: "晋：康侯用锡马蕃庶，昼日三接。象征晋升进步，稳步上升。", fortune: "小吉" },
+            "坤离": { name: "地火明夷", desc: "明夷：利艰贞。象征外暗内明，韬光养晦。", fortune: "大凶" },
+            "巽离": { name: "风火家人", desc: "家人：利女贞。象征齐家治国，安家乐业。", fortune: "小吉" },
+            "离兑": { name: "火泽睽", desc: "睽：小事吉。象征背离乖违，求同存异。", fortune: "小凶" },
+            "坎艮": { name: "水山蹇", desc: "蹇：利西南，不利东北；利见大人，贞吉。象征艰难险阻，进退维谷。", fortune: "小凶" },
+            "震坎": { name: "雷水解", desc: "解：利西南，无所往，其来复吉。有攸往，夙吉。象征解除困难，柳暗花明。", fortune: "小吉" },
+            "艮兑": { name: "山泽损", desc: "损：有孚，元吉，无咎，可贞，利有攸往。曷之用，二簋可用享。象征损上益下，有舍有得。", fortune: "小吉" },
+            "巽震": { name: "风雷益", desc: "益：利有攸往，利涉大川。象征增益进益，有所裨益。", fortune: "小吉" },
+            "兑乾": { name: "泽天夬", desc: "夬：扬于王庭，孚号，有厉，告自邑，不利即戎，利有攸往。象征决断果断，坚决果敢。", fortune: "小吉" },
+            "乾巽": { name: "天风姤", desc: "姤：女壮，勿用取女。象征邂逅相遇，阴长阳消。", fortune: "小凶" },
+            "兑坤": { name: "泽地萃", desc: "萃：亨。王假有庙，利见大人，亨，利贞。用大牲吉，利有攸往。象征汇聚集合，群策群力。", fortune: "小吉" },
+            "坤巽": { name: "地风升", desc: "升：元亨，用见大人，勿恤，南征吉。象征上升发展，蒸蒸日上。", fortune: "小吉" },
+            "兑坎": { name: "泽水困", desc: "困：亨，贞，大人吉，无咎，有言不信。象征困境窘迫，处困不惊。", fortune: "小凶" },
+            "坎巽": { name: "水风井", desc: "井：改邑不改井，无丧无得，往来井井。汔至，亦未繘井，羸其瓶，凶。象征源源不断，取之不竭。", fortune: "中平" },
+            "兑离": { name: "泽火革", desc: "革：己日乃孚。元亨利贞，悔亡。象征革故鼎新，改革创新。", fortune: "小吉" },
+            "离巽": { name: "火风鼎", desc: "鼎：元吉，亨。象征稳重中正，饮食之道。", fortune: "大吉" },
+            "震震": { name: "震为雷", desc: "震：亨。震来虩虩，笑言哑哑。震惊百里，不丧匕鬯。象征震动惊惧，敬畏警惕。", fortune: "小凶" },
+            "艮艮": { name: "艮为山", desc: "艮：艮其背，不获其身，行其庭，不见其人，无咎。象征止而不行，稳重谨慎。", fortune: "中平" },
+            "巽艮": { name: "风山渐", desc: "渐：女归吉，利贞。象征循序渐进，按部就班。", fortune: "小吉" },
+            "震兑": { name: "雷泽归妹", desc: "归妹：征凶，无攸利。象征少女出嫁，有序有度。", fortune: "小凶" },
+            "震离": { name: "雷火丰", desc: "丰：亨，王假之，勿忧，宜日中。象征丰盛盛大，兴盛鼎盛。", fortune: "大吉" },
+            "离艮": { name: "火山旅", desc: "旅：小亨，旅贞吉。象征行旅在外，谨慎小心。", fortune: "小凶" },
+            "巽坎": { name: "风水涣", desc: "涣：亨。王假有庙，利涉大川，利贞。象征分散解困，疏导开解。", fortune: "小吉" },
+            "坎兑": { name: "水泽节", desc: "节：亨。苦节不可贞。象征节制适度，有节有度。", fortune: "小吉" },
+            "巽兑": { name: "风泽中孚", desc: "中孚：豚鱼吉，利涉大川，利贞。象征诚信不欺，忠诚守信。", fortune: "小吉" },
+            "震艮": { name: "雷山小过", desc: "小过：亨，利贞，可小事，不可大事。飞鸟遗之音，不宜上，宜下，大吉。象征小有越过，过犹不及。", fortune: "小吉" },
+            "坎离": { name: "水火既济", desc: "既济：亨，小利贞，初吉终乱。象征功成事遂，圆满成功。", fortune: "大吉" },
+            "离坎": { name: "火水未济", desc: "未济：亨，小狐汔济，濡其尾，无攸利。象征未能完成，尚待努力。", fortune: "小凶" },
+            "兑兑": { name: "兑为泽", desc: "兑：亨，利贞。象征喜悦欢快，愉悦之情。", fortune: "小吉" },
+            "巽巽": { name: "巽为风", desc: "巽：小亨，利有攸往，利见大人。象征顺从谦逊，柔和顺利。", fortune: "小吉" }
+        };
 
         // 获取DOM元素
         const drawBtn = document.getElementById('drawBtn');
@@ -417,15 +417,25 @@
             return trigramElements[trigramName] || "";
         }
 
-        // 根据上下卦确定六十四卦的索引
-        function getHexagramIndex(upperTrigram, lowerTrigram) {
-            // 遍历所有卦找到匹配的
-            for (let i = 0; i < hexagramData.length; i++) {
-                if (hexagramData[i].upper === upperTrigram && hexagramData[i].lower === lowerTrigram) {
-                    return i;
+        // 通过卦爻获取上下卦名称
+        function getTrigramName(lines, isUpper) {
+            const start = isUpper ? 3 : 0;
+            const pattern = [
+                lines[start] ? 1 : 0,
+                lines[start + 1] ? 1 : 0,
+                lines[start + 2] ? 1 : 0
+            ].join('');
+
+            // 通过卦爻模式查找对应的八卦名
+            let trigramName = null;
+            for (const [name, trigramPattern] of Object.entries(trigramPatterns)) {
+                if (trigramPattern.join('') === pattern) {
+                    trigramName = name;
+                    break;
                 }
             }
-            return 0; // 默认返回乾卦
+
+            return trigramName;
         }
 
         // 生成随机卦象
@@ -433,38 +443,40 @@
             // 清空之前的内容
             hexagramDiv.innerHTML = '';
 
-            // 随机选择一个卦象
-            const randomIndex = Math.floor(Math.random() * 64);
-            const hexagram = hexagramMap[randomIndex];
+            // 随机生成六爻
+            let lines = [];
+            for (let i = 0; i < 6; i++) {
+                const isYang = Math.random() < 0.5;
+                lines.push(isYang);
+            }
 
-            // 根据上下卦获取卦爻
-            const upperCode = trigramCodes[hexagram.upper];
-            const lowerCode = trigramCodes[hexagram.lower];
+            // 确定上下卦
+            const lowerTrigramName = getTrigramName(lines, false);
+            const upperTrigramName = getTrigramName(lines, true);
 
-            // 组合为六爻，从下到上
-            let lines = [...lowerCode, ...upperCode];
-            // 将阴爻(0)转换为false，阳爻(1)转换为true
-            lines = lines.map(line => line === 1);
+            // 根据上下卦查找卦象信息
+            const hexagramKey = upperTrigramName + lowerTrigramName;
+            const hexagram = hexagramData[hexagramKey];
 
             // 如果要显示信息，则显示卦名、吉凶和五行信息
             if (showInfo) {
                 resultDiv.textContent = hexagram.name;
                 hexagramInfoDiv.textContent = hexagram.desc;
-                indexDebugDiv.textContent = `卦序: ${hexagram.index} (索引: ${randomIndex})`;
+                indexDebugDiv.textContent = `${upperTrigramName}${lowerTrigramName}`;
 
                 // 显示吉凶
                 fortuneDiv.textContent = hexagram.fortune;
                 fortuneDiv.className = 'fortune ' + getFortuneClass(hexagram.fortune);
 
                 // 获取上下卦五行
-                const upperElement = getTrigramElement(hexagram.upper);
-                const lowerElement = getTrigramElement(hexagram.lower);
+                const upperElement = getTrigramElement(upperTrigramName);
+                const lowerElement = getTrigramElement(lowerTrigramName);
 
                 // 显示上下卦五行
-                upperElementDiv.textContent = hexagram.upper + "（" + upperElement + "）";
+                upperElementDiv.textContent = upperTrigramName + "（" + upperElement + "）";
                 upperElementDiv.className = 'element ' + getElementClass(upperElement);
 
-                lowerElementDiv.textContent = hexagram.lower + "（" + lowerElement + "）";
+                lowerElementDiv.textContent = lowerTrigramName + "（" + lowerElement + "）";
                 lowerElementDiv.className = 'element ' + getElementClass(lowerElement);
 
                 // 显示所有信息
@@ -483,8 +495,8 @@
             }
 
             // 获取上下卦五行
-            const upperElement = getTrigramElement(hexagram.upper);
-            const lowerElement = getTrigramElement(hexagram.lower);
+            const upperElement = getTrigramElement(upperTrigramName);
+            const lowerElement = getTrigramElement(lowerTrigramName);
 
             // 创建卦象图形并应用五行颜色
             for (let i = 5; i >= 0; i--) {
