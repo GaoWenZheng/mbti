@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多巴胺敏感度测试</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            max-width: 100vw;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1rem;
+            color: #666;
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background-color: #4CAF50;
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .question {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: auto;
+        }
+
+        .option {
+            padding: 15px;
+            background-color: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .option:hover {
+            background-color: #e8f5e9;
+            transform: translateY(-2px);
+        }
+
+        .option.selected {
+            background-color: #a5d6a7;
+            border-color: #4CAF50;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background-color: #388e3c;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            background-color: #a5a5a5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-back {
+            background-color: #f1f1f1;
+            color: #333;
+        }
+
+        .btn-back:hover {
+            background-color: #e0e0e0;
+        }
+
+        .results {
+            display: none;
+        }
+
+        .result-section {
+            margin-bottom: 25px;
+        }
+
+        .result-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #2e7d32;
+        }
+
+        .result-score {
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+            margin: 20px 0;
+            color: #1b5e20;
+        }
+
+        .result-description {
+            margin-bottom: 15px;
+            line-height: 1.8;
+        }
+
+        .result-chart {
+            width: 100%;
+            height: 200px;
+            margin: 20px 0;
+        }
+
+        .dimension {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+        }
+
+        .dimension-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #2e7d32;
+        }
+
+        .dimension-bar-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            height: 20px;
+            margin-bottom: 10px;
+        }
+
+        .dimension-bar {
+            height: 100%;
+            background-color: #4CAF50;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .start-screen {
+            text-align: center;
+        }
+
+        .intro-text {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .btn-start {
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            margin-top: 20px;
+        }
+
+        .fade {
+            animation: fadeEffect 0.5s;
+        }
+
+        @keyframes fadeEffect {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .card {
+                padding: 20px 15px;
+            }
+
+            .question {
+                font-size: 1.1rem;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>多巴胺敏感度测试</h1>
+            <p id="progress-text">测试您对生活中奖励的敏感程度</p>
+            <div class="progress-container">
+                <div class="progress-bar" id="progress"></div>
+            </div>
+        </div>
+
+        <div id="start-screen" class="card start-screen">
+            <h2 class="result-title">关于多巴胺敏感度测试</h2>
+            <div class="intro-text">
+                <p>多巴胺是大脑中的一种神经递质，负责奖励、动机和愉悦感。每个人对多巴胺的敏感度不同，这会影响我们如何体验和追求奖励，以及我们的动机模式。</p>
+                <br>
+                <p>这个测试包含30个问题，旨在评估您在不同生活领域中的多巴胺敏感度，包括：</p>
+                <ul style="list-style-type: disc; margin-left: 20px; margin-top: 10px;">
+                    <li>社交互动敏感度</li>
+                    <li>新奇体验敏感度</li>
+                    <li>成就动机敏感度</li>
+                    <li>感官愉悦敏感度</li>
+                    <li>风险奖励敏感度</li>
+                </ul>
+                <br>
+                <p>测试完成后，您将收到详细的分析结果，帮助您了解自己的多巴胺敏感度特征及其对日常生活的影响。</p>
+                <br>
+                <p><strong>注意：</strong>此测试仅供参考，不构成医学诊断。请根据自己的真实感受回答问题，以获得最准确的结果。</p>
+            </div>
+            <button class="btn btn-start" id="start-test">开始测试</button>
+        </div>
+
+        <div id="question-card" class="card" style="display: none;">
+            <div class="question" id="question-text"></div>
+            <div class="options" id="options-container"></div>
+            <div class="navigation">
+                <button class="btn btn-back" id="btn-back" disabled>上一题</button>
+            </div>
+        </div>
+
+        <div id="results" class="card results">
+            <div class="result-section">
+                <h2 class="result-title">您的多巴胺敏感度评估结果</h2>
+                <div class="result-score" id="total-score"></div>
+                <p class="result-description" id="general-description"></p>
+            </div>
+
+            <div class="result-section">
+                <h2 class="result-title">维度分析</h2>
+                <div id="dimensions-container"></div>
+            </div>
+
+            <div class="result-section">
+                <h2 class="result-title">详细解读</h2>
+                <div id="detailed-analysis"></div>
+            </div>
+
+            <div class="result-section">
+                <h2 class="result-title">建议与应用</h2>
+                <div id="recommendations"></div>
+            </div>
+
+            <button class="btn" id="restart-test">重新测试</button>
+        </div>
+    </div>
+
+    <script>
+        // 测试题目数据
+        const questions = [
+            {
+                question: "当您完成一个挑战性任务时，您的满足感有多强烈？",
+                options: ["几乎没有满足感", "轻微的满足感", "适度的满足感", "强烈的满足感", "极度强烈的满足感"],
+                category: "achievement"
+            },
+            {
+                question: "您多久会寻求一次全新的体验？",
+                options: ["几乎从不", "很少（一年几次）", "偶尔（每几个月一次）", "经常（每月几次）", "持续寻求（每周多次）"],
+                category: "novelty"
+            },
+            {
+                question: "与朋友或家人进行愉快交流后，这种积极情绪通常会持续多久？",
+                options: ["几乎不会有特别感觉", "短暂（几分钟）", "适中（几小时）", "较长（一整天）", "很长（数天）"],
+                category: "social"
+            },
+            {
+                question: "您对美食的享受程度如何？",
+                options: ["很少注意食物味道", "有时会注意到特别美味的食物", "经常享受美食", "对美食有强烈的享受感", "美食是我生活中的一大乐趣"],
+                category: "sensory"
+            },
+            {
+                question: "当冒险获得成功后，您感到的兴奋程度如何？",
+                options: ["几乎没有兴奋感", "轻微兴奋", "适度兴奋", "非常兴奋", "极度兴奋"],
+                category: "risk"
+            },
+            {
+                question: "在社交聚会上，您与他人互动的能量水平通常是？",
+                options: ["很低（容易感到疲惫）", "偏低（需要适时休息）", "中等", "偏高（能量充沛）", "很高（互动越多越有活力）"],
+                category: "social"
+            },
+            {
+                question: "面对新的学习机会，您通常的反应是？",
+                options: ["尽量避免", "有些抵触但会接受", "中性态度", "有些兴趣", "非常热切"],
+                category: "novelty"
+            },
+            {
+                question: "获得表扬或认可时，您的情绪反应有多强烈？",
+                options: ["几乎没有反应", "轻微愉悦", "适度愉悦", "明显愉悦", "极度愉悦"],
+                category: "achievement"
+            },
+            {
+                question: "聆听自己喜爱的音乐时，您体验到的愉悦感有多强？",
+                options: ["几乎没有特别感觉", "轻微愉悦", "适度愉悦", "强烈愉悦", "沉浸式的强烈愉悦"],
+                category: "sensory"
+            },
+            {
+                question: "您愿意为可能的高回报承担风险的程度是？",
+                options: ["极度规避风险", "通常避免风险", "视情况而定", "经常愿意冒险", "总是寻求冒险机会"],
+                category: "risk"
+            },
+            {
+                question: "社交媒体上收到点赞或积极评论时，您的满足感如何？",
+                options: ["几乎没感觉", "轻微满足", "适度满足", "明显满足", "非常满足"],
+                category: "social"
+            },
+            {
+                question: "您多久会想尝试一种新的食物或菜肴？",
+                options: ["几乎从不", "很少（坚持熟悉的选择）", "偶尔", "经常", "总是寻找新口味"],
+                category: "novelty"
+            },
+            {
+                question: "完成一个复杂项目后，您会庆祝成就的程度如何？",
+                options: ["不会特意庆祝", "简单认可一下", "适度庆祝", "明显庆祝", "大肆庆祝"],
+                category: "achievement"
+            },
+            {
+                question: "观赏美丽风景时，您感受到的愉悦程度如何？",
+                options: ["几乎没有特别感觉", "轻微愉悦", "适度愉悦", "强烈愉悦", "身心完全陶醉"],
+                category: "sensory"
+            },
+            {
+                question: "您会购买彩票或参与其他小概率高回报活动的频率是？",
+                options: ["从不", "极少（一年几次）", "偶尔（每月一两次）", "经常（每周）", "非常频繁（每周多次）"],
+                category: "risk"
+            },
+            {
+                question: "在团队成功完成任务后，您感到的集体成就感有多强？",
+                options: ["几乎没有", "轻微", "适度", "强烈", "极度强烈"],
+                category: "social"
+            },
+            {
+                question: "对于尝试新的娱乐活动或爱好，您的态度是？",
+                options: ["强烈抵触", "有些抵触", "中性态度", "有些兴趣", "非常热切"],
+                category: "novelty"
+            },
+            {
+                question: "当您在工作或学习中取得进步时，您的满足感如何？",
+                options: ["几乎感觉不到", "轻微满足", "适度满足", "明显满足", "极度满足"],
+                category: "achievement"
+            },
+            {
+                question: "您对触觉刺激（如按摩、拥抱等）的享受程度如何？",
+                options: ["不享受，甚至回避", "很少享受", "适度享受", "非常享受", "极度享受"],
+                category: "sensory"
+            },
+            {
+                question: "在做决定时，潜在的高回报对您的吸引力有多大？",
+                options: ["几乎不会影响决定", "轻微影响", "中等影响", "强烈影响", "决定性影响"],
+                category: "risk"
+            },
+            {
+                question: "被人记住生日或特殊场合时，您感到的喜悦程度如何？",
+                options: ["几乎没有感觉", "轻微喜悦", "适度喜悦", "明显喜悦", "极度喜悦"],
+                category: "social"
+            },
+            {
+                question: "面对可能改变日常生活的机会，您的态度是？",
+                options: ["强烈抵抗变化", "倾向于避免变化", "中性态度", "适度欢迎变化", "积极寻求变化"],
+                category: "novelty"
+            },
+            {
+                question: "当您设定并达成个人目标时，您的满足感如何？",
+                options: ["几乎没有", "轻微", "适度", "强烈", "极度强烈"],
+                category: "achievement"
+            },
+            {
+                question: "品尝美食时，您能分辨出的味道细节水平如何？",
+                options: ["几乎不关注味道", "注意到基本味道", "能识别多种味道", "能分辨细微味道差异", "有非常精细的味觉分辨能力"],
+                category: "sensory"
+            },
+            {
+                question: "您愿意尝试极限运动或刺激活动的程度如何？",
+                options: ["绝对不会", "非常不愿意", "视情况而定", "比较愿意", "非常渴望"],
+                category: "risk"
+            },
+            {
+                question: "在社交场合收到意外的正面注意时，您的反应如何？",
+                options: ["感到不适", "略有不适但能接受", "中性反应", "感到愉悦", "感到非常愉悦"],
+                category: "social"
+            },
+            {
+                question: "您对前往从未去过的地方旅行的兴趣程度如何？",
+                options: ["完全没有兴趣", "有限的兴趣", "适度兴趣", "强烈兴趣", "极度渴望"],
+                category: "novelty"
+            },
+            {
+                question: "当您克服困难完成任务时，您感到的成就感强度如何？",
+                options: ["几乎没有", "轻微", "适度", "强烈", "极度强烈"],
+                category: "achievement"
+            },
+            {
+                question: "您享受艺术作品（如音乐、绘画、电影等）的程度如何？",
+                options: ["几乎不感兴趣", "偶尔会欣赏", "适度享受", "经常深度欣赏", "沉浸式体验并有强烈情感反应"],
+                category: "sensory"
+            },
+            {
+                question: "您愿意投资于高风险高回报项目的程度如何？",
+                options: ["绝不考虑", "极少考虑", "谨慎考虑", "经常考虑", "积极寻求"],
+                category: "risk"
+            }
+        ];
+
+        // 结果解释数据
+        const resultDescriptions = {
+            low: "您的多巴胺敏感度相对较低。这意味着您可能不那么容易被外部奖励所激励，需要更强烈的刺激才能体验到满足感。低多巴胺敏感度的人通常更加冷静、稳定，不易冲动，但也可能在寻找生活中的动力和热情时面临挑战。",
+
+            moderate: "您的多巴胺敏感度处于中等水平。这表示您能够适度地体验到奖励带来的愉悦感，既不会过度依赖外部刺激，也不会对正常的奖励没有感觉。这种平衡的敏感度通常有助于维持健康的动机水平和生活满足感。",
+
+            high: "您的多巴胺敏感度相对较高。这意味着您对各种奖励和积极体验有着强烈的反应，容易感到兴奋和满足。高多巴胺敏感度的人通常充满活力和热情，善于找到生活中的乐趣，但也可能更容易冲动或过度追求刺激。"
+        };
+
+        const categoryDescriptions = {
+            social: {
+                low: "您在社交互动中体验到的奖励感相对较弱。这可能表现为对社交活动兴趣有限，不太在意社交认可，或在社交场合能量消耗较快。",
+                moderate: "您对社交互动有着健康平衡的敏感度。能够从有意义的社交互动中获得满足感，同时不过度依赖社交认可来获取愉悦感。",
+                high: "您对社交互动有着高度敏感性。社交活动和人际连接可能是您获得愉悦感的主要来源，您从社交认可中获得强烈的满足感。"
+            },
+            novelty: {
+                low: "您对新鲜事物和体验的敏感度较低。倾向于喜欢熟悉和可预测的环境，可能不太寻求变化或新奇体验。",
+                moderate: "您对新奇体验有着平衡的敏感度。既能欣赏新鲜事物带来的刺激，也不会过度追求新奇而忽视稳定性的价值。",
+                high: "您对新鲜事物和体验有着高度敏感性。经常寻求新的体验、知识和挑战，可能容易对重复和常规感到厌倦。"
+            },
+            achievement: {
+                low: "您对成就和进步的敏感度较低。可能不太被目标达成或表扬所激励，对个人成就的满足感相对较弱。",
+                moderate: "您对成就有着健康的敏感度。能够从达成目标中获得满足感，同时不过度依赖成就来验证自我价值。",
+                high: "您对成就和进步有着高度敏感性。强烈地被目标和成功所激励，从完成任务和获得认可中获得显著的愉悦感。"
+            },
+            sensory: {
+                low: "您对感官刺激的敏感度较低。可能不太注意或不太强烈地体验到美食、音乐、视觉美感等感官愉悦。",
+                moderate: "您对感官体验有着平衡的敏感度。能够欣赏并享受各种感官愉悦，同时不会过度追求感官刺激。",
+                high: "您对感官刺激有着高度敏感性。对美食、音乐、艺术等体验有强烈的情感反应，感官体验是您重要的愉悦来源。"
+            },
+            risk: {
+                low: "您对风险-奖励的敏感度较低。倾向于选择安全稳定的路径，不太被潜在的高回报所吸引。",
+                moderate: "您对风险-奖励有着平衡的敏感度。能够根据情况评估风险与回报，既不过度规避风险，也不盲目冒险。",
+                high: "您对风险-奖励有着高度敏感性。容易被高回报的可能性所吸引，相对更愿意承担风险以获得更大的奖励。"
+            }
+        };
+
+        const recommendations = {
+            social: {
+                low: "尝试安排小规模、低强度的社交活动，如一对一聊天或小组聚会，以减轻社交压力。确保给自己足够的独处时间来恢复能量。认识到社交需求的个体差异是正常的，不必强迫自己融入高强度的社交环境。",
+                moderate: "继续保持现有的社交平衡，同时尝试拓展社交圈，探索不同类型的社交活动。留意自己的社交能量水平，学会在需要时适当休息和恢复。",
+                high: "利用您的社交优势参与团队活动和领导角色。同时，培养独处的能力和内在满足感的来源，减少对外部社交认可的依赖。学会识别什么样的社交互动对您最有价值，避免仅为社交而社交。"
+            },
+            novelty: {
+                low: "逐步引入小型的新体验，如尝试新食物或探索新的休闲活动，以安全的方式拓展舒适区。建立规律的“新体验日”，但保持整体生活的稳定性和可预测性。",
+                moderate: "保持对新体验的健康好奇心，同时珍视熟悉事物带来的舒适感。定期评估哪些新体验真正丰富了您的生活，哪些只是表面的刺激。",
+                high: "创建一个平衡计划，在探索新事物的同时也深化现有的兴趣和技能。培养专注的能力，学会在单一活动中发现持续的价值和深度。考虑将新奇寻求融入职业或创造性追求中。"
+            },
+            achievement: {
+                low: "设定小而明确的目标，创造更频繁的成功体验。探索不同类型的成就，找出哪些领域能给您带来更多满足感。尝试与他人分享目标，增加社交因素可能会提高动力。",
+                moderate: "继续设定适当挑战性的目标，同时确保目标与个人价值观一致。培养过程导向的思维方式，不仅重视结果，也珍视成长和学习的过程。",
+                high: "确保您的成就追求是出于内在动机而非外部验证。学习接受和欣赏不完美，避免将自我价值过度绑定在成就上。培养平衡的生活方式，确保成就追求不会牺牲健康和关系。"
+            },
+            sensory: {
+                low: "有意识地培养感官觉察能力，如专注品尝食物、欣赏音乐的细节或注意自然美景。尝试感官训练练习，如正念饮食或焦点听音乐，增强感官体验。",
+                moderate: "继续探索各种感官体验，留意哪些特定感官体验对您最有吸引力。将感官愉悦融入日常生活，如烹饪美食或创造舒适的家居环境。",
+                high: "利用您的感官敏感性从事艺术、烹饪或设计等创造性活动。学习适度调节强烈的感官输入，避免过度刺激或感官追求。培养对微妙感官体验的欣赏能力，不仅追求强烈刺激。"
+            },
+            risk: {
+                low: "尝试在低风险环境中小幅度拓展舒适区，如尝试新的学习方法或轻度冒险活动。识别过度规避风险可能错失的机会，并制定分步骤的风险承担计划。",
+                moderate: "继续保持风险评估的平衡能力，同时探索更多计算好的风险机会。定期评估您的风险承担模式，确保它们与长期目标一致。",
+                high: "在做决定前，建立严格的风险评估流程，包括咨询他人意见和考虑长期后果。培养延迟满足的能力，不要仅因即时回报而忽视潜在风险。将风险追求引导至积极健康的渠道，如创业或创新项目。"
+            }
+        };
+
+        // 应用变量
+        let currentQuestion = 0;
+        let answers = [];
+        let categoryScores = {
+            social: 0,
+            novelty: 0,
+            achievement: 0,
+            sensory: 0,
+            risk: 0
+        };
+
+        // DOM元素
+        const startScreen = document.getElementById('start-screen');
+        const questionCard = document.getElementById('question-card');
+        const resultsScreen = document.getElementById('results');
+        const progressBar = document.getElementById('progress');
+        const progressText = document.getElementById('progress-text');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const btnBack = document.getElementById('btn-back');
+        const btnStart = document.getElementById('start-test');
+        const btnRestart = document.getElementById('restart-test');
+
+        // 初始化
+        btnStart.addEventListener('click', startTest);
+        btnBack.addEventListener('click', previousQuestion);
+        btnRestart.addEventListener('click', restartTest);
+
+        function startTest() {
+            startScreen.style.display = 'none';
+            questionCard.style.display = 'flex';
+            currentQuestion = 0;
+            answers = Array(questions.length).fill(null);
+            updateQuestion();
+        }
+
+        function updateQuestion() {
+            questionCard.classList.add('fade');
+            questionText.textContent = `${currentQuestion + 1}. ${questions[currentQuestion].question}`;
+
+            // 清空选项
+            optionsContainer.innerHTML = '';
+
+            // 创建新选项
+            questions[currentQuestion].options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                optionElement.textContent = option;
+                if (answers[currentQuestion] === index) {
+                    optionElement.classList.add('selected');
+                }
+                optionElement.addEventListener('click', () => selectOption(index));
+                optionsContainer.appendChild(optionElement);
+            });
+
+            // 更新进度
+            progressBar.style.width = `${((currentQuestion + 1) / questions.length) * 100}%`;
+            progressText.textContent = `问题 ${currentQuestion + 1} / ${questions.length}`;
+
+            // 更新按钮状态
+            btnBack.disabled = currentQuestion === 0;
+
+            setTimeout(() => {
+                questionCard.classList.remove('fade');
+            }, 100);
+        }
+
+        function selectOption(index) {
+            answers[currentQuestion] = index;
+
+            // 更新选项样式
+            const options = document.querySelectorAll('.option');
+            options.forEach((option, i) => {
+                if (i === index) {
+                    option.classList.add('selected');
+                } else {
+                    option.classList.remove('selected');
+                }
+            });
+
+            // 添加短暂延迟后自动前进到下一题
+            setTimeout(() => {
+                if (currentQuestion < questions.length - 1) {
+                    currentQuestion++;
+                    updateQuestion();
+                } else {
+                    calculateResults();
+                }
+            }, 500); // 500毫秒的延迟，让用户看到选择效果
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                updateQuestion();
+            }
+        }
+
+        function calculateResults() {
+            // 重置类别得分
+            Object.keys(categoryScores).forEach(key => {
+                categoryScores[key] = 0;
+            });
+
+            // 计算得分
+            questions.forEach((question, index) => {
+                if (answers[index] !== null) {
+                    categoryScores[question.category] += answers[index] + 1;
+                }
+            });
+
+            // 计算各类别的平均分（转换为0-100的分数）
+            const categoryCount = {};
+            questions.forEach(question => {
+                categoryCount[question.category] = (categoryCount[question.category] || 0) + 1;
+            });
+
+            Object.keys(categoryScores).forEach(category => {
+                const maxScore = categoryCount[category] * 5; // 每题最高5分
+                categoryScores[category] = Math.round(categoryScores[category] / maxScore * 100);
+            });
+
+            // 计算总分
+            const totalScore = Math.round(
+                Object.values(categoryScores).reduce((sum, score) => sum + score, 0) /
+                Object.keys(categoryScores).length
+            );
+
+            // 显示结果
+            displayResults(totalScore);
+        }
+
+        function getCategoryLevel(score) {
+            if (score < 40) return "low";
+            if (score < 70) return "moderate";
+            return "high";
+        }
+
+        function displayResults(totalScore) {
+            questionCard.style.display = 'none';
+            resultsScreen.style.display = 'block';
+
+            // 设置总分
+            const totalScoreElement = document.getElementById('total-score');
+            totalScoreElement.textContent = `${totalScore}/100`;
+
+            // 设置总体描述
+            const generalDescription = document.getElementById('general-description');
+            let overallLevel = "moderate";
+            if (totalScore < 40) overallLevel = "low";
+            if (totalScore >= 70) overallLevel = "high";
+            generalDescription.textContent = resultDescriptions[overallLevel];
+
+            // 设置各维度分析
+            const dimensionsContainer = document.getElementById('dimensions-container');
+            dimensionsContainer.innerHTML = '';
+
+            Object.keys(categoryScores).forEach(category => {
+                const score = categoryScores[category];
+                const categoryLevel = getCategoryLevel(score);
+
+                const dimensionElement = document.createElement('div');
+                dimensionElement.className = 'dimension';
+
+                const categoryNames = {
+                    social: "社交互动敏感度",
+                    novelty: "新奇体验敏感度",
+                    achievement: "成就动机敏感度",
+                    sensory: "感官愉悦敏感度",
+                    risk: "风险奖励敏感度"
+                };
+
+                dimensionElement.innerHTML = `
+                    <div class="dimension-title">${categoryNames[category]}: ${score}/100</div>
+                    <div class="dimension-bar-container">
+                        <div class="dimension-bar" style="width: ${score}%">${score}%</div>
+                    </div>
+                    <p>${categoryDescriptions[category][categoryLevel]}</p>
+                `;
+
+                dimensionsContainer.appendChild(dimensionElement);
+            });
+
+            // 设置详细分析
+            const detailedAnalysis = document.getElementById('detailed-analysis');
+            detailedAnalysis.innerHTML = '';
+
+            const analysisText = document.createElement('p');
+            let analysisContent = "您的多巴胺敏感度特征表明：";
+
+            if (categoryScores.social >= 70) {
+                analysisContent += "您在社交互动中体验强烈的奖励感，社交连接对您的幸福感很重要；";
+            }
+
+            if (categoryScores.novelty >= 70) {
+                analysisContent += "您对新鲜体验有很高的追求，容易被新事物吸引，可能需要持续的变化来保持兴趣；";
+            }
+
+            if (categoryScores.achievement >= 70) {
+                analysisContent += "您对成就和目标达成有高度敏感性，从完成任务和获得认可中获得显著满足感；";
+            }
+
+            if (categoryScores.sensory >= 70) {
+                analysisContent += "您对感官刺激有强烈反应，深度享受美食、音乐、艺术等感官体验；";
+            }
+
+            if (categoryScores.risk >= 70) {
+                analysisContent += "您对风险-奖励特别敏感，愿意为潜在高回报承担风险；";
+            }
+
+            if (categoryScores.social < 40) {
+                analysisContent += "社交互动可能不是您主要的奖励来源，社交刺激可能会让您感到疲惫；";
+            }
+
+            if (categoryScores.novelty < 40) {
+                analysisContent += "您对熟悉和可预测的环境感到舒适，不太追求新奇刺激；";
+            }
+
+            if (categoryScores.achievement < 40) {
+                analysisContent += "外部成就和认可对您的激励作用较弱，可能更注重内在价值；";
+            }
+
+            if (categoryScores.sensory < 40) {
+                analysisContent += "您对感官刺激的反应相对平淡，不太注重感官愉悦体验；";
+            }
+
+            if (categoryScores.risk < 40) {
+                analysisContent += "您倾向于规避风险，更看重安全稳定性而非潜在高回报；";
+            }
+
+            // 增加平衡型描述
+            const moderateCategories = Object.keys(categoryScores).filter(
+                category => categoryScores[category] >= 40 && categoryScores[category] < 70
+            );
+
+            if (moderateCategories.length > 0) {
+                analysisContent += "您在";
+                moderateCategories.forEach((category, index) => {
+                    const categoryNames = {
+                        social: "社交互动",
+                        novelty: "新奇体验",
+                        achievement: "成就动机",
+                        sensory: "感官愉悦",
+                        risk: "风险奖励"
+                    };
+
+                    analysisContent += categoryNames[category];
+                    if (index < moderateCategories.length - 1) {
+                        analysisContent += "、";
+                    }
+                });
+                analysisContent += "方面表现出平衡的敏感度；";
+            }
+
+            // 多巴胺敏感度的整体影响
+            analysisContent += "\n\n这种多巴胺敏感度模式可能影响您的日常行为和决策方式。";
+
+            if (totalScore >= 70) {
+                analysisContent += "您可能经常寻求刺激和奖励，容易被新机会和挑战所吸引，有较强的动力和热情。但也需要注意避免冲动决策和对刺激的过度依赖。";
+            } else if (totalScore < 40) {
+                analysisContent += "您可能更倾向于稳定和内省，不易受外部刺激影响，决策通常更为谨慎。您可能需要更强的刺激才能体验到明显的奖励感，这有时可能导致动力不足。";
+            } else {
+                analysisContent += "您在追求奖励和保持稳定之间保持着较好的平衡，能够体验到适度的愉悦感，同时不过度依赖外部刺激。这种平衡有助于维持健康的生活满足感和决策能力。";
+            }
+
+            analysisText.innerHTML = analysisContent.replace(/；/g, "；<br>");
+            detailedAnalysis.appendChild(analysisText);
+
+            // 设置建议
+            const recommendationsElement = document.getElementById('recommendations');
+            recommendationsElement.innerHTML = '';
+
+            Object.keys(categoryScores).forEach(category => {
+                const score = categoryScores[category];
+                const categoryLevel = getCategoryLevel(score);
+
+                const categoryNames = {
+                    social: "社交互动敏感度",
+                    novelty: "新奇体验敏感度",
+                    achievement: "成就动机敏感度",
+                    sensory: "感官愉悦敏感度",
+                    risk: "风险奖励敏感度"
+                };
+
+                const recElement = document.createElement('div');
+                recElement.className = 'dimension';
+                recElement.innerHTML = `
+                    <div class="dimension-title">${categoryNames[category]}建议</div>
+                    <p>${recommendations[category][categoryLevel]}</p>
+                `;
+
+                recommendationsElement.appendChild(recElement);
+            });
+        }
+
+        function restartTest() {
+            resultsScreen.style.display = 'none';
+            startScreen.style.display = 'block';
+
+            // 重置数据
+            currentQuestion = 0;
+            answers = [];
+            Object.keys(categoryScores).forEach(key => {
+                categoryScores[key] = 0;
+            });
+        }
+    </script>
+</body>
+
+</html>
