@@ -1,189 +1,1511 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
     <meta charset="UTF-8">
-    <title>INTJ发展阶段动态测试</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INTJ人格特质评估</title>
     <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --bg-color: #f9f9f9;
+            --text-color: #333;
+            --card-color: #fff;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+        }
+        
         body {
-            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             line-height: 1.6;
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 0 20px;
-            background-color: #f0f3f5;
-        }
-
-        .section {
-            background: white;
-            border-radius: 10px;
             padding: 20px;
-            margin: 20px 0;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: 0 auto;
         }
-
-        h2 {
-            color: #2c3e50;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 5px;
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-
-        .question {
-            margin: 15px 0;
+        
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+        
+        .intro {
+            max-width: 600px;
+            margin: 0 auto 30px auto;
+            text-align: center;
+            background-color: var(--card-color);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        #start-container {
+            text-align: center;
+        }
+        
+        #test-container, #results-container {
+            display: none;
+            background-color: var(--card-color);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        #personal-info {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        label {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input, select {
             padding: 10px;
-            background-color: #f8f9fa;
+            border: 1px solid #ddd;
             border-radius: 5px;
+            font-size: 1rem;
         }
-
+        
+        .question-container {
+            margin-bottom: 20px;
+        }
+        
+        .question-text {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
         .options {
             display: flex;
-            gap: 15px;
-            margin-top: 8px;
+            flex-direction: column;
+            gap: 10px;
         }
-
-        label {
-            cursor: pointer;
+        
+        .option {
             display: flex;
             align-items: center;
-        }
-
-        input[type="radio"] {
-            margin-right: 5px;
-        }
-
-        button {
-            background: #3498db;
-            color: white;
-            border: none;
-            padding: 12px 25px;
+            padding: 10px;
+            background-color: #f0f0f0;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 16px;
-            transition: background 0.3s;
+            transition: background-color 0.2s ease;
         }
-
+        
+        .option:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .option.selected {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        .option input {
+            margin-right: 10px;
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: var(--secondary-color);
+            color: white;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s ease;
+        }
+        
         button:hover {
-            background: #2980b9;
+            background-color: #2980b9;
         }
-
-        #result {
-            display: none;
-            margin-top: 30px;
-            padding: 20px;
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
         }
-
-        .stage {
-            margin: 15px 0;
-            padding: 15px;
-            border-left: 4px solid #3498db;
-            background: #f8f9fa;
+        
+        #prev-btn {
+            background-color: #95a5a6;
         }
-
-        .highlight {
-            color: #e74c3c;
+        
+        #next-btn {
+            background-color: var(--secondary-color);
+        }
+        
+        #submit-btn {
+            background-color: var(--accent-color);
+        }
+        
+        .progress-container {
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: var(--secondary-color);
+            width: 0;
+            transition: width 0.4s ease;
+        }
+        
+        #results-container {
+            text-align: center;
+        }
+        
+        .result-section {
+            margin-bottom: 30px;
+            text-align: left;
+        }
+        
+        .result-title {
+            font-size: 1.3rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            text-align: center;
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 5px;
+        }
+        
+        .result-content {
+            line-height: 1.6;
+        }
+        
+        .dimension {
+            margin-bottom: 20px;
+        }
+        
+        .dimension-title {
             font-weight: bold;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .dimension-bar {
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .dimension-progress {
+            height: 100%;
+            background-color: var(--secondary-color);
+        }
+        
+        .dimension-description {
+            font-size: 0.9rem;
+            color: #555;
+        }
+        
+        .recommendations {
+            background-color: #f0f5ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        
+        .chart-container {
+            width: 100%;
+            height: 300px;
+            margin: 30px 0;
+        }
+        
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            
+            header {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            #test-container, #results-container {
+                padding: 15px;
+            }
+            
+            .question-text {
+                font-size: 1rem;
+            }
+            
+            button {
+                padding: 8px 15px;
+                font-size: 0.9rem;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>INTJ发展阶段测试</h1>
-    <div id="testContainer"></div>
-    <button type="button" onclick="calculateResult()">提交测试</button>
-    <div id="result"></div>
-
+    <header>
+        <h1>INTJ人格特质评估</h1>
+        <p>了解你的INTJ特质在各维度的表现</p>
+    </header>
+    
+    <div class="intro">
+        <p>这个测试旨在帮助INTJ人格类型的个体了解自己在认知风格、社交能力、学习方式、情绪管理等方面的特点和发展水平。</p>
+        <p>测试共包含45个问题，预计完成时间约15-20分钟。请根据你的真实情况作答。</p>
+    </div>
+    
+    <div id="start-container">
+        <div id="personal-info">
+            <div class="form-group">
+                <label for="age">年龄段</label>
+                <select id="age" required="">
+                    <option value="">请选择</option>
+                    <option value="18岁以下">18岁以下</option>
+                    <option value="18-24岁">18-24岁</option>
+                    <option value="25-34岁">25-34岁</option>
+                    <option value="35-44岁">35-44岁</option>
+                    <option value="45岁以上">45岁以上</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="education">教育/职业阶段</label>
+                <select id="education" required="">
+                    <option value="">请选择</option>
+                    <option value="学生">学生</option>
+                    <option value="初入职场">初入职场</option>
+                    <option value="职场中期">职场中期</option>
+                    <option value="高级管理/专业人士">高级管理/专业人士</option>
+                    <option value="其他">其他</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="gender">性别</label>
+                <select id="gender" required="">
+                    <option value="">请选择</option>
+                    <option value="男">男</option>
+                    <option value="女">女</option>
+                    <option value="其他">其他</option>
+                    <option value="不愿透露">不愿透露</option>
+                </select>
+            </div>
+        </div>
+        
+        <button id="start-btn">开始测试</button>
+    </div>
+    
+    <div id="test-container">
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        
+        <div id="question-container" class="question-container">
+            <!-- 问题将通过JavaScript动态生成 -->
+        </div>
+        
+        <div class="navigation">
+            <button id="prev-btn" disabled="">上一题</button>
+            <span id="question-counter">问题 1/45</span>
+            <button id="next-btn">下一题</button>
+            <button id="submit-btn" style="display: none;">提交答案</button>
+        </div>
+    </div>
+    
+    <div id="results-container">
+        <h2>测试结果分析</h2>
+        
+        <div class="result-section">
+            <h3 class="result-title">INTJ特质评估</h3>
+            <div id="stage-result" class="result-content">
+                <!-- 阶段分析将在这里显示 -->
+            </div>
+        </div>
+        
+        <div class="result-section">
+            <h3 class="result-title">能力维度分析</h3>
+            <div id="dimensions-result" class="result-content">
+                <!-- 各维度分析将在这里显示 -->
+            </div>
+        </div>
+        
+        <div class="chart-container" id="radar-chart">
+            <!-- 雷达图将在这里显示 -->
+        </div>
+        
+        <div class="result-section">
+            <h3 class="result-title">发展建议</h3>
+            <div id="recommendations" class="result-content">
+                <!-- 建议将在这里显示 -->
+            </div>
+        </div>
+        
+        <button id="restart-btn">重新测试</button>
+    </div>
+    
     <script>
-        // 题目数据结构
-        const questionBank = {
-            categories: [
-                {
-                    name: "认知模式",
-                    questions: [
-                        "我习惯用「系统推演」解决问题，常能预见事件长期发展的脉络",
-                        "学习新领域时，我会先构建理论框架再填充细节",
-                        "对他人的情感需求，我倾向于用逻辑分析代替共情回应",
-                        "当发现计划存在漏洞时，我会彻底重构方案而非局部修补",
-                        "面对突发状况，我的第一反应是寻找模式而非关注当下感受"
-                    ]
-                },
-                {
-                    name: "行为倾向",
-                    questions: [
-                        "我会为重要项目设计多套备选方案以防风险",
-                        "社交场合中常主动引导话题走向理性探讨",
-                        "无法容忍低效会议，会直接指出流程缺陷",
-                        "选择伴侣时更看重智力匹配而非情感共鸣",
-                        "完成目标后立即设定更高挑战，很少庆祝成就"
-                    ]
-                },
-                {
-                    name: "情感管理",
-                    questions: [
-                        "遭遇批评时优先分析其合理性而非情绪反应",
-                        "认为深度人际关系需要明确的「功能价值」",
-                        "偶尔意识到自己忽略他人感受，但认为这是必要代价",
-                        "压力大时会通过知识学习而非情感倾诉缓解",
-                        "能够策略性运用社交技巧达成目标，但觉得消耗能量"
-                    ]
-                },
-                {
-                    name: "自我成长",
-                    questions: [
-                        "近年有意识训练自己识别并回应他人情绪信号",
-                        "开始接纳「非最优解」在复杂系统中的存在价值",
-                        "主动培养感知当下环境的能力（如正念练习）",
-                        "反思年轻时过于尖锐的表达方式并尝试调整",
-                        "致力于将个人愿景与社会价值进行整合"
-                    ]
-                }
-            ]
+        // 问题池 - 围绕INTJ特质在不同维度的表现
+        const questionPool = [
+            // 认知发展维度
+            {
+                text: "当面对一个复杂的问题时，我通常：",
+                options: [
+                    "尝试将其分解为可管理的部分后再解决",
+                    "寻找现成的解决方案",
+                    "请教他人帮助解决",
+                    "避免过于复杂的问题"
+                ],
+                dimension: "cognitiveDevelopment",
+                weights: [3, 1, 0, 0]
+            },
+            {
+                text: "关于未来的规划，我倾向于：",
+                options: [
+                    "有清晰的长期目标和实现步骤",
+                    "有大致方向但保持灵活",
+                    "随遇而安，不做太多规划",
+                    "跟随他人的建议和期望"
+                ],
+                dimension: "cognitiveDevelopment",
+                weights: [3, 2, 0, 1]
+            },
+            {
+                text: "当学习新知识时，我更关注：",
+                options: [
+                    "理解底层原理和概念",
+                    "掌握实际应用方法",
+                    "记住关键信息点",
+                    "按照传统方式学习"
+                ],
+                dimension: "cognitiveDevelopment",
+                weights: [3, 2, 1, 0]
+            },
+            {
+                text: "我对信息的处理方式是：",
+                options: [
+                    "批判性分析后才接受",
+                    "查证多个来源后接受",
+                    "通常接受权威来源的信息",
+                    "很少主动质疑所接收的信息"
+                ],
+                dimension: "cognitiveDevelopment",
+                weights: [3, 2, 1, 0]
+            },
+            {
+                text: "我通常如何看待他人的观点：",
+                options: [
+                    "分析其逻辑是否自洽后再决定是否接受",
+                    "尊重但不一定采纳",
+                    "如果与自己相似则接受",
+                    "很难接受与自己不同的观点"
+                ],
+                dimension: "cognitiveDevelopment",
+                weights: [3, 2, 1, 0]
+            },
+            {
+                text: "面对新的科技或工具，我通常：",
+                options: [
+                    "尝试理解其工作原理后再使用",
+                    "直接尝试使用并在过程中学习",
+                    "只在必要时学习使用",
+                    "尽量避免使用新技术"
+                ],
+                dimension: "cognitiveDevelopment",
+                weights: [3, 2, 1, 0]
+            },
+            {
+                text: "在讨论中，我更看重：",
+                options: [
+                    "论点的逻辑性和可验证性",
+                    "有创新性的见解",
+                    "表达的清晰度",
+                    "说话者的权威性"
+                ],
+                dimension: "cognitiveDevelopment",
+                weights: [3, 2, 1, 0]
+            },
+            {
+                text: "当我的观点被质疑时，我通常会：",
+                options: [
+                    "重新审视自己的论点是否有漏洞",
+                    "尝试用更多证据支持自己的观点",
+                    "坚持自己的观点不变",
+                    "改变自己的观点以避免冲突"
+                ],
+                dimension: "cognitiveDevelopment",
+                weights: [3, 2, 0, 1]
+            },
+            {
+                text: "面对失败，我通常会：",
+                options: [
+                    "分析原因并制定改进策略",
+                    "接受失败并尝试其他方法",
+                    "感到沮丧但继续前进",
+                    "避免再次尝试类似的事情"
+                ],
+                dimension: "cognitiveDevelopment",
+                weights: [3, 2, 1, 0]
+            },
+            
+            // 社交能力维度
+            {
+                text: "在小组活动中，我通常：",
+                options: [
+                    "倾向于领导或提供整体方向",
+                    "专注于特定的任务部分",
+                    "配合其他组员完成任务",
+                    "尽量避免小组活动"
+                ],
+                dimension: "socialSkills",
+                weights: [3, 2, 1, 0]
+            },
+            {
+                text: "我与他人的互动方式主要是：",
+                options: [
+                    "有几个深入交流的密友",
+                    "保持广泛但不深入的社交圈",
+                    "主要在需要时进行社交",
+                    "尽量减少社交活动"
+                ],
+                dimension: "socialSkills",
+                weights: [3, 2, 1, 0]
+            },
+            {
+                text: "当遇到社交冲突时，我通常：",
+                options: [
+                    "分析情况并尝试找到解决方案",
+                    "直接表达自己的立场",
+                    "尝试妥协以维持关系",
+                    "避免冲突，选择退出"
+                ],
+                dimension: "socialSkills",
+                weights: [3, 2, 1, 0]
+            },
+            {
+                text: "关于社交媒体，我：",
+                options: [
+                    "有策略地使用，主要用于信息获取和特定交流",
+                    "定期使用，保持与朋友的联系",
+                    "频繁使用，分享生活和想法",
+                    "很少使用或不使用"
+                ],
+                dimension: "socialSkills",
+                weights: [3, 2, 1, 1]
+            },
+            {
+                text: "我对社交场合的感受通常是：",
+                options: [
+                    "如果有明确目的，我不介意参与",
+                    "享受熟悉的小型社交聚会",
+                    "喜欢各种社交活动",
+                    "尽量避免大多数社交场合"
+                ],
+                dimension: "socialSkills",
+                weights: [2, 3, 1, 0]
+            },
+            {
+                text: "与他人分享我的想法时，我倾向于：",
+                options: [
+                    "只与理解我的观点的人分享",
+                    "谨慎选择分享的内容和对象",
+                    "愿意广泛分享我的想法",
+                    "很少分享我的真实想法"
+                ],
+                dimension: "socialSkills",
+                weights: [2, 3, 1, 0]
+            },
+            {
+                text: "对于团队合作，我的态度是：",
+                options: [
+                    "如果能提高效率我会支持",
+                    "认为是必要的社交和学习经验",
+                    "喜欢团队合作胜过独自工作",
+                    "尽可能避免团队合作"
+                ],
+                dimension: "socialSkills",
+                weights: [3, 2, 1, 0]
+            },
+            {
+                text: "我对他人情绪的感知能力：",
+                options: [
+                    "能够分析并理解他人的情绪状态",
+                    "通常能察觉明显的情绪变化",
+                    "只有当他人直接表达时才能理解",
+                    "很难理解他人的情绪"
+                ],
+                dimension: "socialSkills",
+                weights: [3, 2, 1, 0]
+            },
+            {
+                text: "面对不同观点的讨论，我通常：",
+                options: [
+                    "愿意听取并分析不同立场",
+                    "保持开放态度但有自己的立场",
+                    "坚持自己的观点",
+                    "避免参与这类讨论"
+                ],
+                dimension: "socialSkills",
+                weights: [3, 2, 1, 0]
+            },
+            
+            // 学习风格维度
+            {
+                text: "我的学习方式倾向于：",
+                options: [
+                    "自主探索和自学",
+                    "结合指导学习和自学",
+                    "主要依靠系统化教学",
+                    "需要一对一指导"
+                ],
+                dimension: "learningStyle",
+                weights: [3, 2, 1, 0]
+            },
+            {
+                text: "学习新内容时，我喜欢：",
+                options: [
+                    "先了解整体框架再深入细节",
+                    "按照逻辑顺序逐步学习",
+                    "直接从实际例子入手",
+                    "按照常规或标准的顺序学习"
+                ],
+                dimension: "learningStyle",
+                weights: [3, 2, 1, 0]
+            },
+            {
+                text: "我对知识的掌握程度通常是：",
+                options: [
+                    "深入理解并能应用到新情境",
+                    "理解核心概念并能解决相关问题",
+                    "能够记住关键内容并通过考核",
+                    "需要反复复习才能记住"
+                ],
+                dimension: "learningStyle",
+                weights: [3, 2, 1, 0]
+            },
+            {
+                text: "我更喜欢的学习材料是：",
+                options: [
+                    "深入探讨原理的材料",
+                    "结构清晰的系统性材料",
+                    "实用性强的材料",
+                    "简单易懂的材料"
+                ],
+                dimension: "learningStyle",
+                weights: [3, 2, 1, 0]
+            },
+            {
+                text: "关于讨论和交流，我通常：",
+                options: [
+                    "积极参与有深度的讨论",
+                    "在有准备的情况下发言",
+                    "偶尔参与讨论",
+                    "很少主动参与讨论"
+                ],
+                dimension: "learningStyle",
+                weights: [3, 2, 1, 0]
+            },
+            {
+                text: "面对学习或工作困难，我通常：",
+                options: [
+                    "尝试不同方法直到解决问题",
+                    "寻找资源或请教他人",
+                    "集中精力在容易理解的部分",
+                    "容易放弃并转向其他内容"
+                ],
+                dimension: "learningStyle",
+                weights: [3, 2, 1, 0]
+            },
+            {
+                text: "对于重复性任务，我的态度是：",
+                options: [
+                    "理解原理后尽量自动化或优化流程",
+                    "做足够的练习以掌握技能",
+                    "按要求完成所有任务",
+                    "尽量避免重复性任务"
+                ],
+                dimension: "learningStyle",
+                weights: [3, 2, 1, 0]
+            },
+            {
+                text: "在计划方面，我通常：",
+                options: [
+                    "制定详细的计划并坚持执行",
+                    "有大致的安排",
+                    "根据截止日期临时安排任务",
+                    "很少提前计划"
+                ],
+                dimension: "learningStyle",
+                weights: [3, 2, 1, 0]
+            },
+            {
+                text: "关于动机，我主要是：",
+                options: [
+                    "对知识或领域本身的兴趣和求知欲",
+                    "实现个人目标的愿望",
+                    "获得良好表现或认可",
+                    "避免失败或批评"
+                ],
+                dimension: "learningStyle",
+                weights: [3, 2, 1, 0]
+            },
+            
+            // 情绪管理维度
+            {
+                text: "我表达情绪的方式通常是：",
+                options: [
+                    "理性分析后选择适当方式表达",
+                    "在信任的人面前表达",
+                    "直接表达当下感受",
+                    "很少表达情绪"
+                ],
+                dimension: "emotionalManagement",
+                weights: [3, 2, 1, 1]
+            },
+            {
+                text: "面对压力，我通常：",
+                options: [
+                    "分析压力来源并系统性解决",
+                    "调整心态并寻找解决方法",
+                    "寻求他人支持和帮助",
+                    "感到不知所措"
+                ],
+                dimension: "emotionalManagement",
+                weights: [3, 2, 1, 0]
+            },
+            {
+                text: "我对批评的反应通常是：",
+                options: [
+                    "客观评估批评的有效性",
+                    "接受有建设性的批评",
+                    "情绪上受影响但会调整",
+                    "强烈反感或回避批评"
+                ],
+                dimension: "emotionalManagement",
+                weights: [3, 2, 1, 0]
+            },
+            {
+                text: "我处理内心矛盾的方式是：",
+                options: [
+                    "深入思考直到找到解决方案",
+                    "寻找相关信息帮助决策",
+                    "与可信任的人讨论",
+                    "尽量避免想这些问题"
+                ],
+                dimension: "emotionalManagement",
+                weights: [3, 2, 1, 0]
+            },
+            {
+                text: "当感到沮丧时，我通常：",
+                options: [
+                    "分析原因并采取具体措施改善",
+                    "给自己时间调整后继续前进",
+                    "寻求他人的安慰和支持",
+                    "沉浸在负面情绪中难以自拔"
+                ],
+                dimension: "emotionalManagement",
+                weights: [3, 2, 1, 0]
+            },
+            {
+                text: "我对情绪的自我认知：",
+                options: [
+                    "能清楚辨识并理解自己的情绪",
+                    "通常能察觉自己的情绪状态",
+                    "只有强烈情绪时才明显感知",
+                    "很少关注自己的情绪"
+                ],
+                dimension: "emotionalManagement",
+                weights: [3, 2, 1, 0]
+            },
+            {
+                text: "面对意外变化，我的反应通常是：",
+                options: [
+                    "迅速调整计划适应新情况",
+                    "感到不适但能够适应",
+                    "需要时间接受变化",
+                    "强烈抵制变化"
+                ],
+                dimension: "emotionalManagement",
+                weights: [3, 2, 1, 0]
+            },
+            {
+                text: "我控制冲动的能力是：",
+                options: [
+                    "很强，几乎总能保持冷静思考",
+                    "通常能控制，偶尔会有冲动行为",
+                    "在压力下容易冲动",
+                    "经常无法控制情绪和冲动"
+                ],
+                dimension: "emotionalManagement",
+                weights: [3, 2, 1, 0]
+            },
+            {
+                text: "关于情绪影响决策的程度：",
+                options: [
+                    "能够将情绪与决策过程分开",
+                    "情绪偶尔影响决策",
+                    "情绪常常影响决策",
+                    "决策极大地受情绪影响"
+                ],
+                dimension: "emotionalManagement",
+                weights: [3, 2, 1, 0]
+            },
+            
+            // INTJ特质维度
+            {
+                text: "我对独立思考的重视程度：",
+                options: [
+                    "极其重视，总是形成自己的观点",
+                    "重视，但也会考虑主流观点",
+                    "有时形成独立观点，有时跟随他人",
+                    "很少形成独特的观点"
+                ],
+                dimension: "intjTraits",
+                weights: [3, 2, 1, 0]
+            },
+            {
+                text: "面对不明确的情况，我通常：",
+                options: [
+                    "主动寻求信息以建立清晰框架",
+                    "尝试在有限信息下做出最佳判断",
+                    "等待更多信息或指导",
+                    "感到不适并倾向于回避"
+                ],
+                dimension: "intjTraits",
+                weights: [3, 2, 1, 0]
+            },
+            {
+                text: "我对待规则的态度是：",
+                options: [
+                    "理解规则背后的逻辑后才决定是否遵守",
+                    "在大多数情况下遵守，但保持批判性思考",
+                    "通常遵守公共规则",
+                    "完全遵守所有规则"
+                ],
+                dimension: "intjTraits",
+                weights: [3, 2, 1, 0]
+            },
+            {
+                text: "关于个人隐私，我：",
+                options: [
+                    "高度重视并谨慎管理个人信息",
+                    "对特定事项保持隐私",
+                    "在亲近的人面前比较开放",
+                    "不太在意隐私问题"
+                ],
+                dimension: "intjTraits",
+                weights: [3, 2, 1, 0]
+            },
+            {
+                text: "我对效率的看法：",
+                options: [
+                    "极度重视，不断寻找优化方法",
+                    "认为很重要，但也兼顾其他因素",
+                    "适度关注，不是最优先考虑",
+                    "很少考虑效率问题"
+                ],
+                dimension: "intjTraits",
+                weights: [3, 2, 1, 0]
+            },
+            {
+                text: "我在做决定时通常：",
+                options: [
+                    "基于逻辑分析和长期利益",
+                    "权衡利弊后做出理性选择",
+                    "考虑自己和他人的感受",
+                    "跟随直觉或情感反应"
+                ],
+                dimension: "intjTraits",
+                weights: [3, 2, 1, 0]
+            },
+            {
+                text: "面对常规性活动，我：",
+                options: [
+                    "尝试找到创新方法提高效率",
+                    "理解其必要性并适应",
+                    "顺从参与但不特别投入",
+                    "乐于参与重复性活动"
+                ],
+                dimension: "intjTraits",
+                weights: [3, 2, 1, 0]
+            },
+            {
+                text: "对于他人的期望，我：",
+                options: [
+                    "设定自己的标准，不过分关注外界期望",
+                    "考虑合理的期望，但最终做自己的决定",
+                    "努力达到多数重要人物的期望",
+                    "试图满足所有人的期望"
+                ],
+                dimension: "intjTraits",
+                weights: [3, 2, 1, 0]
+            },
+            {
+                text: "关于计划执行，我通常：",
+                options: [
+                    "坚持长期计划但根据新信息灵活调整",
+                    "执行计划但在必要时进行修改",
+                    "计划经常变动",
+                    "很少制定或执行具体计划"
+                ],
+                dimension: "intjTraits",
+                weights: [3, 2, 1, 0]
+            },
+            
+            // 创新思维维度
+            {
+                text: "面对传统方法，我倾向于：",
+                options: [
+                    "寻找更高效或创新的替代方案",
+                    "理解后选择性应用或改进",
+                    "通常遵循已建立的方法",
+                    "完全采用传统方法"
+                ],
+                dimension: "innovativeThinking",
+                weights: [3, 2, 1, 0]
+            },
+            {
+                text: "在解决问题时，我：",
+                options: [
+                    "喜欢探索多种可能的解决方案",
+                    "寻找与情境匹配的最佳方案",
+                    "采用常见或推荐的解决方法",
+                    "寻求他人帮助解决"
+                ],
+                dimension: "innovativeThinking",
+                weights: [3, 2, 1, 0]
+            },
+            {
+                text: "我对新奇想法的态度是：",
+                options: [
+                    "积极探索并延伸思考其潜力",
+                    "持开放态度并评估其价值",
+                    "有所保留但愿意考虑",
+                    "偏好已经验证的想法"
+                ],
+                dimension: "innovativeThinking",
+                weights: [3, 2, 1, 0]
+            },
+            {
+                text: "当现有方法不起作用时，我：",
+                options: [
+                    "积极开发新方法或重新定义问题",
+                    "尝试调整现有方法或寻找替代方案",
+                    "寻求指导或现成的替代方案",
+                    "放弃或等待条件改变"
+                ],
+                dimension: "innovativeThinking",
+                weights: [3, 2, 1, 0]
+            },
+            {
+                text: "我对不确定性的态度是：",
+                options: [
+                    "视为探索创新的机会",
+                    "接受并学会在其中导航",
+                    "尽量减少不确定因素",
+                    "强烈希望避免不确定情况"
+                ],
+                dimension: "innovativeThinking",
+                weights: [3, 2, 1, 0]
+            }
+        ];
+        
+        // 随机选择45个问题并打乱顺序
+        function getRandomQuestions() {
+            // 确保每个维度至少有一定数量的问题
+            let dimensionCounts = {
+                cognitiveDevelopment: 9,
+                socialSkills: 9,
+                learningStyle: 9,
+                emotionalManagement: 9,
+                intjTraits: 9,
+                innovativeThinking: 5
+            };
+            
+            let selectedQuestions = [];
+            
+            // 从每个维度选择指定数量的问题
+            for (let dimension in dimensionCounts) {
+                let dimensionQuestions = questionPool.filter(q => q.dimension === dimension);
+                dimensionQuestions = shuffleArray(dimensionQuestions);
+                selectedQuestions = selectedQuestions.concat(dimensionQuestions.slice(0, dimensionCounts[dimension]));
+            }
+            
+            // 打乱所有选定问题的顺序
+            return shuffleArray(selectedQuestions).slice(0, 45);
+        }
+        
+        // Fisher-Yates 洗牌算法
+        function shuffleArray(array) {
+            let currentIndex = array.length, temporaryValue, randomIndex;
+            
+            // While there remain elements to shuffle...
+            while (0 !== currentIndex) {
+                
+                // Pick a remaining element...
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex -= 1;
+                
+                // And swap it with the current element.
+                temporaryValue = array[currentIndex];
+                array[currentIndex] = array[randomIndex];
+                array[randomIndex] = temporaryValue;
+            }
+            
+            return array;
+        }
+        
+        // 应用程序状态
+        let state = {
+            questions: [],
+            currentQuestion: 0,
+            answers: [],
+            personalInfo: {
+                age: "",
+                education: "",
+                gender: ""
+            }
         };
-
-        // 动态生成测试题
-        function renderTest() {
-            const container = document.getElementById('testContainer');
-            let globalIndex = 1;
-
-            questionBank.categories.forEach(category => {
-                // 创建分类容器
-                const section = document.createElement('div');
-                section.className = 'section';
-                section.innerHTML = `<h2>${category.name}</h2>`;
-                
-                // 生成题目
-                category.questions.forEach((questionText, index) => {
-                    const questionDiv = document.createElement('div');
-                    questionDiv.className = 'question';
-                    questionDiv.innerHTML = `
-                        <p>${globalIndex}. ${questionText}</p>
-                        <div class="options">
-                            ${Array.from({length:5}, (_,i) => `
-                                <label>
-                                    <input type="radio" name="q${globalIndex}" value="${i+1}">
-                                    ${i+1}分
-                                </label>
-                            `).join('')}
-                        </div>
-                    `;
-                    section.appendChild(questionDiv);
-                    globalIndex++;
-                });
-
-                container.appendChild(section);
+        
+        // DOM 元素
+        const startContainer = document.getElementById('start-container');
+        const testContainer = document.getElementById('test-container');
+        const resultsContainer = document.getElementById('results-container');
+        const questionContainer = document.getElementById('question-container');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        const startBtn = document.getElementById('start-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const questionCounter = document.getElementById('question-counter');
+        
+        // 初始化测试
+        function initTest() {
+            state.questions = getRandomQuestions();
+            state.currentQuestion = 0;
+            state.answers = new Array(state.questions.length).fill(null);
+            
+            renderQuestion();
+            updateProgressBar();
+            updateNavButtons();
+            
+            startContainer.style.display = 'none';
+            testContainer.style.display = 'block';
+            resultsContainer.style.display = 'none';
+        }
+        
+        // 渲染当前问题
+        function renderQuestion() {
+            const question = state.questions[state.currentQuestion];
+            let html = `
+                <div class="question-text">${state.currentQuestion + 1}. ${question.text}</div>
+                <div class="options">
+            `;
+            
+            question.options.forEach((option, index) => {
+                const isSelected = state.answers[state.currentQuestion] === index;
+                html += `
+                    <div class="option ${isSelected ? 'selected' : ''}" data-index="${index}">
+                        <input type="radio" name="question${state.currentQuestion}" value="${index}" ${isSelected ? 'checked' : ''}>
+                        <span>${option}</span>
+                    </div>
+                `;
             });
+            
+            html += `</div>`;
+            questionContainer.innerHTML = html;
+            
+            // 添加选项点击事件
+            document.querySelectorAll('.option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const optionIndex = parseInt(this.getAttribute('data-index'));
+                    state.answers[state.currentQuestion] = optionIndex;
+                    
+                    // 更新选项样式
+                    document.querySelectorAll('.option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    this.classList.add('selected');
+                    
+                    // 更新导航按钮
+                    updateNavButtons();
+                    
+                    // 如果不是最后一个问题，自动前进到下一题
+                    if (state.currentQuestion < state.questions.length - 1) {
+                        setTimeout(() => {
+                            nextQuestion();
+                        }, 500);
+                    }
+                });
+            });
+            
+            // 更新问题计数器
+            questionCounter.textContent = `问题 ${state.currentQuestion + 1}/${state.questions.length}`;
         }
-
-        // 初始化渲染
-        renderTest();
-
-        // 计算得分（保持原有逻辑优化）
-        function calculateResult() {
-            const total = [...document.querySelectorAll('input[type="radio"]:checked')]
-                         .reduce((sum, input) => sum + Number(input.value), 0);
-
-            // 结果处理逻辑保持不变...
+        
+        // 更新进度条
+        function updateProgressBar() {
+            const progress = ((state.currentQuestion + 1) / state.questions.length) * 100;
+            progressBar.style.width = `${progress}%`;
         }
+        
+        // 更新导航按钮
+        function updateNavButtons() {
+            prevBtn.disabled = state.currentQuestion === 0;
+            
+            // 最后一个问题显示提交按钮
+            if (state.currentQuestion === state.questions.length - 1) {
+                nextBtn.style.display = 'none';
+                submitBtn.style.display = 'block';
+                
+                // 检查是否所有问题都已回答
+                const allAnswered = state.answers.every(answer => answer !== null);
+                submitBtn.disabled = !allAnswered;
+            } else {
+                nextBtn.style.display = 'block';
+                submitBtn.style.display = 'none';
+                
+                // 只有当前问题已回答才能前进
+                nextBtn.disabled = state.answers[state.currentQuestion] === null;
+            }
+        }
+        
+        // 前往下一个问题
+        function nextQuestion() {
+            if (state.currentQuestion < state.questions.length - 1) {
+                state.currentQuestion++;
+                renderQuestion();
+                updateProgressBar();
+                updateNavButtons();
+                
+                // 滚动到顶部
+                window.scrollTo(0, 0);
+            }
+        }
+        
+        // 返回上一个问题
+        function prevQuestion() {
+            if (state.currentQuestion > 0) {
+                state.currentQuestion--;
+                renderQuestion();
+                updateProgressBar();
+                updateNavButtons();
+                
+                // 滚动到顶部
+                window.scrollTo(0, 0);
+            }
+        }
+        
+        // 计算结果
+        function calculateResults() {
+            // 初始化维度得分
+            let dimensionScores = {
+                cognitiveDevelopment: 0,
+                socialSkills: 0,
+                learningStyle: 0,
+                emotionalManagement: 0,
+                intjTraits: 0,
+                innovativeThinking: 0
+            };
+            
+            // 计算各维度总分和实际得分
+            let dimensionTotals = { ...dimensionScores };
+            
+            // 计算得分
+            state.questions.forEach((question, index) => {
+                const answerIndex = state.answers[index];
+                if (answerIndex !== null) {
+                    const weight = question.weights[answerIndex];
+                    dimensionScores[question.dimension] += weight;
+                    dimensionTotals[question.dimension] += 3; // 每个问题最高3分
+                }
+            });
+            
+            // 计算百分比得分
+            let percentageScores = {};
+            for (let dimension in dimensionScores) {
+                percentageScores[dimension] = (dimensionScores[dimension] / dimensionTotals[dimension]) * 100;
+            }
+            
+            // 计算总体INTJ成熟度水平
+            const totalScore = Object.values(percentageScores).reduce((a, b) => a + b, 0) / Object.keys(percentageScores).length;
+            
+            // 确定INTJ特质水平
+            let level;
+            if (totalScore >= 85) {
+                level = "高度发展";
+            } else if (totalScore >= 70) {
+                level = "成熟发展";
+            } else if (totalScore >= 50) {
+                level = "中等发展";
+            } else if (totalScore >= 30) {
+                level = "初步发展";
+            } else {
+                level = "萌芽阶段";
+            }
+            
+            return {
+                percentageScores,
+                totalScore,
+                level
+            };
+        }
+        
+        // 渲染结果
+        function renderResults(results) {
+            // 显示结果容器
+            testContainer.style.display = 'none';
+            resultsContainer.style.display = 'block';
+            
+            // 成长阶段结果
+            const stageResultElement = document.getElementById('stage-result');
+            let stageDescription, recommendations;
+            
+            // 根据阶段提供描述和建议
+            switch (results.level) {
+                case "高度发展":
+                    stageDescription = `
+                        <p>作为一名处于高度发展阶段的INTJ，你已经展示出杰出的战略思维能力和自我管理能力。你擅长系统性思考、独立分析和创造性解决问题。你对复杂系统有出色的直觉理解，能够预见长期发展趋势并制定相应策略。</p>
+                        <p>你对知识的追求深入而广泛，能够将不同领域的概念融会贯通。你的独立性和自驱力使你能够设定并实现长期目标，即使面对困难也能保持韧性。在社交方面，你已经学会了如何在保持真实性的同时有效地与他人互动。</p>
+                        <p>你对自己的思维和情绪有高度的元认知，能够同时保持理性分析和必要的情感理解。你擅长平衡完美主义追求与实用主义需求，能够灵活调整计划同时不失战略方向。</p>
+                    `;
+                    recommendations = `
+                        <h4>发展建议</h4>
+                        <ul>
+                            <li>挑战自己接触更多跨学科内容，拓展知识体系</li>
+                            <li>寻找机会担任领导角色，发挥你的战略规划能力</li>
+                            <li>进一步提升同理心和情感表达能力</li>
+                            <li>将你的分析能力应用于解决实际社会问题</li>
+                            <li>探索如何平衡追求完美与实用主义</li>
+                            <li>尝试指导或培养他人的分析和战略思维能力</li>
+                            <li>定期反思你的决策过程，确保考虑到多元视角</li>
+                        </ul>
+                    `;
+                    break;
+                case "成熟发展":
+                    stageDescription = `
+                        <p>作为一名处于成熟发展阶段的INTJ，你展现出良好的分析思维和规划能力。你能够理性评估情况、制定有效计划并坚持执行。你对复杂概念有很好的理解力，并能将所学知识应用到实际问题中。</p>
+                        <p>你的独立性明显，对自己的学习和发展负责。在社交互动中，你已经发展出一定的策略，虽然可能不总是自然流畅，但你能够在必要时有效沟通和合作。你对自己的情绪有一定认知，能够在大多数情况下保持冷静和理性。</p>
+                        <p>你能够识别系统中的模式和问题，并提出创新解决方案。你重视效率和逻辑，但也开始更好地理解人际关系的重要性。</p>
+                    `;
+                    recommendations = `
+                        <h4>发展建议</h4>
+                        <ul>
+                            <li>尝试更多团队合作项目，练习在团队中发挥你的优势</li>
+                            <li>扩展你的兴趣领域，探索更多可能性</li>
+                            <li>练习积极倾听他人观点，增强沟通效果</li>
+                            <li>发展情绪管理策略，特别是在压力情境下</li>
+                            <li>寻找导师或榜样，帮助你理解INTJ特质如何在不同领域发挥作用</li>
+                            <li>系统性地培养元认知能力，关注思维模式和决策过程</li>
+                            <li>练习简化复杂概念，使其对非专业人士也容易理解</li>
+                        </ul>
+                    `;
+                    break;
+                case "中等发展":
+                    stageDescription = `
+                        <p>作为一名处于中等发展阶段的INTJ，你开始展现INTJ的典型特质。你有一定的分析能力和战略思维，但这些能力仍在发展中。你倾向于独立思考，但有时可能需要更多指导。</p>
+                        <p>在学习或工作方面，你更喜欢理解概念而非死记硬背，但可能尚未完全掌握如何系统性地组织和应用知识。社交互动对你来说可能具有挑战性，你可能发现自己在大型社交场合中感到不适，更倾向于小范围深入的交流。</p>
+                        <p>你开始认识到计划的重要性，并尝试为目标制定路径，但可能在执行和调整计划方面还需要更多经验。你对效率有一定追求，但可能尚未找到最适合自己的工作或学习系统。</p>
+                    `;
+                    recommendations = `
+                        <h4>发展建议</h4>
+                        <ul>
+                            <li>练习将复杂问题分解为可管理的部分</li>
+                            <li>发展长期规划能力，设置明确的短期和长期目标</li>
+                            <li>尝试走出舒适区，参与更多社交活动</li>
+                            <li>培养情绪识别和表达能力</li>
+                            <li>寻找平衡独立思考和接受指导的方法</li>
+                            <li>探索各种学习策略，找到最适合自己的方法</li>
+                            <li>练习批判性思考，质疑假设并寻求证据</li>
+                            <li>建立个人知识管理系统，有效组织信息</li>
+                        </ul>
+                    `;
+                    break;
+                case "初步发展":
+                    stageDescription = `
+                        <p>作为一名处于初步发展阶段的INTJ，你开始展现出一些INTJ特质的早期迹象。你可能发现自己比他人更喜欢思考和分析，但这些能力尚处于发展早期。</p>
+                        <p>在学习或工作方面，你可能已经注意到自己需要理解"为什么"而不仅仅是"是什么"。你可能更喜欢独处时间，发现大型社交场合令人疲惫。你可能已经体验到与他人不同的思维方式带来的挑战。</p>
+                        <p>你对某些主题可能有强烈兴趣，并愿意深入探索，但尚未发展出系统化学习和应用知识的能力。在情感表达和理解方面，你可能面临一些困难，正在学习如何处理自己和他人的情绪。</p>
+                    `;
+                    recommendations = `
+                        <h4>发展建议</h4>
+                        <ul>
+                            <li>培养批判性思维和问题解决能力</li>
+                            <li>尝试不同的学习方法，找出最适合你的方式</li>
+                            <li>练习基本的社交技能，尤其是与不同类型人的交流</li>
+                            <li>开始关注情绪管理，学会识别和表达自己的情感</li>
+                            <li>在安全环境中锻炼自己的独立性和决策能力</li>
+                            <li>寻找理解你思维方式的朋友或导师</li>
+                            <li>开始练习设定目标和规划的技能</li>
+                            <li>探索自己真正感兴趣的领域，发现内在动机</li>
+                        </ul>
+                    `;
+                    break;
+                case "萌芽阶段":
+                    stageDescription = `
+                        <p>作为一名处于萌芽阶段的INTJ，你可能刚刚开始展现出INTJ人格类型的一些早期特征。这个阶段的INTJ特质可能尚不明显或与其他特质混合。</p>
+                        <p>你可能已经注意到自己喜欢独处的时间，对某些主题有深入的兴趣，但尚未发展出系统性思考的能力。在社交和情感表达方面可能面临挑战，还在学习如何理解自己和他人的情绪。</p>
+                        <p>你可能发现自己对"为什么"的问题特别感兴趣，对表面解释不满足，但尚未培养出持续深入探索的习惯。你可能偶尔会感到与主流思维格格不入，但还没有完全理解或接受自己独特的思维方式。</p>
+                    `;
+                    recommendations = `
+                        <h4>发展建议</h4>
+                        <ul>
+                            <li>培养基础的分析和思考能力</li>
+                            <li>探索不同的兴趣领域，找到真正吸引你的主题</li>
+                            <li>学习基本的社交互动技巧</li>
+                            <li>开始注意自己的情绪反应和模式</li>
+                            <li>发展基本的时间管理和目标设定能力</li>
+                            <li>与理解你的人交流你的思考方式和需求</li>
+                            <li>尝试记录和整理自己的想法</li>
+                            <li>接受自己可能与众不同的思维方式</li>
+                        </ul>
+                    `;
+                    break;
+            }
+            
+            stageResultElement.innerHTML = `
+                <p><strong>整体评估：${results.level}水平（${Math.round(results.totalScore)}%）</strong></p>
+                ${stageDescription}
+            `;
+            
+            // 各维度分析
+            const dimensionsResultElement = document.getElementById('dimensions-result');
+            let dimensionsHtml = '';
+            
+            // 维度描述
+            const dimensionDescriptions = {
+                cognitiveDevelopment: {
+                    title: "认知发展",
+                    high: "你展示出优秀的批判性思维和复杂问题解决能力。你能够理解抽象概念，发现模式和联系，并能从多角度分析问题。你的思维既有深度又有广度，能够进行系统性思考和长期规划。",
+                    medium: "你的批判性思维正在发展中。你能够理解基本概念并解决明确定义的问题，但在处理高度复杂或抽象问题时可能需要指导。你在某些熟悉领域能够进行深入思考。",
+                    low: "你的批判性思维和问题解决能力尚处于发展早期。你可能更倾向于接受表面信息，还在学习如何深入分析和评估复杂信息。对于抽象概念和系统性思考可能感到挑战。"
+                },
+                socialSkills: {
+                    title: "社交能力",
+                    high: "尽管作为INTJ你可能不是社交场合的中心，但你已经发展出有效的社交策略。你能够在必要时建立联系，在团队中有效工作，并清晰表达你的想法。你理解社交互动的规则，并能战略性地应用它们。",
+                    medium: "你的社交能力正在发展中。你可以在熟悉的环境中进行互动，但可能在大型或新的社交场合中感到不适。你正在学习如何更有效地与不同类型的人交流，但有时可能感到力不从心。",
+                    low: "你的社交互动可能具有挑战性。你可能倾向于避免大多数社交场合或在互动中感到不适。你可能正在学习基本的社交规范和沟通策略，但仍常常感到力不从心或缺乏动力去社交。"
+                },
+                learningStyle: {
+                    title: "学习风格",
+                    high: "你展示出INTJ典型的学习特点：偏好自主学习，注重概念理解而非死记硬背，能够将新知识整合到已有的知识框架中。你善于找到高效的学习方法，喜欢系统化地组织知识。",
+                    medium: "你的学习风格显示出一些INTJ特点。你倾向于寻求理解而非单纯记忆，但可能仍在探索最适合你的学习策略。你可能需要在某些领域更多指导，而在感兴趣的领域能够自主学习。",
+                    low: "你正在发展自己的学习风格。目前你可能还比较依赖传统的学习方法，还在探索如何根据自己的偏好和优势定制学习策略。对自主学习的能力仍在初步发展中。"
+                },
+                emotionalManagement: {
+                    title: "情绪管理",
+                    high: "你展示出良好的情绪认知和管理能力。你能够识别自己的情绪，理解其影响，并采取适当的应对策略。你通常能够保持冷静并理性地应对挑战，在需要时能够表达和沟通情感。",
+                    medium: "你的情绪管理能力正在发展中。你能够识别基本情绪，但有时可能难以处理强烈的情感或压力情境。你正在学习更多情绪调节策略，但在某些情况下可能仍会感到挑战。",
+                    low: "你的情绪管理技能尚处于发展早期。你可能难以识别或表达情绪，在情绪强烈时难以保持理性思考。情绪可能对你的决策和行为有较大影响，需要进一步发展情绪识别和调节能力。"
+                },
+                intjTraits: {
+                    title: "INTJ核心特质",
+                    high: "你展现出强烈的INTJ核心特质，包括独立思考、战略规划能力、注重效率和对知识的追求。你通常具有清晰的长期目标和实现这些目标的计划。你重视逻辑和系统，喜欢寻找改进和优化的方法。",
+                    medium: "你展现出一些INTJ核心特质，但这些特质仍在发展中。你显示出独立思考的倾向和一定的规划能力，但可能尚未完全整合这些特质。你可能在某些情况下展现INTJ特点，而在其他情况下则不太明显。",
+                    low: "你开始展现一些INTJ特质的早期迹象，但这些特质尚未充分发展。你可能有独立思考的萌芽，但还在学习如何进行长期规划和系统思考。INTJ的特质可能与其他人格特点交织在一起，尚未成为明显的模式。"
+                },
+                innovativeThinking: {
+                    title: "创新思维",
+                    high: "你展示出优秀的创新思维能力，能够质疑传统方法，提出原创性解决方案，并将不同概念结合创造新见解。你对新想法持开放态度，同时能够批判性地评估其价值。你擅长识别改进的机会和创新的可能性。",
+                    medium: "你的创新思维能力正在发展中。你能够在某些情况下提出新想法或方法，但可能还不够系统或一致。你对新概念持开放态度，但可能需要支持来充分发展创新潜力。你在熟悉的领域更容易创新。",
+                    low: "你的创新思维尚处于发展早期。你可能更倾向于遵循已建立的方法和思路，还在学习如何质疑假设和探索替代解决方案。你对新思路的开放度有限，可能需要更多鼓励来发展创新能力。"
+                }
+            };
+            
+            // 添加各维度的评分和描述
+            for (let dimension in results.percentageScores) {
+                const score = results.percentageScores[dimension];
+                const percentage = Math.round(score);
+                
+                // 根据分数确定水平
+                let level;
+                let description;
+                if (score >= 75) {
+                    level = "高";
+                    description = dimensionDescriptions[dimension].high;
+                } else if (score >= 50) {
+                    level = "中";
+                    description = dimensionDescriptions[dimension].medium;
+                } else {
+                    level = "低";
+                    description = dimensionDescriptions[dimension].low;
+                }
+                
+                dimensionsHtml += `
+                    <div class="dimension">
+                        <div class="dimension-title">
+                            <span>${dimensionDescriptions[dimension].title}</span>
+                            <span>${percentage}%</span>
+                        </div>
+                        <div class="dimension-bar">
+                            <div class="dimension-progress" style="width: ${percentage}%"></div>
+                        </div>
+                        <div class="dimension-description">
+                            <strong>${level}水平：</strong> ${description}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            dimensionsResultElement.innerHTML = dimensionsHtml;
+            
+            // 发展建议
+            const recommendationsElement = document.getElementById('recommendations');
+            recommendationsElement.innerHTML = recommendations;
+            
+            // 绘制雷达图
+            renderRadarChart(results.percentageScores);
+            
+            // 滚动到顶部
+            window.scrollTo(0, 0);
+        }
+        
+        // 绘制雷达图
+        function renderRadarChart(scores) {
+            const radarChartElement = document.getElementById('radar-chart');
+            
+            // 使用纯CSS创建一个简单的图形表示
+            const dimensionTitles = {
+                cognitiveDevelopment: "认知发展",
+                socialSkills: "社交能力",
+                learningStyle: "学习风格",
+                emotionalManagement: "情绪管理",
+                intjTraits: "INTJ核心特质",
+                innovativeThinking: "创新思维"
+            };
+            
+            let chartHtml = `
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <h3>INTJ能力维度分布</h3>
+                </div>
+                <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">
+            `;
+            
+            for (let dimension in scores) {
+                const score = Math.round(scores[dimension]);
+                const fillColor = getColorByPercentage(score);
+                
+                chartHtml += `
+                    <div style="width: 120px; text-align: center;">
+                        <div style="margin: 0 auto; width: 100px; height: 100px; border-radius: 50%; background: conic-gradient(
+                            ${fillColor} 0% ${score}%, 
+                            #e0e0e0 ${score}% 100%
+                        ); position: relative;">
+                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.5rem; font-weight: bold;">
+                                ${score}%
+                            </div>
+                        </div>
+                        <div style="margin-top: 10px; font-size: 0.9rem;">
+                            ${dimensionTitles[dimension]}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            chartHtml += `</div>`;
+            radarChartElement.innerHTML = chartHtml;
+        }
+        
+        // 根据百分比获取颜色
+        function getColorByPercentage(percentage) {
+            if (percentage >= 75) {
+                return '#27ae60'; // 绿色
+            } else if (percentage >= 50) {
+                return '#3498db'; // 蓝色
+            } else if (percentage >= 25) {
+                return '#f39c12'; // 橙色
+            } else {
+                return '#e74c3c'; // 红色
+            }
+        }
+        
+        // 事件监听器
+        startBtn.addEventListener('click', function() {
+            // 获取个人信息
+            const age = document.getElementById('age').value;
+            const education = document.getElementById('education').value;
+            const gender = document.getElementById('gender').value;
+            
+            // 验证个人信息
+            if (!age || !education || !gender) {
+                alert('请填写完整的个人信息');
+                return;
+            }
+            
+            // 保存个人信息
+            state.personalInfo.age = age;
+            state.personalInfo.education = education;
+            state.personalInfo.gender = gender;
+            
+            // 初始化测试
+            initTest();
+        });
+        
+        prevBtn.addEventListener('click', prevQuestion);
+        nextBtn.addEventListener('click', nextQuestion);
+        
+        submitBtn.addEventListener('click', function() {
+            // 计算结果
+            const results = calculateResults();
+            
+            // 显示结果
+            renderResults(results);
+        });
+        
+        restartBtn.addEventListener('click', function() {
+            // 重置到开始页面
+            resultsContainer.style.display = 'none';
+            startContainer.style.display = 'block';
+            
+            // 清空输入
+            document.getElementById('age').value = '';
+            document.getElementById('education').value = '';
+            document.getElementById('gender').value = '';
+            
+            // 重置状态
+            state = {
+                questions: [],
+                currentQuestion: 0,
+                answers: [],
+                personalInfo: {
+                    age: "",
+                    education: "",
+                    gender: ""
+                }
+            };
+        });
     </script>
-</body>
-</html>
+
+
+</body></html>
