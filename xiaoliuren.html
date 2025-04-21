@@ -790,8 +790,8 @@
                     return;
                 }
                 const num11 = (num1 - 1) % 6 + 1;
-                const num22 = (num11 + num2 - 1) % 6 + 1;
-                const num33 = (num22 + num3 - 1) % 6 + 1;
+                const num22 = (num11 + num2 + 4) % 6 + 1;
+                const num33 = (num22 + num3 + 4) % 6 + 1;
                 // 计算六神
                 const god1 = calculateLiuShen(num11);
                 const god2 = calculateLiuShen(num22);
@@ -808,8 +808,8 @@
                 const num2 = Math.floor(Math.random() * 999) + 1;
                 const num3 = Math.floor(Math.random() * 999) + 1;
                 const num11 = (num1 - 1) % 6 + 1;
-                const num22 = (num11 + num2 - 1) % 6 + 1;
-                const num33 = (num22 + num3 - 1) % 6 + 1;
+                const num22 = (num11 + num2 + 4) % 6 + 1;
+                const num33 = (num22 + num3 + 4) % 6 + 1;
                 // 显示随机数字
                 num1Input.value = num1;
                 num2Input.value = num2;
