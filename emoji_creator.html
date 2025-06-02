@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>可爱表情自定义生成器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #ff6b6b, #ffa500);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .creator-panel {
+            background: #f8f9ff;
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid #e1e8ff;
+        }
+
+        .creator-panel h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            text-align: center;
+        }
+
+        .emoji-parts {
+            display: grid;
+            gap: 15px;
+        }
+
+        .part-group {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .part-group h3 {
+            color: #555;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .option {
+            background: #f0f4ff;
+            border: 2px solid #d1d9ff;
+            border-radius: 8px;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+        }
+
+        .option:hover {
+            background: #e1e8ff;
+            transform: translateY(-2px);
+        }
+
+        .option.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .result-panel {
+            background: #fff8f0;
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid #ffe4cc;
+        }
+
+        .emoji-display {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .current-emoji {
+            font-size: 4em;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            border: 3px solid #ffa500;
+        }
+
+        .emoji-code {
+            background: #2d3748;
+            color: #e2e8f0;
+            border-radius: 10px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2em;
+            margin: 15px 0;
+            word-break: break-all;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .btn-copy {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-copy:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+        }
+
+        .btn-random {
+            background: #ed8936;
+            color: white;
+        }
+
+        .btn-random:hover {
+            background: #dd6b20;
+            transform: translateY(-2px);
+        }
+
+        .emoji-gallery {
+            grid-column: 1 / -1;
+            background: #f0fff0;
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid #c6f6d5;
+            margin-top: 20px;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .gallery-item {
+            background: white;
+            border-radius: 8px;
+            padding: 10px 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid #e2e8f0;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            border-color: #68d391;
+        }
+
+        .gallery-emoji {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .gallery-label {
+            font-size: 0.7em;
+            color: #666;
+            line-height: 1.2;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #48bb78;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .current-emoji {
+                font-size: 3em;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 可爱表情自定义生成器</h1>
+            <p>创造属于你的独特表情符号</p>
+        </div>
+
+        <div class="main-content">
+            <div class="creator-panel">
+                <h2>✨ 自定义组件</h2>
+                
+                <div class="emoji-parts">
+                    <div class="part-group">
+                        <h3>👁️ 眼睛</h3>
+                        <div class="options" data-part="eyes">
+                            <div class="option" data-value="◕">◕</div>
+                            <div class="option" data-value="•">•</div>
+                            <div class="option" data-value="○">○</div>
+                            <div class="option" data-value="￣">￣</div>
+                            <div class="option" data-value="＾">＾</div>
+                            <div class="option" data-value="╹">╹</div>
+                            <div class="option" data-value="⁄">⁄</div>
+                            <div class="option" data-value="ᵕ">ᵕ</div>
+                        </div>
+                    </div>
+
+                    <div class="part-group">
+                        <h3>👃 鼻子/中间</h3>
+                        <div class="options" data-part="nose">
+                            <div class="option" data-value="‿">‿</div>
+                            <div class="option" data-value="▽">▽</div>
+                            <div class="option" data-value="∇">∇</div>
+                            <div class="option" data-value="◡">◡</div>
+                            <div class="option" data-value="﹏">﹏</div>
+                            <div class="option" data-value="ω">ω</div>
+                            <div class="option" data-value="∀">∀</div>
+                            <div class="option" data-value="ε">ε</div>
+                        </div>
+                    </div>
+
+                    <div class="part-group">
+                        <h3>🤲 外围装饰</h3>
+                        <div class="options" data-part="decoration">
+                            <div class="option" data-value="( )">普通括号</div>
+                            <div class="option" data-value="（ ）">全角括号</div>
+                            <div class="option" data-value="｡ ｡">小点装饰</div>
+                            <div class="option" data-value="✿ ✿">花朵装饰</div>
+                            <div class="option" data-value="´ `">撇号装饰</div>
+                            <div class="option" data-value="／ ＼">斜杠装饰</div>
+                            <div class="option" data-value="～ ～">波浪装饰</div>
+                            <div class="option" data-value="♡ ♡">爱心装饰</div>
+                            <div class="option" data-value="[ ]">方括号</div>
+                            <div class="option" data-value="{ }">花括号</div>
+                            <div class="option" data-value="< >">尖括号</div>
+                            <div class="option" data-value="* *">星号装饰</div>
+                            <div class="option" data-value="ヽ ﾉ">挥手装饰</div>
+                            <div class="option" data-value="ლ ლ">手臂装饰</div>
+                            <div class="option" data-value="♪ ♪">音符装饰</div>
+                            <div class="option" data-value="☆ ☆">星星装饰</div>
+                        </div>
+                    </div>
+
+                    <div class="part-group">
+                        <h3>🤲 手部动作</h3>
+                        <div class="options" data-part="hands">
+                            <div class="option" data-value="none">无</div>
+                            <div class="option" data-value="wave">挥手</div>
+                            <div class="option" data-value="hug">拥抱</div>
+                            <div class="option" data-value="clap">鼓掌</div>
+                            <div class="option" data-value="point">指向</div>
+                            <div class="option" data-value="thumbs">点赞</div>
+                            <div class="option" data-value="peace">比心</div>
+                            <div class="option" data-value="raise">举手</div>
+                            <div class="option" data-value="dance">舞蹈</div>
+                            <div class="option" data-value="touch">戳脸</div>
+                            <div class="option" data-value="cover">捂脸</div>
+                            <div class="option" data-value="reach">伸手</div>
+                        </div>
+                    </div>
+
+                    <div class="part-group">
+                        <h3>🎭 表情风格</h3>
+                        <div class="options" data-part="style">
+                            <div class="option" data-value="normal">普通</div>
+                            <div class="option" data-value="love">恋爱眼</div>
+                            <div class="option" data-value="crying">哭泣</div>
+                            <div class="option" data-value="angry">生气</div>
+                            <div class="option" data-value="dizzy">晕眩</div>
+                            <div class="option" data-value="wink">眨眼</div>
+                            <div class="option" data-value="serious">严肃</div>
+                            <div class="option" data-value="sleepy">困倦</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-panel">
+                <h2>🎯 生成结果</h2>
+                
+                <div class="emoji-display">
+                    <div class="current-emoji" id="currentEmoji">(◕‿◕)</div>
+                    <div class="emoji-code" id="emojiCode">(◕‿◕)</div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-copy" onclick="copyEmoji()">📋 复制表情</button>
+                    <button class="btn btn-random" onclick="generateRandom()">🎲 随机生成</button>
+                </div>
+            </div>
+
+            <div class="emoji-gallery">
+                <h2>🖼️ 表情画廊</h2>
+                <p>点击任意表情快速使用</p>
+                <div class="gallery-grid" id="galleryGrid">
+                    <!-- 画廊内容将通过JavaScript动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">表情已复制到剪贴板！</div>
+
+    <script>
+        // 表情组件数据
+        const emojiParts = {
+            eyes: ['◕', '•', '○', '￣', '＾', '╹', '⁄', 'ᵕ', 'ω', '∀', '≧', '◔'],
+            nose: ['‿', '▽', '∇', '◡', '﹏', 'ω', '∀', 'ε', '◞', 'д', '益'],
+            decoration: {
+                '( )': ['(', ')'],
+                '（ ）': ['（', '）'],
+                '｡ ｡': ['(｡', '｡)'],
+                '✿ ✿': ['(✿', ')'],
+                '´ `': ['(´', '`)'],
+                '／ ＼': ['(／', '＼)'],
+                '～ ～': ['～(', ')～'],
+                '♡ ♡': ['♡(', ')♡'],
+                '[ ]': ['[', ']'],
+                '{ }': ['{', '}'],
+                '< >': ['<', '>'],
+                '* *': ['*(', ')*'],
+                'ヽ ﾉ': ['ヽ(', ')ﾉ'],
+                'ლ ლ': ['ლ(', 'ლ)'],
+                '♪ ♪': ['♪(', ')♪'],
+                '☆ ☆': ['☆(', ')☆']
+            }
+        };
+
+        // 当前选择的组件
+        let currentSelection = {
+            eyes: '◕',
+            nose: '‿',
+            decoration: '( )',
+            hands: 'none',
+            style: 'normal'
+        };
+
+        // 预设表情画廊
+        const galleryEmojis = [
+            { emoji: '(◕‿◕)', label: '基础开心' },
+            { emoji: 'ヾ(´∀｀)ﾉ', label: '挥手问候' },
+            { emoji: 'ლ(╹◡╹ლ)', label: '求抱抱' },
+            { emoji: '(♥‿♥)', label: '恋爱脸' },
+            { emoji: '/(T﹏T)\\', label: '捂脸哭泣' },
+            { emoji: '(`益`)', label: '生气脸' },
+            { emoji: '＼(＾◡＾)／', label: '举手庆祝' },
+            { emoji: '♪～(´▽｀)～♪', label: '音符舞蹈' },
+            { emoji: '(◕‿◕)σ', label: '戳脸调皮' },
+            { emoji: '(◕‿◕)っ', label: '伸手拥抱' },
+            { emoji: '(@_@)', label: '晕眩转圈' },
+            { emoji: '(￣￣￣)', label: '严肃脸' },
+            { emoji: 'ヽ(◕‿◕)ﾉ*:･ﾟ✧', label: '撒花庆祝' },
+            { emoji: '(◕‿◕)☞', label: '指向你' },
+            { emoji: '(◕‿◕)b', label: '点赞好评' },
+            { emoji: '(◕‿◕)✌', label: '比耶胜利' }
+        ];
+
+        // 初始化页面
+        function init() {
+            // 添加事件监听器
+            document.querySelectorAll('.option').forEach(option => {
+                option.addEventListener('click', handleOptionClick);
+            });
+
+            // 生成画廊
+            generateGallery();
+            
+            // 更新显示
+            updateEmoji();
+        }
+
+        // 处理选项点击
+        function handleOptionClick(event) {
+            const option = event.target;
+            const partGroup = option.closest('.options');
+            const part = partGroup.dataset.part;
+            const value = option.dataset.value;
+
+            // 更新选中状态
+            partGroup.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            option.classList.add('selected');
+
+            // 更新当前选择
+            currentSelection[part] = value;
+            
+            // 更新表情显示
+            updateEmoji();
+        }
+
+        // 更新表情显示
+        function updateEmoji() {
+            const emoji = generateEmoji(currentSelection);
+            document.getElementById('currentEmoji').textContent = emoji;
+            document.getElementById('emojiCode').textContent = emoji;
+        }
+
+        // 生成表情
+        function generateEmoji(selection) {
+            const { eyes, nose, decoration, hands, style } = selection;
+            const decorationParts = emojiParts.decoration[decoration] || ['(', ')'];
+            
+            // 根据风格调整表情
+            let leftEye = eyes;
+            let rightEye = eyes;
+            let centerPart = nose;
+
+            switch (style) {
+                case 'love':
+                    leftEye = rightEye = '♥';
+                    centerPart = '‿';
+                    break;
+                case 'crying':
+                    leftEye = rightEye = 'T';
+                    centerPart = '﹏';
+                    break;
+                case 'angry':
+                    leftEye = rightEye = '`';
+                    centerPart = '益';
+                    break;
+                case 'dizzy':
+                    leftEye = rightEye = '@';
+                    centerPart = '@';
+                    break;
+                case 'wink':
+                    leftEye = '＾';
+                    rightEye = eyes;
+                    break;
+                case 'serious':
+                    leftEye = rightEye = '￣';
+                    centerPart = '￣';
+                    break;
+                case 'sleepy':
+                    leftEye = rightEye = '－';
+                    centerPart = 'ω';
+                    break;
+            }
+
+            // 基础表情
+            let faceEmoji = `${decorationParts[0]}${leftEye}${centerPart}${rightEye}${decorationParts[1]}`;
+            
+            // 添加手部动作
+            switch (hands) {
+                case 'none':
+                    return faceEmoji;
+                case 'wave':
+                    return `ヾ${faceEmoji}ﾉ`;
+                case 'hug':
+                    return `ლ${faceEmoji}ლ`;
+                case 'clap':
+                    return `ヽ${faceEmoji}ﾉ*:･ﾟ✧`;
+                case 'point':
+                    return `${faceEmoji}☞`;
+                case 'thumbs':
+                    return `${faceEmoji}b`;
+                case 'peace':
+                    return `${faceEmoji}✌`;
+                case 'raise':
+                    return `＼${faceEmoji}／`;
+                case 'dance':
+                    return `♪～${faceEmoji}～♪`;
+                case 'touch':
+                    return `${faceEmoji}σ`;
+                case 'cover':
+                    return `/${faceEmoji}\\`;
+                case 'reach':
+                    return `${faceEmoji}っ`;
+                default:
+                    return faceEmoji;
+            }
+        }
+
+        // 复制表情
+        function copyEmoji() {
+            const emoji = document.getElementById('currentEmoji').textContent;
+            navigator.clipboard.writeText(emoji).then(() => {
+                showNotification('表情已复制到剪贴板！');
+            }).catch(() => {
+                // 备用复制方法
+                const textArea = document.createElement('textarea');
+                textArea.value = emoji;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showNotification('表情已复制到剪贴板！');
+            });
+        }
+
+        // 随机生成表情
+        function generateRandom() {
+            const eyesOptions = emojiParts.eyes;
+            const noseOptions = emojiParts.nose;
+            const decorationOptions = Object.keys(emojiParts.decoration);
+            const styleOptions = ['normal', 'love', 'crying', 'angry', 'dizzy', 'wink', 'serious', 'sleepy'];
+            const handsOptions = ['none', 'wave', 'hug', 'clap', 'point', 'thumbs', 'peace', 'raise', 'dance', 'touch', 'cover', 'reach'];
+
+            currentSelection = {
+                eyes: eyesOptions[Math.floor(Math.random() * eyesOptions.length)],
+                nose: noseOptions[Math.floor(Math.random() * noseOptions.length)],
+                decoration: decorationOptions[Math.floor(Math.random() * decorationOptions.length)],
+                hands: handsOptions[Math.floor(Math.random() * handsOptions.length)],
+                style: styleOptions[Math.floor(Math.random() * styleOptions.length)]
+            };
+
+            // 更新UI选中状态
+            updateSelectionUI();
+            updateEmoji();
+        }
+
+        // 更新UI选中状态
+        function updateSelectionUI() {
+            Object.keys(currentSelection).forEach(part => {
+                const partGroup = document.querySelector(`[data-part="${part}"]`);
+                if (partGroup) {
+                    partGroup.querySelectorAll('.option').forEach(option => {
+                        option.classList.remove('selected');
+                        if (option.dataset.value === currentSelection[part]) {
+                            option.classList.add('selected');
+                        }
+                    });
+                }
+            });
+        }
+
+        // 生成画廊
+        function generateGallery() {
+            const gallery = document.getElementById('galleryGrid');
+            gallery.innerHTML = '';
+
+            galleryEmojis.forEach(item => {
+                const galleryItem = document.createElement('div');
+                galleryItem.className = 'gallery-item';
+                galleryItem.innerHTML = `
+                    <div class="gallery-emoji">${item.emoji}</div>
+                    <div class="gallery-label">${item.label}</div>
+                `;
+                
+                galleryItem.addEventListener('click', () => {
+                    document.getElementById('currentEmoji').textContent = item.emoji;
+                    document.getElementById('emojiCode').textContent = item.emoji;
+                });
+
+                gallery.appendChild(galleryItem);
+            });
+        }
+
+        // 显示通知
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 2000);
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
