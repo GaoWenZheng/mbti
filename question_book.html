@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>问题之书</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Georgia', serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .book-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+            transform: perspective(1000px) rotateX(5deg);
+            transition: all 0.3s ease;
+        }
+
+        .book-container:hover {
+            transform: perspective(1000px) rotateX(0deg);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        .title {
+            text-align: center;
+            color: #4a5568;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            font-size: 1.1em;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+
+        .question-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .question-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.3);
+            background: rgba(255, 255, 255, 1);
+        }
+
+        .ask-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .ask-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .ask-button:active {
+            transform: translateY(0);
+        }
+
+        .answer-container {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .answer-container.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .answer-label {
+            color: #4a5568;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .answer-text {
+            color: #2d3748;
+            font-size: 1.2em;
+            line-height: 1.6;
+            text-align: center;
+            font-style: italic;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .time-info {
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: #718096;
+            text-align: center;
+            font-style: italic;
+        }
+
+        .decorative-border {
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
+            margin: 20px 0;
+            border-radius: 2px;
+        }
+
+        @keyframes sparkle {
+
+            0%,
+            100% {
+                opacity: 0.7;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        .sparkle {
+            animation: sparkle 2s ease-in-out infinite;
+        }
+
+        @keyframes magicCircle {
+            0% {
+                transform: rotate(0deg) scale(0.8);
+                opacity: 0;
+            }
+
+            50% {
+                transform: rotate(180deg) scale(1.1);
+                opacity: 0.7;
+            }
+
+            100% {
+                transform: rotate(360deg) scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes typewriter {
+            from {
+                width: 0;
+                opacity: 0;
+            }
+
+            to {
+                width: 100%;
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .magic-circle {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            border: 3px solid #667eea;
+            border-radius: 50%;
+            border-top: 3px solid transparent;
+            animation: magicCircle 2s ease-in-out;
+            z-index: 10;
+        }
+
+        .generating {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .generating::before {
+            content: '🔮 正在召唤答案...';
+            position: absolute;
+            top: 60%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #667eea;
+            font-weight: bold;
+            z-index: 5;
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        .answer-text.typing {
+            overflow: hidden;
+            white-space: nowrap;
+            animation: typewriter 3s steps(50) forwards;
+            border-right: 2px solid #667eea;
+        }
+
+        .answer-text.typing::after {
+            content: '';
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            50% {
+                border-right-color: #667eea;
+            }
+
+            51%,
+            100% {
+                border-right-color: transparent;
+            }
+        }
+
+        .time-info.fade-in {
+            animation: fadeInUp 1s ease-out 3.5s both;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="book-container">
+        <h1 class="title sparkle">问题之书</h1>
+        <p class="subtitle">探寻命运的答案...</p>
+
+        <div class="decorative-border"></div>
+
+        <input type="text" class="question-input" id="questionInput" placeholder="请输入你的问题..." maxlength="200">
+
+        <button class="ask-button" onclick="generateAnswer()">
+            🔮 寻求答案
+        </button>
+
+        <div class="answer-container" id="answerContainer">
+            <div class="answer-label">📜 命运的启示：</div>
+            <div class="answer-text" id="answerText"></div>
+            <div class="time-info" id="timeInfo"></div>
+        </div>
+    </div>
+
+    <script>
+        // 预定义的神秘答案库（200个答案）
+        const answers = [
+            "是的，星辰已经为你指明了道路。",
+            "答案就在你心中，只需要勇气去发现。",
+            "时机尚未成熟，请耐心等待。",
+            "命运的轮盘正在转动，变化即将到来。",
+            "这个问题的答案比你想象的更简单。",
+            "听从你内心最初的直觉。",
+            "现在还不是时候，但机会即将到来。",
+            "你已经知道答案了，只是不愿承认。",
+            "勇敢地迈出第一步，其余的会自然而然。",
+            "寻找隐藏在细节中的线索。",
+            "答案会在你最意想不到的地方出现。",
+            "相信过程，结果会比预期更好。",
+            "有时候，不行动也是一种行动。",
+            "你的直觉是正确的，相信自己。",
+            "这是一个需要合作才能解决的问题。",
+            "答案就在眼前，只需换个角度看。",
+            "时间会证明一切，保持耐心。",
+            "你比自己想象的更有能力。",
+            "寻求他人的建议会带来新的见解。",
+            "现在是行动的最佳时机。",
+            "答案隐藏在你的过往经验中。",
+            "保持开放的心态，答案会自然显现。",
+            "这个挑战会让你变得更强大。",
+            "相信宇宙的安排，一切都有其原因。",
+            "你的坚持即将得到回报。",
+            "答案需要时间来揭晓，不要急躁。",
+            "寻找平衡是解决问题的关键。",
+            "你的善良会为你打开新的门扉。",
+            "现在是释放过去，拥抱未来的时刻。",
+            "答案就在你最不愿意寻找的地方。",
+            "风向正在改变，准备扬帆起航。",
+            "你的努力不会白费，收获在路上。",
+            "静下心来，答案会自己浮现。",
+            "这是一个转折点，把握住机会。",
+            "相信自己的选择，它是正确的。",
+            "困难只是成功路上的垫脚石。",
+            "答案比问题本身更重要。",
+            "你正走在正确的道路上。",
+            "现在需要的是行动而非思考。",
+            "机会藏在困难的背后。",
+            "你的心已经知道该怎么做了。",
+            "等待是为了更好的时机。",
+            "答案会以你想不到的方式出现。",
+            "相信命运，但也要主动出击。",
+            "这个问题会引导你发现新的可能。",
+            "你比困难更强大。",
+            "现在是重新开始的好时机。",
+            "答案就在你的下一个选择中。",
+            "保持乐观，好事即将发生。",
+            "你的毅力将会得到回报。",
+            "寻找内心的平静，答案就在那里。",
+            "这是一个学习和成长的机会。",
+            "相信过程，享受旅程。",
+            "答案会在最合适的时候出现。",
+            "你的创造力是解决问题的钥匙。",
+            "现在是放下恐惧的时候了。",
+            "你拥有所需的一切资源。",
+            "这个挑战会带来意想不到的收获。",
+            "相信自己的判断力。",
+            "答案就在你的舒适区之外。",
+            "现在是相信奇迹的时候。",
+            "你的坚持会创造奇迹。",
+            "机会正向你走来，做好准备。",
+            "答案需要你换一个视角。",
+            "你的善意会得到回应。",
+            "现在是释放潜能的时刻。",
+            "这个问题会让你变得更智慧。",
+            "相信时间的力量。",
+            "答案就在你的恐惧背后。",
+            "你正在走向更好的未来。",
+            "现在是听从心声的时候。",
+            "你的勇气会为你开辟新路。",
+            "答案会在你放松的时候出现。",
+            "这是一个重新定义自己的机会。",
+            "相信你的第六感。",
+            "现在是拥抱变化的时候。",
+            "你的经历就是你的财富。",
+            "答案隐藏在你的热情中。",
+            "这个问题会带来新的友谊。",
+            "相信你内心的声音。",
+            "现在是展示真实自我的时候。",
+            "你的梦想比你想象的更近。",
+            "答案会在你帮助别人时出现。",
+            "这是一个重新开始的信号。",
+            "相信生活的美好安排。",
+            "现在是追求内心平和的时候。",
+            "你的才华即将绽放。",
+            "答案就在你的下一步行动中。",
+            "这个挑战会成为你的优势。",
+            "相信自己的直觉和感受。",
+            "现在是投资自己的最佳时机。",
+            "你的故事还在继续书写。",
+            "答案会在你最需要的时候出现。",
+            "这是一个发现内在力量的机会。",
+            "相信每个结束都是新的开始。",
+            "现在是珍惜当下的时候。",
+            "你的付出即将看到成果。",
+            "答案就在你的笑容中。",
+            "这个问题会让你更加坚强。",
+            "相信爱的力量。",
+            "现在是原谅和释怀的时候。",
+            "你的光芒即将照亮道路。",
+            "答案会在你意想不到的关系中出现。",
+            "这是一个重新连接自己的机会。",
+            "相信宇宙对你的眷顾。",
+            "现在是学会感恩的时候。",
+            "你的智慧正在觉醒。",
+            "答案就在你的下一个微笑中。",
+            "这个问题会带来新的视野。",
+            "相信你的创造力。",
+            "现在是突破限制的时候。",
+            "你的心灵知道正确的答案。",
+            "答案会在你放手的时候出现。",
+            "这是一个重新定义成功的机会。",
+            "相信生命的奇迹。",
+            "现在是相信希望的时候。",
+            "你的独特性就是你的力量。",
+            "答案就在你的下一个善举中。",
+            "这个挑战会带来内心的平静。",
+            "相信你的能力和潜力。",
+            "现在是拥抱不确定性的时候。",
+            "你的旅程比目的地更重要。",
+            "答案会在你学会放下时出现。",
+            "这是一个重新发现自己的机会。",
+            "相信一切都在完美的时机发生。",
+            "现在是培养耐心的时候。",
+            "你的内心已经准备好了答案。",
+            "答案就在你的下一个深呼吸中。",
+            "这个问题会让你更加慈悲。",
+            "相信你的直觉胜过一切理论。",
+            "现在是练习宽恕的时候。",
+            "你的生命正在展现它的美丽。",
+            "答案会在你停止寻找时出现。",
+            "这是一个重新点燃激情的机会。",
+            "相信每个挫折都有其意义。",
+            "现在是相信自己价值的时候。",
+            "你的心比你的头脑更智慧。",
+            "答案就在你的下一个决定中。",
+            "这个问题会带来意外的礼物。",
+            "相信你的生命有其独特的使命。",
+            "现在是享受当下的完美时刻。",
+            "你的坚韧将创造奇迹。",
+            "答案会在你最放松的时候出现。",
+            "这是一个重新点燃希望的机会。",
+            "相信你的心灵指南针。",
+            "现在是相信直觉的时候。",
+            "你的生命正在走向更高的意义。",
+            "答案就在你的下一个感恩中。",
+            "这个挑战会带来深层的理解。",
+            "相信你的内在智慧。",
+            "现在是相信可能性的时候。",
+            "你的灵魂知道正确的方向。",
+            "答案会在你接受现实时出现。",
+            "这是一个重新找到自己的机会。",
+            "相信生活的节奏和韵律。",
+            "现在是相信奇迹的完美时机。",
+            "你的真实自我即将绽放。",
+            "答案就在你的下一个拥抱中。",
+            "这个问题会带来心灵的觉醒。",
+            "相信你的生命之花正在绽放。",
+            "现在是相信无限可能的时候。",
+            "你的存在本身就是一个奇迹。",
+            "答案会在你学会爱自己时出现。",
+            "这是一个重新连接宇宙的机会。",
+            "相信你的心中有着无限的爱。",
+            "现在是相信美好正在路上的时候。",
+            "你的光芒足以照亮整个世界。",
+            "答案就在你的下一个微笑里。",
+            "这个问题会让你发现生命的美好。",
+            "相信你是被深深爱着的。",
+            "现在是相信一切都会好起来的时候。",
+            "你的存在让这个世界变得更美好。",
+            "答案会在你敞开心扉时出现。",
+            "这是一个重新开始爱的机会。",
+            "相信你的生命充满了无限的祝福。",
+            "现在是相信你值得所有美好的时候。",
+            "你的心中藏着宇宙的秘密。",
+            "答案就在你的下一个善念中。",
+            "这个问题会带来心灵的平静。",
+            "相信你的生命正在完美地展开。",
+            "现在是相信自己就是答案的时候。",
+            "你的爱心是世界上最强大的力量。",
+            "答案会在你释放执念时出现。",
+            "这是一个重新发现内在宝藏的机会。",
+            "相信你的生命是一首美丽的诗。",
+            "现在是相信你已经足够完美的时候。",
+            "你的每一次呼吸都充满了可能性。",
+            "答案就在你的下一个祈祷中。",
+            "这个问题会让你找到内心的家。",
+            "相信你的生命是宇宙的杰作。",
+            "现在是相信爱会指引一切的时候。",
+            "你的心中有着改变世界的力量。",
+            "答案会在你学会感谢时出现。",
+            "这是一个重新点亮内在光芒的机会。",
+            "相信你的生命故事正在书写最美的篇章。",
+            "现在是相信你就是自己一直在寻找的答案的时候。"
+        ];
+
+        // 简单的字符串哈希函数
+        function simpleHash(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // 转换为32位整数
+            }
+            return Math.abs(hash);
+        }
+
+        // 获取当前时间种子（精确到分钟）
+        function getTimeSeed() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth();
+            const day = now.getDate();
+            const hour = now.getHours();
+            const minute = now.getMinutes();
+
+            return `${year}-${month}-${day}-${hour}-${minute}`;
+        }
+
+        // 生成答案的核心算法
+        function generateAnswer() {
+            const question = document.getElementById('questionInput').value.trim();
+
+            if (!question) {
+                alert('请先输入你的问题！');
+                return;
+            }
+
+            // 添加生成中的动画效果
+            showGeneratingAnimation();
+
+            // 模拟神秘的计算过程
+            setTimeout(() => {
+                // 组合问题和时间种子
+                const timeSeed = getTimeSeed();
+                const combinedSeed = question + timeSeed;
+
+                // 生成哈希值并选择答案
+                const hash = simpleHash(combinedSeed);
+                const answerIndex = hash % answers.length;
+                const selectedAnswer = answers[answerIndex];
+
+                // 显示答案
+                displayAnswer(selectedAnswer, timeSeed);
+            }, 2000); // 2秒的神秘等待时间
+        }
+
+        function showGeneratingAnimation() {
+            const answerContainer = document.getElementById('answerContainer');
+            const answerText = document.getElementById('answerText');
+            const timeInfo = document.getElementById('timeInfo');
+
+            // 清除之前的状态
+            answerContainer.classList.remove('show');
+            answerText.classList.remove('typing');
+            timeInfo.classList.remove('fade-in');
+
+            // 显示生成中的状态
+            answerText.textContent = '';
+            timeInfo.textContent = '';
+            answerContainer.classList.add('generating');
+
+            // 添加魔法圆圈
+            const magicCircle = document.createElement('div');
+            magicCircle.className = 'magic-circle';
+            answerContainer.appendChild(magicCircle);
+
+            // 显示容器
+            answerContainer.classList.add('show');
+        }
+
+        function displayAnswer(answer, timeSeed) {
+            const answerContainer = document.getElementById('answerContainer');
+            const answerText = document.getElementById('answerText');
+            const timeInfo = document.getElementById('timeInfo');
+
+            // 移除生成中的状态
+            answerContainer.classList.remove('generating');
+
+            // 移除魔法圆圈
+            const magicCircle = answerContainer.querySelector('.magic-circle');
+            if (magicCircle) {
+                magicCircle.remove();
+            }
+
+            // 设置答案内容
+            answerText.textContent = answer;
+            answerText.style.whiteSpace = 'nowrap';
+            answerText.classList.add('typing');
+
+            // 设置时间信息并添加淡入动画
+            timeInfo.textContent = `答案生成时间：${new Date().toLocaleString('zh-CN')}`;
+            timeInfo.classList.add('fade-in');
+
+            // 3.5秒后移除打字机效果
+            setTimeout(() => {
+                answerText.classList.remove('typing');
+                answerText.style.whiteSpace = 'normal';
+            }, 3500);
+        }
+
+        // 监听回车键
+        document.getElementById('questionInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                generateAnswer();
+            }
+        });
+
+        // 页面加载完成后聚焦输入框
+        window.onload = function () {
+            document.getElementById('questionInput').focus();
+        };
+    </script>
+</body>
+
+</html>
