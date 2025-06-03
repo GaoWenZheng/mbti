@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 
 <head>
-    <meta http-equiv="Content-Security-Policy"
+     <meta http-equiv="Content-Security-Policy"
         content="default-src 'self' 'unsafe-inline' 'unsafe-eval' child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -3446,8 +3446,68 @@
 
 参数说明：`;
 
-                // 同样添加所有参数的详细说明（与generatePlayerPrompt相同的格式）
-                // 省略重复代码，但实际使用时需要包含完整的参数说明
+                if (descriptions.type[data.type]) {
+                    prompt += `
+- ${data.type}：${descriptions.type[data.type].criteria}`;
+                }
+
+                if (descriptions.difficulty[data.difficulty]) {
+                    prompt += `
+- ${data.difficulty}：${descriptions.difficulty[data.difficulty].criteria}`;
+                }
+
+                if (descriptions.setting[data.setting]) {
+                    prompt += `
+- ${data.setting}：${descriptions.setting[data.setting].criteria}`;
+                }
+
+                if (descriptions.characters[data.characters]) {
+                    prompt += `
+- ${data.characters}：${descriptions.characters[data.characters].criteria}`;
+                }
+
+                if (descriptions.twist[data.twist]) {
+                    prompt += `
+- ${data.twist}：${descriptions.twist[data.twist].criteria}`;
+                }
+
+                if (descriptions.style[data.style]) {
+                    prompt += `
+- ${data.style}：${descriptions.style[data.style].criteria}`;
+                }
+
+                if (descriptions['logic-level'] && descriptions['logic-level'][data.logicLevel]) {
+                    prompt += `
+- ${getLogicDescription(data.logicLevel)}：${descriptions['logic-level'][data.logicLevel].criteria}`;
+                }
+
+                if (descriptions.creativity && descriptions.creativity[data.creativity]) {
+                    prompt += `
+- ${getCreativityDescription(data.creativity)}：${descriptions.creativity[data.creativity].criteria}`;
+                }
+
+                if (data.emotion && descriptions.emotion && descriptions.emotion[data.emotion]) {
+                    prompt += `
+- ${data.emotion}：${descriptions.emotion[data.emotion].criteria}`;
+                }
+
+                // 高级设置说明
+                if (data.clueDensity && descriptions['clue-density'] && descriptions['clue-density'][data.clueDensity]) {
+                    prompt += `
+- 线索密度：${descriptions['clue-density'][data.clueDensity].criteria}`;
+                }
+                if (data.reasoningPath && descriptions['reasoning-path'] && descriptions['reasoning-path'][data.reasoningPath]) {
+                    prompt += `
+- 推理路径：${descriptions['reasoning-path'][data.reasoningPath].criteria}`;
+                }
+                if (data.solutionUniqueness && descriptions['solution-uniqueness'] && descriptions['solution-uniqueness'][data.solutionUniqueness]) {
+                    prompt += `
+- 答案唯一性：${descriptions['solution-uniqueness'][data.solutionUniqueness].criteria}`;
+                }
+                if (data.redHerring && descriptions['red-herring'] && descriptions['red-herring'][data.redHerring]) {
+                    prompt += `
+- 误导强度：${descriptions['red-herring'][data.redHerring].criteria}`;
+                }
             }
 
             prompt += `
