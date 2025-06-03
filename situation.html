@@ -1213,6 +1213,14 @@
             const allElements = [...data.elements, ...(data.customElements ? data.customElements.split(',').map(s => s.trim()) : [])];
             
             let prompt = `请创作一个海龟汤谜题的汤面。海龟汤是一种情境推理游戏，玩家需要通过提问来揭开背后的真相。
+核心要求：
+- 谜题必须有内在逻辑连贯性，每个细节都有其存在的必然性
+- 真相揭晓时要让人感到"原来如此"而非"牵强附会"
+- 避免依赖巧合、文字游戏或低概率事件
+- 确保因果链条清晰且符合现实逻辑
+- 避免出现"空灵"或"空虚"的谜题
+- 确保玩家能通过各种方式来理解并解释谜题的真相
+
 
 创作要求：
 - 类型：${data.type}
@@ -1253,8 +1261,8 @@
 - ${data.characters}：${descriptions.characters[data.characters] || ''}
 - ${data.twist}：${descriptions.twist[data.twist] || ''}
 - ${data.style}：${descriptions.style[data.style] || ''}
-- 逻辑严密度：${descriptions['logic-level'][data.logicLevel] || ''}
-- 创意程度：${descriptions.creativity[data.creativity] || ''}`;
+- ${getLogicDescription(data.logicLevel)}：${descriptions['logic-level'][data.logicLevel] || ''}
+- ${descriptions.creativity[data.creativity] || ''}：${descriptions.creativity[data.creativity] || ''}`;
 
                 if (data.emotion) {
                     prompt += `
@@ -1265,11 +1273,14 @@
             prompt += `
 
 创作标准：
-1. 汤面必须呈现一个看似矛盾或不合理的情境
-2. 每个细节都要经得起逻辑推敲，不能有漏洞
-3. 描述要生动具体，能引发强烈的好奇心
-4. 结尾要留有悬念，让人想要探究真相
-5. 符合目标受众的理解能力和价值观
+- 汤面必须呈现一个看似矛盾或不合理的情境
+- 每个细节都要经得起逻辑推敲，不能有漏洞
+- 描述要生动具体，能引发强烈的好奇心
+- 结尾要留有悬念，让人想要探究真相
+- 符合目标受众的理解能力和价值观
+- 关键信息的隐藏要巧妙而非刻意
+- 每个词语都经过推敲，既不误导也不泄露
+
 
 请直接输出汤面内容，不要包含任何解释或说明。`;
 
@@ -1281,6 +1292,13 @@
             const allElements = [...data.elements, ...(data.customElements ? data.customElements.split(',').map(s => s.trim()) : [])];
             
             let prompt = `请为海龟汤游戏创作一套完整的主持材料。
+核心要求：
+- 谜题必须有内在逻辑连贯性，每个细节都有其存在的必然性
+- 真相揭晓时要让人感到"原来如此"而非"牵强附会"
+- 避免依赖巧合、文字游戏或低概率事件
+- 确保因果链条清晰且符合现实逻辑
+- 避免出现"空灵"或"空虚"的谜题
+- 确保玩家能通过各种方式来理解并解释谜题的真相
 
 创作要求：
 - 类型：${data.type}
@@ -1322,8 +1340,8 @@
 - ${data.twist}：${descriptions.twist[data.twist] || ''}
 - ${data.style}：${descriptions.style[data.style] || ''}
 - ${data.audience}：${descriptions.audience[data.audience] || ''}
-- 逻辑严密度：${descriptions['logic-level'][data.logicLevel] || ''}
-- 创意程度：${descriptions.creativity[data.creativity] || ''}`;
+- ${getLogicDescription(data.logicLevel)}：${descriptions['logic-level'][data.logicLevel] || ''}
+- ${descriptions.creativity[data.creativity] || ''}：${descriptions.creativity[data.creativity] || ''}`;
 
                 if (data.emotion) {
                     prompt += `
