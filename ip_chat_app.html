@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>真实P2P聊天</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .connection-section {
+            padding: 30px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .role-selection {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+
+        .role-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            min-width: 150px;
+        }
+
+        .role-btn.host {
+            background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .role-btn.guest {
+            background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .role-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .role-btn.active {
+            box-shadow: 0 0 20px rgba(79, 172, 254, 0.6);
+        }
+
+        .connection-info {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .offer-section,
+        .answer-section {
+            background: rgba(248, 249, 250, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .offer-section h3,
+        .answer-section h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .offer-display,
+        .answer-input {
+            width: 100%;
+            min-height: 100px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            background: white;
+            resize: vertical;
+        }
+
+        .offer-display {
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        .copy-btn {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background: linear-gradient(45deg, #56ab2f 0%, #a8e6cf 100%);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .copy-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .connect-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .connect-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .chat-section {
+            padding: 30px;
+            display: none;
+        }
+
+        .chat-header {
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ff4757;
+            animation: pulse 2s infinite;
+        }
+
+        .status-indicator.connected {
+            background: #2ed573;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .chat-messages {
+            height: 400px;
+            overflow-y: auto;
+            border: 2px solid #eee;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: rgba(248, 249, 250, 0.8);
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 18px;
+            border-radius: 20px;
+            max-width: 70%;
+            word-wrap: break-word;
+            animation: slideIn 0.3s ease;
+        }
+
+        .message.sent {
+            background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .message.received {
+            background: linear-gradient(45deg, #a8edea 0%, #fed6e3 100%);
+            color: #333;
+        }
+
+        .message-meta {
+            font-size: 0.8em;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        .message-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        .message-input input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .message-input input:focus {
+            outline: none;
+            border-color: #4facfe;
+        }
+
+        .send-btn {
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #56ab2f 0%, #a8e6cf 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .send-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .status-message {
+            text-align: center;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .status-message.success {
+            background: rgba(46, 213, 115, 0.1);
+            color: #2ed573;
+            border: 1px solid rgba(46, 213, 115, 0.3);
+        }
+
+        .status-message.error {
+            background: rgba(255, 71, 87, 0.1);
+            color: #ff4757;
+            border: 1px solid rgba(255, 71, 87, 0.3);
+        }
+
+        .status-message.info {
+            background: rgba(79, 172, 254, 0.1);
+            color: #4facfe;
+            border: 1px solid rgba(79, 172, 254, 0.3);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .ip-info {
+            background: rgba(79, 172, 254, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .ip-address {
+            font-family: monospace;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #4facfe;
+        }
+
+        @media (max-width: 768px) {
+            .role-selection {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .message-input {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌐 真实P2P聊天</h1>
+            <p>使用WebRTC技术实现真正的点对点通信</p>
+        </div>
+
+        <div class="connection-section">
+            <div class="ip-info">
+                <div>你的IP地址: <span class="ip-address" id="ipAddress">获取中...</span></div>
+            </div>
+
+            <div class="role-selection">
+                <button class="role-btn host" onclick="selectRole('host')">
+                    🎯 创建房间 (主机)
+                </button>
+                <button class="role-btn guest" onclick="selectRole('guest')">
+                    🔗 加入房间 (客人)
+                </button>
+            </div>
+
+            <div id="hostInfo" class="connection-info">
+                <div class="offer-section">
+                    <h3>📋 分享给对方的连接信息：</h3>
+                    <textarea id="offerDisplay" class="offer-display" readonly placeholder="生成连接信息中..."></textarea>
+                    <button class="copy-btn" onclick="copyOffer()">📋 复制连接信息</button>
+                </div>
+
+                <div class="answer-section">
+                    <h3>📨 粘贴对方的回应信息：</h3>
+                    <textarea id="answerInput" class="answer-input" placeholder="将对方发送的回应信息粘贴到这里..."></textarea>
+                    <button class="connect-btn" onclick="processAnswer()">🔗 建立连接</button>
+                </div>
+            </div>
+
+            <div id="guestInfo" class="connection-info">
+                <div class="answer-section">
+                    <h3>📨 粘贴主机的连接信息：</h3>
+                    <textarea id="offerInput" class="answer-input" placeholder="将主机发送的连接信息粘贴到这里..."></textarea>
+                    <button class="connect-btn" onclick="processOffer()">📤 生成回应</button>
+                </div>
+
+                <div class="offer-section" id="answerSection" style="display: none;">
+                    <h3>📋 发送给主机的回应信息：</h3>
+                    <textarea id="answerDisplay" class="offer-display" readonly></textarea>
+                    <button class="copy-btn" onclick="copyAnswer()">📋 复制回应信息</button>
+                </div>
+            </div>
+
+            <div id="statusMessages"></div>
+        </div>
+
+        <div class="chat-section" id="chatSection">
+            <div class="chat-header">
+                <h3>💬 P2P聊天室</h3>
+                <div class="connection-status">
+                    <div class="status-indicator" id="statusIndicator"></div>
+                    <span id="connectionStatus">正在连接...</span>
+                </div>
+            </div>
+
+            <div class="chat-messages" id="chatMessages"></div>
+
+            <div class="message-input">
+                <input type="text" id="messageInput" placeholder="输入消息..." />
+                <button class="send-btn" onclick="sendMessage()">📤 发送</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let peerConnection = null;
+        let dataChannel = null;
+        let isHost = false;
+        let isConnected = false;
+
+        // WebRTC配置
+        const configuration = {
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' },
+                { urls: 'stun:stun2.l.google.com:19302' },
+                { urls: 'stun:stun.qq.com:3478' },
+                { urls: 'stun:stun.miwifi.com:3478' },
+                { urls: 'stun:stun.chat.bilibili.com:3478' },
+            ]
+        };
+
+        // 获取IP地址
+        async function getIPAddress() {
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                document.getElementById('ipAddress').textContent = data.ip;
+            } catch (error) {
+                document.getElementById('ipAddress').textContent = '无法获取';
+            }
+        }
+
+        // 选择角色
+        function selectRole(role) {
+            // 重置状态
+            resetConnection();
+
+            isHost = (role === 'host');
+
+            // 更新按钮状态
+            document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.role-btn.${role}`).classList.add('active');
+
+            // 显示对应的连接信息
+            document.getElementById('hostInfo').style.display = isHost ? 'block' : 'none';
+            document.getElementById('guestInfo').style.display = isHost ? 'none' : 'block';
+
+            if (isHost) {
+                createOffer();
+            }
+
+            showStatus('已选择角色: ' + (isHost ? '主机' : '客人'), 'info');
+        }
+
+        // 重置连接
+        function resetConnection() {
+            if (peerConnection) {
+                peerConnection.close();
+            }
+            peerConnection = null;
+            dataChannel = null;
+            isConnected = false;
+            document.getElementById('chatSection').style.display = 'none';
+        }
+
+        // 创建WebRTC连接
+        function createPeerConnection() {
+            peerConnection = new RTCPeerConnection(configuration);
+
+            peerConnection.onicecandidate = (event) => {
+                // ICE候选者会自动包含在offer/answer中
+            };
+
+            peerConnection.onconnectionstatechange = () => {
+                const state = peerConnection.connectionState;
+                console.log('连接状态:', state);
+
+                if (state === 'connected') {
+                    isConnected = true;
+                    document.getElementById('chatSection').style.display = 'block';
+                    document.getElementById('statusIndicator').classList.add('connected');
+                    document.getElementById('connectionStatus').textContent = '已连接';
+                    showStatus('✅ P2P连接建立成功！', 'success');
+                    addSystemMessage('P2P连接已建立，可以开始聊天了！');
+                } else if (state === 'failed' || state === 'disconnected') {
+                    isConnected = false;
+                    document.getElementById('statusIndicator').classList.remove('connected');
+                    document.getElementById('connectionStatus').textContent = '连接断开';
+                    showStatus('❌ 连接失败或断开', 'error');
+                }
+            };
+
+            if (isHost) {
+                // 主机创建数据通道
+                dataChannel = peerConnection.createDataChannel('chat', {
+                    ordered: true
+                });
+                setupDataChannel(dataChannel);
+            } else {
+                // 客人监听数据通道
+                peerConnection.ondatachannel = (event) => {
+                    dataChannel = event.channel;
+                    setupDataChannel(dataChannel);
+                };
+            }
+        }
+
+        // 设置数据通道
+        function setupDataChannel(channel) {
+            channel.onopen = () => {
+                console.log('数据通道已打开');
+            };
+
+            channel.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                addMessage(data.sender, data.message, data.timestamp, 'received');
+            };
+
+            channel.onclose = () => {
+                console.log('数据通道已关闭');
+            };
+        }
+
+        // 创建Offer (主机)
+        async function createOffer() {
+            try {
+                createPeerConnection();
+
+                const offer = await peerConnection.createOffer();
+                await peerConnection.setLocalDescription(offer);
+
+                // 等待ICE收集完成
+                await waitForICEGathering();
+
+                const offerData = {
+                    type: 'offer',
+                    offer: peerConnection.localDescription
+                };
+
+                document.getElementById('offerDisplay').value = JSON.stringify(offerData, null, 2);
+                showStatus('✅ 连接信息已生成，请分享给对方', 'success');
+            } catch (error) {
+                console.error('创建Offer失败:', error);
+                showStatus('❌ 创建连接信息失败: ' + error.message, 'error');
+            }
+        }
+
+        // 处理Offer (客人)
+        async function processOffer() {
+            const offerText = document.getElementById('offerInput').value.trim();
+
+            if (!offerText) {
+                showStatus('❌ 请输入主机的连接信息', 'error');
+                return;
+            }
+
+            try {
+                const offerData = JSON.parse(offerText);
+
+                createPeerConnection();
+
+                await peerConnection.setRemoteDescription(offerData.offer);
+                const answer = await peerConnection.createAnswer();
+                await peerConnection.setLocalDescription(answer);
+
+                // 等待ICE收集完成
+                await waitForICEGathering();
+
+                const answerData = {
+                    type: 'answer',
+                    answer: peerConnection.localDescription
+                };
+
+                document.getElementById('answerDisplay').value = JSON.stringify(answerData, null, 2);
+                document.getElementById('answerSection').style.display = 'block';
+
+                showStatus('✅ 回应信息已生成，请发送给主机', 'success');
+            } catch (error) {
+                console.error('处理Offer失败:', error);
+                showStatus('❌ 处理连接信息失败: ' + error.message, 'error');
+            }
+        }
+
+        // 处理Answer (主机)
+        async function processAnswer() {
+            const answerText = document.getElementById('answerInput').value.trim();
+
+            if (!answerText) {
+                showStatus('❌ 请输入对方的回应信息', 'error');
+                return;
+            }
+
+            try {
+                const answerData = JSON.parse(answerText);
+                await peerConnection.setRemoteDescription(answerData.answer);
+                showStatus('✅ 正在建立连接...', 'info');
+            } catch (error) {
+                console.error('处理Answer失败:', error);
+                showStatus('❌ 处理回应信息失败: ' + error.message, 'error');
+            }
+        }
+
+        // 等待ICE收集完成
+        function waitForICEGathering() {
+            return new Promise((resolve) => {
+                if (peerConnection.iceGatheringState === 'complete') {
+                    resolve();
+                } else {
+                    const checkState = () => {
+                        if (peerConnection.iceGatheringState === 'complete') {
+                            peerConnection.removeEventListener('icegatheringstatechange', checkState);
+                            resolve();
+                        }
+                    };
+                    peerConnection.addEventListener('icegatheringstatechange', checkState);
+                }
+            });
+        }
+
+        // 复制连接信息
+        function copyOffer() {
+            const offerText = document.getElementById('offerDisplay').value;
+            navigator.clipboard.writeText(offerText).then(() => {
+                showStatus('✅ 连接信息已复制到剪贴板', 'success');
+            });
+        }
+
+        // 复制回应信息
+        function copyAnswer() {
+            const answerText = document.getElementById('answerDisplay').value;
+            navigator.clipboard.writeText(answerText).then(() => {
+                showStatus('✅ 回应信息已复制到剪贴板', 'success');
+            });
+        }
+
+        // 发送消息
+        function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim();
+
+            if (!message) return;
+
+            if (!isConnected || !dataChannel || dataChannel.readyState !== 'open') {
+                showStatus('❌ 连接未建立，无法发送消息', 'error');
+                return;
+            }
+
+            const messageData = {
+                sender: '我',
+                message: message,
+                timestamp: new Date().toLocaleTimeString()
+            };
+
+            try {
+                dataChannel.send(JSON.stringify(messageData));
+                addMessage('我', message, messageData.timestamp, 'sent');
+                messageInput.value = '';
+            } catch (error) {
+                console.error('发送消息失败:', error);
+                showStatus('❌ 发送消息失败', 'error');
+            }
+        }
+
+        // 添加消息到聊天界面
+        function addMessage(sender, message, timestamp, type) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+
+            messageDiv.innerHTML = `
+                <div>${message}</div>
+                <div class="message-meta">${timestamp}</div>
+            `;
+
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // 添加系统消息
+        function addSystemMessage(message) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'status-message info';
+            messageDiv.textContent = message;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // 显示状态消息
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('statusMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `status-message ${type}`;
+            messageDiv.textContent = message;
+
+            statusDiv.appendChild(messageDiv);
+
+            setTimeout(() => {
+                statusDiv.removeChild(messageDiv);
+            }, 5000);
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function () {
+            getIPAddress();
+
+            // 回车发送消息
+            document.getElementById('messageInput').addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
