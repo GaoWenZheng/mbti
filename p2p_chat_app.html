@@ -458,7 +458,6 @@
                 <div class="btn-group">
                     <button class="btn btn-primary" onclick="createConnection()">创建连接</button>
                     <button class="btn btn-secondary" onclick="showJoinForm()">加入连接</button>
-                    <button class="btn btn-secondary hidden" id="disconnectBtn" onclick="disconnect()">断开连接</button>
                 </div>
                 
                 <div id="offerSection" class="hidden">
@@ -494,7 +493,6 @@
                 </div>
                 
                 <button class="btn reconnect-btn hidden" id="reconnectBtn" onclick="reconnect()">重新连接</button>
-                <button class="btn btn-primary hidden" id="newConnectionBtn" onclick="createNewConnection()">创建新连接</button>
             </div>
         </div>
         
@@ -521,8 +519,6 @@
         let dataChannel = null;
         let isConnected = false;
         let connectionType = null;
-        let lastOfferData = null;
-        let lastAnswerData = null;
         
         const servers = {
             iceServers: [
@@ -538,64 +534,6 @@
                 statusEl.classList.add('connected');
             } else {
                 statusEl.classList.remove('connected');
-            }
-        }
-        
-        function saveToStorage() {
-            const data = {
-                messages: document.getElementById('messages').innerHTML,
-                connectionType: connectionType,
-                lastOfferData: lastOfferData,
-                lastAnswerData: lastAnswerData,
-                isConnected: isConnected
-            };
-            localStorage.setItem('p2pChatData', JSON.stringify(data));
-        }
-        
-        function loadFromStorage() {
-            const data = localStorage.getItem('p2pChatData');
-            if (data) {
-                try {
-                    const parsed = JSON.parse(data);
-                    document.getElementById('messages').innerHTML = parsed.messages || '';
-                    connectionType = parsed.connectionType;
-                    lastOfferData = parsed.lastOfferData;
-                    lastAnswerData = parsed.lastAnswerData;
-                    
-                    // 滚动到底部
-                    const messages = document.getElementById('messages');
-                    messages.scrollTop = messages.scrollHeight;
-                    
-                    // 如果之前有连接，显示重连选项
-                    if (parsed.connectionType && (parsed.lastOfferData || parsed.lastAnswerData)) {
-                        showReconnectOptions();
-                    }
-                    
-                    return true;
-                } catch (error) {
-                    console.error('加载存储数据失败:', error);
-                }
-            }
-            return false;
-        }
-        
-        function clearStorage() {
-            localStorage.removeItem('p2pChatData');
-        }
-        
-        function showReconnectOptions() {
-            updateStatus('连接已断开');
-            document.getElementById('reconnectBtn').classList.remove('hidden');
-            document.getElementById('newConnectionBtn').classList.remove('hidden');
-            
-            // 显示之前的连接信息
-            if (connectionType === 'creator' && lastOfferData) {
-                document.getElementById('offerCode').textContent = lastOfferData;
-                document.getElementById('offerSection').classList.remove('hidden');
-            } else if (connectionType === 'joiner' && lastAnswerData) {
-                document.getElementById('answerCode').textContent = lastAnswerData;
-                document.getElementById('myAnswerSection').classList.remove('hidden');
-                document.getElementById('answerSection').classList.remove('hidden');
             }
         }
         
@@ -631,8 +569,6 @@
                     if (!event.candidate) {
                         const compressed = LZString.compressToBase64(JSON.stringify(pc.localDescription));
                         document.getElementById('offerCode').textContent = compressed;
-                        lastOfferData = compressed;
-                        saveToStorage();
                         updateStatus('等待对方连接...');
                     }
                 };
@@ -682,8 +618,6 @@
                     if (!event.candidate) {
                         const compressed = LZString.compressToBase64(JSON.stringify(pc.localDescription));
                         document.getElementById('answerCode').textContent = compressed;
-                        lastAnswerData = compressed;
-                        saveToStorage();
                         document.getElementById('myAnswerSection').classList.remove('hidden');
                         updateStatus('请将连接码发送给对方...');
                     }
@@ -727,19 +661,14 @@
                 updateStatus('已连接 🎉', true);
                 collapseConnectionPanel();
                 document.getElementById('reconnectBtn').classList.add('hidden');
-                document.getElementById('newConnectionBtn').classList.add('hidden');
-                document.getElementById('disconnectBtn').classList.remove('hidden');
                 addSystemMessage('连接已建立，可以开始聊天了！');
-                saveToStorage();
             };
             
             channel.onclose = () => {
                 isConnected = false;
                 updateStatus('连接已断开');
-                document.getElementById('disconnectBtn').classList.add('hidden');
-                showReconnectOptions();
+                document.getElementById('reconnectBtn').classList.remove('hidden');
                 addSystemMessage('连接已断开');
-                saveToStorage();
             };
             
             channel.onmessage = (event) => {
@@ -750,7 +679,6 @@
                     } else if (data.type === 'file') {
                         addFileMessage(data.name, data.size, data.content, data.mimeType, false, data.timestamp);
                     }
-                    saveToStorage();
                 } catch (error) {
                     console.error('处理消息失败:', error);
                 }
@@ -778,7 +706,6 @@
                 addMessage(message, true, timestamp);
                 input.value = '';
                 input.style.height = 'auto';
-                saveToStorage();
             }
         }
         
@@ -796,8 +723,6 @@
             
             messages.appendChild(messageDiv);
             messages.scrollTop = messages.scrollHeight;
-            saveToStorage();
-            saveToStorage();
         }
         
         function addSystemMessage(content) {
@@ -840,7 +765,6 @@
                     
                     dataChannel.send(JSON.stringify(data));
                     addFileMessage(file.name, file.size, e.target.result, file.type, true, timestamp);
-                    saveToStorage();
                 }
             };
             reader.readAsDataURL(file);
@@ -940,74 +864,18 @@
             dataChannel = null;
             isConnected = false;
             
-            // 隐藏重连按钮
-            document.getElementById('reconnectBtn').classList.add('hidden');
-            document.getElementById('newConnectionBtn').classList.add('hidden');
-            
-            // 展开连接面板
-            const panel = document.getElementById('connectionPanel');
-            const btn = document.getElementById('toggleBtn');
-            panel.classList.remove('collapsed');
-            btn.classList.remove('rotated');
-            
-            updateStatus('正在重新连接...');
-            addSystemMessage('正在重新连接...');
-            
-            // 根据之前的连接类型重新连接
-            if (connectionType === 'creator') {
-                createConnection();
-            } else if (connectionType === 'joiner') {
-                // 显示加入表单，保留之前的数据
-                showJoinForm();
-            }
-        }
-        
-        function disconnect() {
-            if (pc) {
-                pc.close();
-            }
-            pc = null;
-            dataChannel = null;
-            isConnected = false;
-            
-            document.getElementById('disconnectBtn').classList.add('hidden');
-            showReconnectOptions();
-            addSystemMessage('已主动断开连接');
-            saveToStorage();
-        }
-        
-        function createNewConnection() {
-            // 清除所有数据
-            clearStorage();
-            document.getElementById('messages').innerHTML = '';
-            
-            // 重置连接状态
-            if (pc) {
-                pc.close();
-            }
-            pc = null;
-            dataChannel = null;
-            isConnected = false;
-            connectionType = null;
-            lastOfferData = null;
-            lastAnswerData = null;
-            
-            // 隐藏所有连接相关的UI
             document.getElementById('offerSection').classList.add('hidden');
             document.getElementById('answerSection').classList.add('hidden');
             document.getElementById('myAnswerSection').classList.add('hidden');
             document.getElementById('reconnectBtn').classList.add('hidden');
-            document.getElementById('newConnectionBtn').classList.add('hidden');
-            document.getElementById('disconnectBtn').classList.add('hidden');
             
-            // 展开连接面板
             const panel = document.getElementById('connectionPanel');
             const btn = document.getElementById('toggleBtn');
             panel.classList.remove('collapsed');
             btn.classList.remove('rotated');
             
-            updateStatus('准备就绪');
-            addSystemMessage('已清除所有数据，可以创建新连接');
+            updateStatus('等待连接...');
+            addSystemMessage('正在重新连接...');
         }
         
         // 自动调整输入框高度
@@ -1026,10 +894,7 @@
         
         // 页面加载完成后的初始化
         window.onload = function() {
-            const hasData = loadFromStorage();
-            if (!hasData) {
-                updateStatus('准备就绪');
-            }
+            updateStatus('准备就绪');
         };
         
         // 页面关闭时清理连接
