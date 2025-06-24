@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P2P聊天</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            height: calc(100vh - 20px);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: linear-gradient(45deg, #6366f1, #8b5cf6);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .status {
+            font-size: 14px;
+            margin-top: 10px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.2);
+            display: inline-block;
+            position: relative;
+        }
+        
+        .status.connected::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3);
+            animation: pulse 2s infinite;
+        }
+        
+        .status.connected {
+            padding-left: 24px;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+            }
+        }
+        
+        .connection-panel {
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+        
+        .connection-panel.collapsed {
+            padding: 10px 20px;
+        }
+        
+        .connection-panel.collapsed .connection-content {
+            display: none;
+        }
+        
+        .connection-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .connection-header h3 {
+            color: #374151;
+            font-size: 16px;
+        }
+        
+        .toggle-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .toggle-btn.rotated {
+            transform: rotate(180deg);
+        }
+        
+        .connection-content {
+            margin-top: 15px;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #6366f1, #8b5cf6);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #374151;
+            font-weight: 500;
+        }
+        
+        .input-group input, .input-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .input-group input:focus, .input-group textarea:focus {
+            outline: none;
+            border-color: #6366f1;
+        }
+        
+        .code-display {
+            background: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 12px;
+            position: relative;
+        }
+        
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .copy-btn:hover {
+            background: #4f46e5;
+        }
+        
+        .copy-btn.copied {
+            background: #10b981;
+            transform: scale(0.95);
+        }
+        
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f9fafb;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+        }
+        
+        .message.own {
+            flex-direction: row-reverse;
+        }
+        
+        .message-content {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            word-wrap: break-word;
+        }
+        
+        .message.own .message-content {
+            background: linear-gradient(45deg, #6366f1, #8b5cf6);
+            color: white;
+        }
+        
+        .message.other .message-content {
+            background: white;
+            color: #374151;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .message-time {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-top: 5px;
+        }
+        
+        .file-message {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            margin-top: 5px;
+        }
+        
+        .file-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        .file-info {
+            flex: 1;
+        }
+        
+        .file-name {
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+        
+        .file-size {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        
+        .image-message img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 10px;
+            margin-top: 5px;
+            cursor: pointer;
+        }
+        
+        .input-area {
+            padding: 20px;
+            border-top: 1px solid #e5e7eb;
+            background: white;
+        }
+        
+        .input-container {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+        
+        .message-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 20px;
+            resize: none;
+            max-height: 100px;
+            font-size: 14px;
+            overflow-y: hidden;
+        }
+        
+        .message-input:focus {
+            outline: none;
+            border-color: #6366f1;
+        }
+        
+        .send-btn {
+            width: 44px;
+            height: 44px;
+            border: none;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #6366f1, #8b5cf6);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: transform 0.3s ease;
+        }
+        
+        .send-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .file-btn {
+            width: 44px;
+            height: 44px;
+            border: 2px solid #e5e7eb;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #6b7280;
+            transition: all 0.3s ease;
+        }
+        
+        .file-btn:hover {
+            border-color: #6366f1;
+            color: #6366f1;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .reconnect-btn {
+            background: #f59e0b;
+            color: white;
+            margin-top: 10px;
+        }
+        
+        .reconnect-btn:hover {
+            background: #d97706;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                height: 100vh;
+                border-radius: 0;
+                margin: 0;
+            }
+            
+            body {
+                padding: 0;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                min-width: auto;
+            }
+            
+            .message-content {
+                max-width: 85%;
+            }
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 10px;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔗 P2P聊天</h1>
+            <div class="status" id="status">等待连接...</div>
+        </div>
+        
+        <div class="connection-panel" id="connectionPanel">
+            <div class="connection-header" onclick="toggleConnectionPanel()">
+                <h3>连接设置</h3>
+                <button class="toggle-btn" id="toggleBtn">🔽</button>
+            </div>
+            <div class="connection-content">
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="createConnection()">创建连接</button>
+                    <button class="btn btn-secondary" onclick="showJoinForm()">加入连接</button>
+                    <button class="btn btn-secondary hidden" id="disconnectBtn" onclick="disconnect()">断开连接</button>
+                </div>
+                
+                <div id="offerSection" class="hidden">
+                    <div class="input-group">
+                        <label>连接码 (自动生成)</label>
+                        <div class="code-display" id="offerDisplay">
+                            <button class="copy-btn" onclick="copyOffer()">复制</button>
+                            <div id="offerCode"></div>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>等待对方连接码</label>
+                        <textarea id="answerInput" placeholder="粘贴对方的连接码..." rows="3"></textarea>
+                        <button class="btn btn-primary" onclick="setAnswer()" style="margin-top: 10px;">连接</button>
+                    </div>
+                </div>
+                
+                <div id="answerSection" class="hidden">
+                    <div class="input-group">
+                        <label>输入连接码</label>
+                        <textarea id="offerInput" placeholder="粘贴连接码..." rows="3"></textarea>
+                        <button class="btn btn-primary" onclick="joinConnection()" style="margin-top: 10px;">生成我的连接码</button>
+                    </div>
+                    <div id="myAnswerSection" class="hidden">
+                        <div class="input-group">
+                            <label>我的连接码 (发送给对方)</label>
+                            <div class="code-display" id="answerDisplay">
+                                <button class="copy-btn" onclick="copyAnswer()">复制</button>
+                                <div id="answerCode"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn reconnect-btn hidden" id="reconnectBtn" onclick="reconnect()">重新连接</button>
+                <button class="btn btn-primary hidden" id="newConnectionBtn" onclick="createNewConnection()">创建新连接</button>
+            </div>
+        </div>
+        
+        <div class="chat-area">
+            <div class="messages" id="messages"></div>
+            <div class="input-area">
+                <div class="input-container">
+                    <label class="file-btn" for="fileInput">📎</label>
+                    <input type="file" id="fileInput" class="file-input" accept="*/*" onchange="handleFileSelect(event)">
+                    <textarea id="messageInput" class="message-input" placeholder="输入消息..." rows="1" onkeypress="handleKeyPress(event)"></textarea>
+                    <button class="send-btn" onclick="sendMessage()">🚀</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="imageModal" onclick="closeModal()">
+        <img id="modalImage" src="" alt="">
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
+    <script>
+        let pc = null;
+        let dataChannel = null;
+        let isConnected = false;
+        let connectionType = null;
+        let lastOfferData = null;
+        let lastAnswerData = null;
+        
+        const servers = {
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' }
+            ]
+        };
+        
+        function updateStatus(status, connected = false) {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = status;
+            if (connected) {
+                statusEl.classList.add('connected');
+            } else {
+                statusEl.classList.remove('connected');
+            }
+        }
+        
+        function saveToStorage() {
+            const data = {
+                messages: document.getElementById('messages').innerHTML,
+                connectionType: connectionType,
+                lastOfferData: lastOfferData,
+                lastAnswerData: lastAnswerData,
+                isConnected: isConnected
+            };
+            localStorage.setItem('p2pChatData', JSON.stringify(data));
+        }
+        
+        function loadFromStorage() {
+            const data = localStorage.getItem('p2pChatData');
+            if (data) {
+                try {
+                    const parsed = JSON.parse(data);
+                    document.getElementById('messages').innerHTML = parsed.messages || '';
+                    connectionType = parsed.connectionType;
+                    lastOfferData = parsed.lastOfferData;
+                    lastAnswerData = parsed.lastAnswerData;
+                    
+                    // 滚动到底部
+                    const messages = document.getElementById('messages');
+                    messages.scrollTop = messages.scrollHeight;
+                    
+                    // 如果之前有连接，显示重连选项
+                    if (parsed.connectionType && (parsed.lastOfferData || parsed.lastAnswerData)) {
+                        showReconnectOptions();
+                    }
+                    
+                    return true;
+                } catch (error) {
+                    console.error('加载存储数据失败:', error);
+                }
+            }
+            return false;
+        }
+        
+        function clearStorage() {
+            localStorage.removeItem('p2pChatData');
+        }
+        
+        function showReconnectOptions() {
+            updateStatus('连接已断开');
+            document.getElementById('reconnectBtn').classList.remove('hidden');
+            document.getElementById('newConnectionBtn').classList.remove('hidden');
+            
+            // 显示之前的连接信息
+            if (connectionType === 'creator' && lastOfferData) {
+                document.getElementById('offerCode').textContent = lastOfferData;
+                document.getElementById('offerSection').classList.remove('hidden');
+            } else if (connectionType === 'joiner' && lastAnswerData) {
+                document.getElementById('answerCode').textContent = lastAnswerData;
+                document.getElementById('myAnswerSection').classList.remove('hidden');
+                document.getElementById('answerSection').classList.remove('hidden');
+            }
+        }
+        
+        function toggleConnectionPanel() {
+            const panel = document.getElementById('connectionPanel');
+            const btn = document.getElementById('toggleBtn');
+            
+            if (panel.classList.contains('collapsed')) {
+                panel.classList.remove('collapsed');
+                btn.classList.remove('rotated');
+            } else {
+                panel.classList.add('collapsed');
+                btn.classList.add('rotated');
+            }
+        }
+        
+        function collapseConnectionPanel() {
+            const panel = document.getElementById('connectionPanel');
+            const btn = document.getElementById('toggleBtn');
+            panel.classList.add('collapsed');
+            btn.classList.add('rotated');
+        }
+        
+        async function createConnection() {
+            try {
+                connectionType = 'creator';
+                pc = new RTCPeerConnection(servers);
+                
+                dataChannel = pc.createDataChannel('messages', { ordered: true });
+                setupDataChannel(dataChannel);
+                
+                pc.onicecandidate = (event) => {
+                    if (!event.candidate) {
+                        const compressed = LZString.compressToBase64(JSON.stringify(pc.localDescription));
+                        document.getElementById('offerCode').textContent = compressed;
+                        lastOfferData = compressed;
+                        saveToStorage();
+                        updateStatus('等待对方连接...');
+                    }
+                };
+                
+                pc.ondatachannel = (event) => {
+                    setupDataChannel(event.channel);
+                };
+                
+                const offer = await pc.createOffer();
+                await pc.setLocalDescription(offer);
+                
+                document.getElementById('offerSection').classList.remove('hidden');
+                document.getElementById('answerSection').classList.add('hidden');
+                
+            } catch (error) {
+                console.error('创建连接失败:', error);
+                updateStatus('创建连接失败');
+            }
+        }
+        
+        function showJoinForm() {
+            document.getElementById('answerSection').classList.remove('hidden');
+            document.getElementById('offerSection').classList.add('hidden');
+            document.getElementById('myAnswerSection').classList.add('hidden');
+        }
+        
+        async function joinConnection() {
+            try {
+                connectionType = 'joiner';
+                const offerData = document.getElementById('offerInput').value.trim();
+                if (!offerData) {
+                    alert('请输入连接码');
+                    return;
+                }
+                
+                const decompressed = LZString.decompressFromBase64(offerData);
+                const offer = JSON.parse(decompressed);
+                
+                pc = new RTCPeerConnection(servers);
+                
+                pc.ondatachannel = (event) => {
+                    dataChannel = event.channel;
+                    setupDataChannel(dataChannel);
+                };
+                
+                pc.onicecandidate = (event) => {
+                    if (!event.candidate) {
+                        const compressed = LZString.compressToBase64(JSON.stringify(pc.localDescription));
+                        document.getElementById('answerCode').textContent = compressed;
+                        lastAnswerData = compressed;
+                        saveToStorage();
+                        document.getElementById('myAnswerSection').classList.remove('hidden');
+                        updateStatus('请将连接码发送给对方...');
+                    }
+                };
+                
+                await pc.setRemoteDescription(offer);
+                const answer = await pc.createAnswer();
+                await pc.setLocalDescription(answer);
+                
+            } catch (error) {
+                console.error('加入连接失败:', error);
+                updateStatus('加入连接失败');
+                alert('连接码格式错误或已过期');
+            }
+        }
+        
+        async function setAnswer() {
+            try {
+                const answerData = document.getElementById('answerInput').value.trim();
+                if (!answerData) {
+                    alert('请输入对方的连接码');
+                    return;
+                }
+                
+                const decompressed = LZString.decompressFromBase64(answerData);
+                const answer = JSON.parse(decompressed);
+                
+                await pc.setRemoteDescription(answer);
+                updateStatus('正在连接...');
+                
+            } catch (error) {
+                console.error('设置应答失败:', error);
+                updateStatus('连接失败');
+                alert('连接码格式错误');
+            }
+        }
+        
+        function setupDataChannel(channel) {
+            channel.onopen = () => {
+                isConnected = true;
+                updateStatus('已连接 🎉', true);
+                collapseConnectionPanel();
+                document.getElementById('reconnectBtn').classList.add('hidden');
+                document.getElementById('newConnectionBtn').classList.add('hidden');
+                document.getElementById('disconnectBtn').classList.remove('hidden');
+                addSystemMessage('连接已建立，可以开始聊天了！');
+                saveToStorage();
+            };
+            
+            channel.onclose = () => {
+                isConnected = false;
+                updateStatus('连接已断开');
+                document.getElementById('disconnectBtn').classList.add('hidden');
+                showReconnectOptions();
+                addSystemMessage('连接已断开');
+                saveToStorage();
+            };
+            
+            channel.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'message') {
+                        addMessage(data.content, false, data.timestamp);
+                    } else if (data.type === 'file') {
+                        addFileMessage(data.name, data.size, data.content, data.mimeType, false, data.timestamp);
+                    }
+                    saveToStorage();
+                } catch (error) {
+                    console.error('处理消息失败:', error);
+                }
+            };
+            
+            channel.onerror = (error) => {
+                console.error('数据通道错误:', error);
+                updateStatus('连接出错');
+            };
+        }
+        
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (message && isConnected && dataChannel) {
+                const timestamp = new Date().toLocaleTimeString();
+                const data = {
+                    type: 'message',
+                    content: message,
+                    timestamp: timestamp
+                };
+                
+                dataChannel.send(JSON.stringify(data));
+                addMessage(message, true, timestamp);
+                input.value = '';
+                input.style.height = 'auto';
+                saveToStorage();
+            }
+        }
+        
+        function addMessage(content, isOwn, timestamp) {
+            const messages = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isOwn ? 'own' : 'other'}`;
+            
+            messageDiv.innerHTML = `
+                <div class="message-content">
+                    ${content}
+                    <div class="message-time">${timestamp}</div>
+                </div>
+            `;
+            
+            messages.appendChild(messageDiv);
+            messages.scrollTop = messages.scrollHeight;
+            saveToStorage();
+            saveToStorage();
+        }
+        
+        function addSystemMessage(content) {
+            const messages = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            messageDiv.style.justifyContent = 'center';
+            
+            messageDiv.innerHTML = `
+                <div class="message-content" style="background: #f3f4f6; color: #6b7280; text-align: center; font-size: 12px;">
+                    ${content}
+                </div>
+            `;
+            
+            messages.appendChild(messageDiv);
+            messages.scrollTop = messages.scrollHeight;
+        }
+        
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            if (file.size > 10 * 1024 * 1024) {
+                alert('文件大小不能超过10MB');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                if (isConnected && dataChannel) {
+                    const timestamp = new Date().toLocaleTimeString();
+                    const data = {
+                        type: 'file',
+                        name: file.name,
+                        size: file.size,
+                        content: e.target.result,
+                        mimeType: file.type,
+                        timestamp: timestamp
+                    };
+                    
+                    dataChannel.send(JSON.stringify(data));
+                    addFileMessage(file.name, file.size, e.target.result, file.type, true, timestamp);
+                    saveToStorage();
+                }
+            };
+            reader.readAsDataURL(file);
+            event.target.value = '';
+        }
+        
+        function addFileMessage(fileName, fileSize, fileContent, mimeType, isOwn, timestamp) {
+            const messages = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isOwn ? 'own' : 'other'}`;
+            
+            const isImage = mimeType.startsWith('image/');
+            const formatSize = (bytes) => {
+                const sizes = ['B', 'KB', 'MB', 'GB'];
+                if (bytes === 0) return '0 B';
+                const i = Math.floor(Math.log(bytes) / Math.log(1024));
+                return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+            };
+            
+            let content = `
+                <div class="file-message">
+                    <div class="file-icon">${isImage ? '🖼️' : '📄'}</div>
+                    <div class="file-info">
+                        <div class="file-name">${fileName}</div>
+                        <div class="file-size">${formatSize(fileSize)}</div>
+                    </div>
+                    <a href="${fileContent}" download="${fileName}" style="color: inherit; text-decoration: none;">💾</a>
+                </div>
+            `;
+            
+            if (isImage) {
+                content += `
+                    <div class="image-message">
+                        <img src="${fileContent}" alt="${fileName}" onclick="showImage('${fileContent}')">
+                    </div>
+                `;
+            }
+            
+            messageDiv.innerHTML = `
+                <div class="message-content">
+                    ${content}
+                    <div class="message-time">${timestamp}</div>
+                </div>
+            `;
+            
+            messages.appendChild(messageDiv);
+            messages.scrollTop = messages.scrollHeight;
+        }
+        
+        function showImage(src) {
+            document.getElementById('modalImage').src = src;
+            document.getElementById('imageModal').classList.add('show');
+        }
+        
+        function closeModal() {
+            document.getElementById('imageModal').classList.remove('show');
+        }
+        
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+        
+        function copyOffer() {
+            const code = document.getElementById('offerCode').textContent;
+            const btn = event.target;
+            navigator.clipboard.writeText(code).then(() => {
+                btn.textContent = '已复制';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = '复制';
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+        
+        function copyAnswer() {
+            const code = document.getElementById('answerCode').textContent;
+            const btn = event.target;
+            navigator.clipboard.writeText(code).then(() => {
+                btn.textContent = '已复制';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = '复制';
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+        
+        function reconnect() {
+            if (pc) {
+                pc.close();
+            }
+            pc = null;
+            dataChannel = null;
+            isConnected = false;
+            
+            // 隐藏重连按钮
+            document.getElementById('reconnectBtn').classList.add('hidden');
+            document.getElementById('newConnectionBtn').classList.add('hidden');
+            
+            // 展开连接面板
+            const panel = document.getElementById('connectionPanel');
+            const btn = document.getElementById('toggleBtn');
+            panel.classList.remove('collapsed');
+            btn.classList.remove('rotated');
+            
+            updateStatus('正在重新连接...');
+            addSystemMessage('正在重新连接...');
+            
+            // 根据之前的连接类型重新连接
+            if (connectionType === 'creator') {
+                createConnection();
+            } else if (connectionType === 'joiner') {
+                // 显示加入表单，保留之前的数据
+                showJoinForm();
+            }
+        }
+        
+        function disconnect() {
+            if (pc) {
+                pc.close();
+            }
+            pc = null;
+            dataChannel = null;
+            isConnected = false;
+            
+            document.getElementById('disconnectBtn').classList.add('hidden');
+            showReconnectOptions();
+            addSystemMessage('已主动断开连接');
+            saveToStorage();
+        }
+        
+        function createNewConnection() {
+            // 清除所有数据
+            clearStorage();
+            document.getElementById('messages').innerHTML = '';
+            
+            // 重置连接状态
+            if (pc) {
+                pc.close();
+            }
+            pc = null;
+            dataChannel = null;
+            isConnected = false;
+            connectionType = null;
+            lastOfferData = null;
+            lastAnswerData = null;
+            
+            // 隐藏所有连接相关的UI
+            document.getElementById('offerSection').classList.add('hidden');
+            document.getElementById('answerSection').classList.add('hidden');
+            document.getElementById('myAnswerSection').classList.add('hidden');
+            document.getElementById('reconnectBtn').classList.add('hidden');
+            document.getElementById('newConnectionBtn').classList.add('hidden');
+            document.getElementById('disconnectBtn').classList.add('hidden');
+            
+            // 展开连接面板
+            const panel = document.getElementById('connectionPanel');
+            const btn = document.getElementById('toggleBtn');
+            panel.classList.remove('collapsed');
+            btn.classList.remove('rotated');
+            
+            updateStatus('准备就绪');
+            addSystemMessage('已清除所有数据，可以创建新连接');
+        }
+        
+        // 自动调整输入框高度
+        document.getElementById('messageInput').addEventListener('input', function() {
+            this.style.height = 'auto';
+            const newHeight = Math.min(this.scrollHeight, 100);
+            this.style.height = newHeight + 'px';
+            
+            // 如果内容超出最大高度，显示滚动条
+            if (this.scrollHeight > 100) {
+                this.style.overflowY = 'auto';
+            } else {
+                this.style.overflowY = 'hidden';
+            }
+        });
+        
+        // 页面加载完成后的初始化
+        window.onload = function() {
+            const hasData = loadFromStorage();
+            if (!hasData) {
+                updateStatus('准备就绪');
+            }
+        };
+        
+        // 页面关闭时清理连接
+        window.onbeforeunload = function() {
+            if (pc) {
+                pc.close();
+            }
+        };
+    </script>
+</body>
+</html>
