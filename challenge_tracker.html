@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人成长挑战打卡器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+        }
+        
+        .container {
+            max-width: 414px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #feca57);
+            padding: 20px;
+            text-align: center;
+            color: white;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .progress-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px auto;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .content {
+            padding: 20px;
+        }
+        
+        .setup-screen, .challenge-screen {
+            display: none;
+        }
+        
+        .setup-screen.active, .challenge-screen.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .challenge-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 10px;
+        }
+        
+        .challenge-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .challenge-item:hover {
+            background: #e9ecef;
+        }
+        
+        .challenge-item.selected {
+            background: #667eea;
+            color: white;
+        }
+        
+        .challenge-item input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #95afc0, #546574);
+            margin-top: 10px;
+        }
+        
+        .daily-challenges {
+            margin-bottom: 20px;
+        }
+        
+        .challenge-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .challenge-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+        }
+        
+        .challenge-card.completed {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-left-color: #28a745;
+            color: white;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .challenge-card.completed::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            background: linear-gradient(45deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3, #54a0ff, #5f27cd, #ff6b6b, #feca57);
+            background-size: 400% 400%;
+            border-radius: 15px;
+            z-index: -1;
+            animation: rainbow-flow 3s linear infinite;
+        }
+        
+        @keyframes rainbow-flow {
+            0% { 
+                background-position: 0% 50%;
+            }
+            25% { 
+                background-position: 100% 50%;
+            }
+            50% { 
+                background-position: 100% 100%;
+            }
+            75% { 
+                background-position: 0% 100%;
+            }
+            100% { 
+                background-position: 0% 50%;
+            }
+        }
+        
+        .challenge-card h3 {
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .challenge-card.completed h3 {
+            color: white;
+        }
+        
+        .challenge-card p {
+            color: #666;
+            font-size: 14px;
+            margin: 0;
+            line-height: 1.4;
+        }
+        
+        .challenge-card.completed p {
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .challenge-status {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 20px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .summary-section {
+            margin-top: 20px;
+        }
+        
+        .summary-section h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .summary-status {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #c3e6cb;
+            font-size: 14px;
+        }
+        
+        .summary-status.completed {
+            background: #cce5ff;
+            color: #004085;
+            border-color: #b8daff;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .history {
+            max-height: 200px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+        }
+        
+        .history-item {
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .history-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .history-date {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 16px;
+        }
+        
+        .history-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .history-progress {
+            background: #667eea;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .delete-btn {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .delete-btn:hover {
+            background: #ff3742;
+        }
+        
+        .history-challenges {
+            margin: 10px 0;
+        }
+        
+        .challenge-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        
+        .challenge-tag {
+            background: #f0f2f5;
+            color: #333;
+            padding: 4px 8px;
+            border-radius: 15px;
+            font-size: 12px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .challenge-tag.completed {
+            background: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+        
+        .history-summary {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #333;
+            line-height: 1.5;
+            border-left: 3px solid #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌟 个人成长挑战</h1>
+            <div class="progress-circle" id="progressCircle">0/0</div>
+            <div id="challengeInfo">开始你的成长之旅</div>
+        </div>
+        
+        <div class="content">
+            <!-- 设置界面 -->
+            <div class="setup-screen active" id="setupScreen">
+                <div class="form-group">
+                    <label for="challengeDays">挑战天数：</label>
+                    <select id="challengeDays">
+                        <option value="7">7天挑战</option>
+                        <option value="14">14天挑战</option>
+                        <option value="21">21天习惯养成</option>
+                        <option value="30">30天蜕变</option>
+                        <option value="66">66天深度改变</option>
+                        <option value="100">100天坚持</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>选择你的挑战项目（可多选）：</label>
+                    <div class="challenge-grid" id="challengeGrid">
+                        <!-- 挑战项目将通过JS动态生成 -->
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="startChallenge()">开始挑战</button>
+            </div>
+            
+            <!-- 挑战界面 -->
+            <div class="challenge-screen" id="challengeScreen">
+                <div class="stats" id="stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="currentDay">1</div>
+                        <div class="stat-label">当前天数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="completedToday">0</div>
+                        <div class="stat-label">今日完成</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalCompleted">0</div>
+                        <div class="stat-label">总完成数</div>
+                    </div>
+                </div>
+                
+                <div class="daily-challenges" id="dailyChallenges">
+                    <!-- 今日挑战将通过JS动态生成 -->
+                </div>
+                
+                <div class="summary-section">
+                    <h3>📝 今日总结</h3>
+                    <div id="summaryStatus"></div>
+                    <textarea id="dailySummary" placeholder="记录今天的收获、感悟或遇到的挑战..."></textarea>
+                    <button class="btn" id="summaryBtn" onclick="saveDailySummary()" style="margin-top: 10px;">保存总结</button>
+                </div>
+                
+                <div class="summary-section">
+                    <h3>📖 历史记录</h3>
+                    <div class="history" id="historyList">
+                        <p style="text-align: center; color: #999;">暂无记录</p>
+                    </div>
+                </div>
+                
+                <button class="btn-secondary btn" onclick="resetChallenge()">重置挑战</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 挑战项目数据
+        const challengeOptions = [
+            { id: 'earlyRise', name: '早起', description: '早上8点前起床，拥抱清晨的美好' },
+            { id: 'sleep', name: '规律睡眠', description: '每晚至少6小时睡眠，维持规律作息' },
+            { id: 'exercise', name: '运动1小时', description: '任何形式的持续身体活动' },
+            { id: 'morning', name: '晨间仪式', description: '1小时无干扰的晨间活动' },
+            { id: 'reading', name: '阅读10页', description: '书籍、文章或博客等任何阅读' },
+            { id: 'learning', name: '学习新技能', description: '1小时学习真正感兴趣的技能' },
+            { id: 'healthyEating', name: '健康饮食', description: '告别垃圾食品和软饮料' },
+            { id: 'meditation', name: '冥想练习', description: '10-30分钟的冥想或正念练习' },
+            { id: 'gratitude', name: '感恩日记', description: '记录3件感恩的事情' },
+            { id: 'water', name: '喝足够水', description: '每天至少8杯水，保持身体水分' },
+            { id: 'socialConnection', name: '社交连接', description: '与朋友或家人进行有意义的交流' },
+            { id: 'declutter', name: '整理环境', description: '整理房间或工作空间' },
+            { id: 'creativity', name: '创意时间', description: '30分钟创意活动（绘画、写作、音乐等）' },
+            { id: 'natureTime', name: '亲近自然', description: '在户外或绿色空间中度过时间' },
+            { id: 'digitalDetox', name: '数码排毒', description: '减少不必要的屏幕时间' },
+            { id: 'acts', name: '善行一件', description: '做一件帮助他人的事情' },
+            { id: 'planning', name: '计划明天', description: '为明天制定清晰的计划' },
+            { id: 'selfCare', name: '自我关爱', description: '做一件让自己开心的事情' },
+            { id: 'stretch', name: '伸展运动', description: '10-15分钟的伸展或瑜伽' },
+            { id: 'positiveThinking', name: '积极思考', description: '专注于积极的想法和可能性' }
+        ];
+
+        let challengeData = {
+            days: 0,
+            selectedChallenges: [],
+            currentDay: 1,
+            dailyProgress: {},
+            history: []
+        };
+
+        // 全局历史记录（独立存储，不会被重置删除）
+        let globalHistory = [];
+
+        // 初始化页面
+        function init() {
+            loadData();
+            loadGlobalHistory();
+            if (challengeData.days > 0) {
+                showChallengeScreen();
+            } else {
+                generateChallengeOptions();
+            }
+        }
+
+        // 生成挑战选项
+        function generateChallengeOptions() {
+            const grid = document.getElementById('challengeGrid');
+            grid.innerHTML = '';
+            
+            challengeOptions.forEach(challenge => {
+                const item = document.createElement('div');
+                item.className = 'challenge-item';
+                item.innerHTML = `
+                    <input type="checkbox" id="${challenge.id}" value="${challenge.id}">
+                    <div>
+                        <strong>${challenge.name}</strong>
+                        <p style="margin: 5px 0 0 0; font-size: 12px; color: #666;">${challenge.description}</p>
+                    </div>
+                `;
+                
+                item.addEventListener('click', function(e) {
+                    if (e.target.type !== 'checkbox') {
+                        const checkbox = item.querySelector('input[type="checkbox"]');
+                        checkbox.checked = !checkbox.checked;
+                    }
+                    item.classList.toggle('selected', item.querySelector('input[type="checkbox"]').checked);
+                });
+                
+                grid.appendChild(item);
+            });
+        }
+
+        // 开始挑战
+        function startChallenge() {
+            const days = parseInt(document.getElementById('challengeDays').value);
+            const selectedCheckboxes = document.querySelectorAll('#challengeGrid input[type="checkbox"]:checked');
+            
+            if (selectedCheckboxes.length === 0) {
+                alert('请至少选择一个挑战项目！');
+                return;
+            }
+            
+            challengeData.days = days;
+            challengeData.selectedChallenges = Array.from(selectedCheckboxes).map(cb => cb.value);
+            challengeData.currentDay = 1;
+            challengeData.dailyProgress = {};
+            challengeData.history = [];
+            
+            saveData();
+            showChallengeScreen();
+        }
+
+        // 显示挑战界面
+        function showChallengeScreen() {
+            document.getElementById('setupScreen').classList.remove('active');
+            document.getElementById('challengeScreen').classList.add('active');
+            
+            updateHeader();
+            updateStats();
+            generateDailyChallenges();
+            updateSummaryStatus();
+            updateHistory();
+        }
+
+        // 更新头部信息
+        function updateHeader() {
+            const progressCircle = document.getElementById('progressCircle');
+            const challengeInfo = document.getElementById('challengeInfo');
+            
+            progressCircle.textContent = `${challengeData.currentDay}/${challengeData.days}`;
+            challengeInfo.textContent = `第${challengeData.currentDay}天 - 坚持就是胜利！`;
+        }
+
+        // 更新统计信息
+        function updateStats() {
+            document.getElementById('currentDay').textContent = challengeData.currentDay;
+            
+            const today = getTodayKey();
+            const todayProgress = challengeData.dailyProgress[today] || {};
+            const completedToday = Object.values(todayProgress).filter(Boolean).length;
+            document.getElementById('completedToday').textContent = completedToday;
+            
+            let totalCompleted = 0;
+            Object.values(challengeData.dailyProgress).forEach(dayProgress => {
+                totalCompleted += Object.values(dayProgress).filter(Boolean).length;
+            });
+            document.getElementById('totalCompleted').textContent = totalCompleted;
+        }
+
+        // 生成今日挑战
+        function generateDailyChallenges() {
+            const container = document.getElementById('dailyChallenges');
+            const today = getTodayKey();
+            const todayProgress = challengeData.dailyProgress[today] || {};
+            
+            container.innerHTML = '<h3>🎯 今日挑战</h3>';
+            
+            challengeData.selectedChallenges.forEach(challengeId => {
+                const challenge = challengeOptions.find(c => c.id === challengeId);
+                const isCompleted = todayProgress[challengeId] || false;
+                
+                const card = document.createElement('div');
+                card.className = `challenge-card ${isCompleted ? 'completed' : ''}`;
+                card.onclick = () => toggleChallenge(challengeId);
+                
+                card.innerHTML = `
+                    <div class="challenge-status">${isCompleted ? '✅' : '⭕'}</div>
+                    <h3>${challenge.name}</h3>
+                    <p>${challenge.description}</p>
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+
+        // 切换挑战完成状态
+        function toggleChallenge(challengeId) {
+            const today = getTodayKey();
+            if (!challengeData.dailyProgress[today]) {
+                challengeData.dailyProgress[today] = {};
+            }
+            
+            challengeData.dailyProgress[today][challengeId] = !challengeData.dailyProgress[today][challengeId];
+            
+            saveData();
+            updateStats();
+            generateDailyChallenges();
+            
+            // 检查是否完成所有挑战
+            const todayProgress = challengeData.dailyProgress[today];
+            const completedCount = Object.values(todayProgress).filter(Boolean).length;
+            if (completedCount === challengeData.selectedChallenges.length) {
+                setTimeout(() => {
+                    alert('🎉 恭喜！今天的所有挑战都完成了！');
+                }, 100);
+            }
+        }
+
+        // 保存每日总结
+        function saveDailySummary() {
+            const summary = document.getElementById('dailySummary').value.trim();
+            if (!summary) {
+                alert('请输入今日总结！');
+                return;
+            }
+            
+            // 检查今日是否已保存总结
+            if (checkTodaySummary()) {
+                alert('今日总结已保存，每天只能保存一次！');
+                return;
+            }
+            
+            const today = getTodayKey();
+            const todayProgress = challengeData.dailyProgress[today] || {};
+            const completedCount = Object.values(todayProgress).filter(Boolean).length;
+            
+            // 获取今日完成的挑战详情
+            const completedChallenges = [];
+            const uncompletedChallenges = [];
+            
+            challengeData.selectedChallenges.forEach(challengeId => {
+                const challenge = challengeOptions.find(c => c.id === challengeId);
+                if (todayProgress[challengeId]) {
+                    completedChallenges.push(challenge);
+                } else {
+                    uncompletedChallenges.push(challenge);
+                }
+            });
+            
+            // 添加到历史记录
+            const historyItem = {
+                id: Date.now() + Math.random(), // 唯一ID
+                date: today,
+                day: challengeData.currentDay,
+                summary: summary,
+                completed: completedCount,
+                total: challengeData.selectedChallenges.length,
+                completedChallenges: completedChallenges,
+                uncompletedChallenges: uncompletedChallenges,
+                challengeName: `${challengeData.days}天挑战`,
+                timestamp: new Date().toLocaleString()
+            };
+            
+            // 检查是否已存在今天的记录
+            const existingIndex = challengeData.history.findIndex(item => item.date === today);
+            if (existingIndex >= 0) {
+                challengeData.history[existingIndex] = historyItem;
+            } else {
+                challengeData.history.unshift(historyItem);
+            }
+            
+            // 同时保存到全局历史记录
+            const globalExistingIndex = globalHistory.findIndex(item => item.date === today && item.challengeName === historyItem.challengeName);
+            if (globalExistingIndex >= 0) {
+                globalHistory[globalExistingIndex] = historyItem;
+            } else {
+                globalHistory.unshift(historyItem);
+            }
+            
+            // 准备进入下一天
+            if (challengeData.currentDay < challengeData.days) {
+                challengeData.currentDay++;
+            }
+            
+            saveData();
+            saveGlobalHistory();
+            document.getElementById('dailySummary').value = '';
+            
+            updateHeader();
+            updateStats();
+            generateDailyChallenges();
+            updateSummaryStatus();
+            updateHistory();
+            
+            alert('✅ 总结已保存！继续加油！');
+        }
+
+        // 更新历史记录
+        function updateHistory() {
+            const historyList = document.getElementById('historyList');
+            
+            // 显示全局历史记录，按时间排序
+            const allHistory = globalHistory.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            if (allHistory.length === 0) {
+                historyList.innerHTML = '<p style="text-align: center; color: #999;">暂无记录</p>';
+                return;
+            }
+            
+            historyList.innerHTML = allHistory.map(item => {
+                const completedTags = item.completedChallenges?.map(challenge => 
+                    `<span class="challenge-tag completed">${challenge.name} ✅</span>`
+                ).join('') || '';
+                
+                const uncompletedTags = item.uncompletedChallenges?.map(challenge => 
+                    `<span class="challenge-tag">${challenge.name}</span>`
+                ).join('') || '';
+                
+                return `
+                    <div class="history-item">
+                        <div class="history-header">
+                            <div>
+                                <div class="history-date">${item.challengeName} - 第${item.day}天</div>
+                                <div style="font-size: 12px; color: #999; margin-top: 2px;">${item.date} (${item.timestamp})</div>
+                            </div>
+                            <div class="history-actions">
+                                <div class="history-progress">${item.completed}/${item.total}</div>
+                                <button class="delete-btn" onclick="deleteHistoryItem('${item.id}')">删除</button>
+                            </div>
+                        </div>
+                        <div class="history-challenges">
+                            <div class="challenge-tags">
+                                ${completedTags}
+                                ${uncompletedTags}
+                            </div>
+                        </div>
+                        <div class="history-summary">${item.summary}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 检查今日是否已保存总结
+        function checkTodaySummary() {
+            const today = getTodayKey();
+            return globalHistory.some(item => item.date === today && item.challengeName === `${challengeData.days}天挑战`);
+        }
+
+        // 更新总结状态显示
+        function updateSummaryStatus() {
+            const summaryStatus = document.getElementById('summaryStatus');
+            const summaryTextarea = document.getElementById('dailySummary');
+            const summaryBtn = document.getElementById('summaryBtn');
+            
+            if (checkTodaySummary()) {
+                const todayRecord = globalHistory.find(item => 
+                    item.date === getTodayKey() && 
+                    item.challengeName === `${challengeData.days}天挑战`
+                );
+                
+                summaryStatus.innerHTML = `
+                    <div class="summary-status completed">
+                        ✅ 今日总结已保存 (保存时间: ${todayRecord.timestamp})
+                        <br>内容预览: ${todayRecord.summary.substring(0, 50)}${todayRecord.summary.length > 50 ? '...' : ''}
+                    </div>
+                `;
+                summaryTextarea.style.display = 'none';
+                summaryBtn.style.display = 'none';
+            } else {
+                summaryStatus.innerHTML = '';
+                summaryTextarea.style.display = 'block';
+                summaryBtn.style.display = 'block';
+            }
+        }
+        // 删除单条历史记录
+        function deleteHistoryItem(itemId) {
+            if (confirm('确定要删除这条历史记录吗？')) {
+                // 从全局历史记录中删除
+                globalHistory = globalHistory.filter(item => item.id != itemId);
+                
+                // 从当前挑战历史记录中删除（如果存在）
+                challengeData.history = challengeData.history.filter(item => item.id != itemId);
+                
+                saveData();
+                saveGlobalHistory();
+                updateHistory();
+                updateSummaryStatus(); // 更新总结状态
+                
+                alert('✅ 历史记录已删除');
+            }
+        }
+
+        // 重置挑战
+        function resetChallenge() {
+            if (confirm('确定要重置挑战吗？当前进度将丢失，但历史记录会保留！')) {
+                challengeData = {
+                    days: 0,
+                    selectedChallenges: [],
+                    currentDay: 1,
+                    dailyProgress: {},
+                    history: []
+                };
+                
+                saveData();
+                
+                document.getElementById('challengeScreen').classList.remove('active');
+                document.getElementById('setupScreen').classList.add('active');
+                
+                generateChallengeOptions();
+            }
+        }
+
+        // 获取今天的键值
+        function getTodayKey() {
+            const today = new Date();
+            return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+        }
+
+        // 保存数据到本地存储
+        function saveData() {
+            const data = JSON.stringify(challengeData);
+            try {
+                localStorage.setItem('challengeAppData', data);
+            } catch (e) {
+                console.log('保存数据失败');
+            }
+        }
+
+        // 从本地存储加载数据
+        function loadData() {
+            try {
+                const data = localStorage.getItem('challengeAppData');
+                if (data) {
+                    challengeData = JSON.parse(data);
+                }
+            } catch (e) {
+                console.log('加载数据失败，使用默认设置');
+            }
+        }
+
+        // 保存全局历史记录
+        function saveGlobalHistory() {
+            const data = JSON.stringify(globalHistory);
+            try {
+                localStorage.setItem('globalHistoryData', data);
+            } catch (e) {
+                console.log('保存全局历史记录失败');
+            }
+        }
+
+        // 加载全局历史记录
+        function loadGlobalHistory() {
+            try {
+                const data = localStorage.getItem('globalHistoryData');
+                if (data) {
+                    globalHistory = JSON.parse(data);
+                }
+            } catch (e) {
+                console.log('加载全局历史记录失败，使用空数组');
+                globalHistory = [];
+            }
+        }
+
+        // 页面加载时初始化
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
