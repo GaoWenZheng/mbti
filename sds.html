@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>抑郁自评量表（SDS）在线测试</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        
+        .instructions {
+            background-color: #e8f4fc;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        .instructions h2 {
+            color: #2980b9;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        .question {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .question-text {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .option {
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        .option label {
+            display: block;
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .option input {
+            display: none;
+        }
+        
+        .option input:checked + label {
+            background: #3498db;
+            color: white;
+            border-color: #2980b9;
+        }
+        
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        #submitBtn {
+            background: #3498db;
+            color: white;
+        }
+        
+        #submitBtn:hover {
+            background: #2980b9;
+        }
+        
+        #resetBtn {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        #resetBtn:hover {
+            background: #c0392b;
+        }
+        
+        .result {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 5px;
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+        }
+        
+        .result h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .result p {
+            margin-bottom: 10px;
+        }
+        
+        .score-display {
+            font-size: 24px;
+            font-weight: bold;
+            color: #e74c3c;
+            margin: 15px 0;
+        }
+        
+        .interpretation {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        
+        .disclaimer {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        
+        @media (max-width: 600px) {
+            .options {
+                flex-direction: column;
+            }
+            
+            .option {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>抑郁自评量表（SDS）在线测试</h1>
+        
+        <div class="instructions">
+            <h2>答题须知：</h2>
+            <p>请您仔细阅读以下每一条的说明，把意思弄明白，然后对照自己最近一周来的感受，从四个选项中选择最符合您实际情况的一项。</p>
+            <ul>
+                <li><strong>①很少</strong>：表示出现类似情况的频率少于1天或没有出现</li>
+                <li><strong>②有时</strong>：表示至少2-3天会出现类似情况</li>
+                <li><strong>③经常</strong>：表示至少4-5天会出现类似情况</li>
+                <li><strong>④持续</strong>：表示几乎每天都会出现类似情况</li>
+            </ul>
+        </div>
+        
+        <form id="sdsForm">
+            <!-- 问题将在这里动态生成 -->
+        </form>
+        
+        <div class="buttons">
+            <button type="button" id="submitBtn">提交测试</button>
+            <button type="button" id="resetBtn">重新开始</button>
+        </div>
+        
+        <div class="result" id="result">
+            <h2>测试结果</h2>
+            <p>您的原始分数：<span id="rawScore"></span></p>
+            <p>您的标准分：<span id="standardScore" class="score-display"></span></p>
+            <div class="interpretation" id="interpretation"></div>
+            <div class="disclaimer">
+                <p><strong>重要提示：</strong>本量表总分值仅作为参考而非绝对标准，应根据临床症状来划分。如果您对测试结果有任何疑问或担忧，请咨询专业心理健康服务人员。</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 问题列表
+        const questions = [
+            { text: "我觉得闷闷不乐，情绪低沉", reverse: false },
+            { text: "我觉得一天之中早晨最好", reverse: true },
+            { text: "老是莫名地哭出来或觉得想哭", reverse: false },
+            { text: "我晚上睡眠不好", reverse: false },
+            { text: "我吃饭像平时一样多", reverse: true },
+            { text: "我与异性密切接触时和以往一样感到愉快", reverse: true },
+            { text: "我感觉自己的体重在下降", reverse: false },
+            { text: "我有便秘的烦恼", reverse: false },
+            { text: "我觉得心跳比平时快了", reverse: false },
+            { text: "我无缘无故感到疲乏", reverse: false },
+            { text: "我的头脑跟平时一样清楚", reverse: true },
+            { text: "我做事情像平时一样不感到有什么困难", reverse: true },
+            { text: "我坐卧不安, 难以保持平静", reverse: false },
+            { text: "我对未来感到有希望", reverse: true },
+            { text: "我比平时容易生气激动", reverse: false },
+            { text: "我觉得做出决定是容易的事", reverse: true },
+            { text: "我觉得自己是有用的人，别人需要我", reverse: true },
+            { text: "我的生活过得很有意义", reverse: true },
+            { text: "我认为如果我死了别人会生活得更好", reverse: false },
+            { text: "对于平常感兴趣的事我仍旧感兴趣", reverse: true }
+        ];
+
+        // 选项
+        const options = [
+            { value: 1, text: "很少" },
+            { value: 2, text: "有时" },
+            { value: 3, text: "经常" },
+            { value: 4, text: "持续" }
+        ];
+
+        // 生成问题表单
+        const form = document.getElementById('sdsForm');
+        
+        questions.forEach((question, index) => {
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'question';
+            
+            const questionText = document.createElement('div');
+            questionText.className = 'question-text';
+            questionText.textContent = `${index + 1}. ${question.text}`;
+            questionDiv.appendChild(questionText);
+            
+            const optionsDiv = document.createElement('div');
+            optionsDiv.className = 'options';
+            
+            options.forEach(option => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                
+                const input = document.createElement('input');
+                input.type = 'radio';
+                input.name = `q${index + 1}`;
+                input.id = `q${index + 1}_${option.value}`;
+                input.value = option.value;
+                input.required = true;
+                
+                const label = document.createElement('label');
+                label.htmlFor = `q${index + 1}_${option.value}`;
+                label.textContent = option.text;
+                
+                optionDiv.appendChild(input);
+                optionDiv.appendChild(label);
+                optionsDiv.appendChild(optionDiv);
+            });
+            
+            questionDiv.appendChild(optionsDiv);
+            form.appendChild(questionDiv);
+        });
+
+        // 提交按钮事件
+        document.getElementById('submitBtn').addEventListener('click', function() {
+            // 检查是否所有问题都已回答
+            const allAnswered = Array.from(document.querySelectorAll('input[type="radio"]'))
+                .filter(input => input.checked).length === questions.length;
+            
+            if (!allAnswered) {
+                alert('请回答所有问题后再提交！');
+                return;
+            }
+            
+            // 计算分数
+            let rawScore = 0;
+            
+            questions.forEach((question, index) => {
+                const selectedValue = parseInt(document.querySelector(`input[name="q${index + 1}"]:checked`).value);
+                
+                if (question.reverse) {
+                    // 反向计分题
+                    rawScore += (5 - selectedValue);
+                } else {
+                    // 正向计分题
+                    rawScore += selectedValue;
+                }
+            });
+            
+            // 计算标准分
+            const standardScore = Math.round(rawScore * 1.25);
+            
+            // 显示结果
+            document.getElementById('rawScore').textContent = rawScore;
+            document.getElementById('standardScore').textContent = standardScore;
+            
+            let interpretation = '';
+            if (standardScore < 53) {
+                interpretation = '<p>您的测试结果显示无抑郁症状。</p>';
+            } else if (standardScore < 63) {
+                interpretation = '<p>您的测试结果显示有轻度抑郁倾向。</p><p>建议您关注自己的情绪状态，适当调整生活方式，如增加运动、保持规律作息等。如果情况持续，建议咨询专业心理健康服务人员。</p>';
+            } else if (standardScore < 73) {
+                interpretation = '<p>您的测试结果显示有中度抑郁倾向。</p><p>建议您寻求专业心理健康服务人员的帮助，同时保持与家人朋友的沟通，适当进行放松和减压活动。</p>';
+            } else {
+                interpretation = '<p>您的测试结果显示有重度抑郁倾向。</p><p>强烈建议您尽快寻求专业心理健康服务人员的帮助。请记住，寻求帮助是勇敢的表现，抑郁症是可以治疗的。</p>';
+            }
+            
+            document.getElementById('interpretation').innerHTML = interpretation;
+            document.getElementById('result').style.display = 'block';
+            
+            // 滚动到结果区域
+            document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+        });
+
+        // 重置按钮事件
+        document.getElementById('resetBtn').addEventListener('click', function() {
+            if (confirm('确定要重新开始测试吗？所有已回答的内容将被清除。')) {
+                form.reset();
+                document.getElementById('result').style.display = 'none';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        });
+    </script>
+</body>
+</html>
