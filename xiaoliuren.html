@@ -987,7 +987,39 @@
             "6,6,5": "空亡连连终小吉，柳暗花明。长期困境后略有转机，但改善有限。",
             "6,6,6": "空亡三连，大凶之象。近期运势极差，万事难成，应当避静修身，重新规划。"
         };
-
+        // 补充：六神五行与详细物象库 (用于生成画面感)
+        const wuXing = {
+            "大安": {
+                element: "土",
+                weather: "阴天、多云、微风",
+                images: ["大地", "高山", "老宅", "田园", "方盒", "土堆", "家具"]
+            },
+            "留连": {
+                element: "火",
+                weather: "炎热、燥热、久阴",
+                images: ["纠结", "绳索", "街道", "旧物", "证件", "灶台", "枷锁"]
+            },
+            "速喜": {
+                element: "木",
+                weather: "有风、晴朗、虹霓",
+                images: ["鲜花", "树木", "奖杯", "喜报", "乐器", "电塔", "飞机"]
+            },
+            "赤口": {
+                element: "金",
+                weather: "雷雨、冰雹、大风",
+                images: ["刀剑", "剪刀", "金属", "白骨", "牙齿", "锯子", "破损"]
+            },
+            "小吉": {
+                element: "水",
+                weather: "小雨、湿润、雪",
+                images: ["小溪", "酒水", "鱼缸", "汤药", "黑衣", "桃花", "幼苗"]
+            },
+            "空亡": {
+                element: "金",
+                weather: "阴晦、雾霾、空旷",
+                images: ["空盒子", "荒地", "枯骨", "牢狱", "窟窿", "影子", "空气"]
+            }
+        };
         // 计算六神函数
         function calculateLiuShen(num) {
             let remainder = num % 6;
@@ -995,97 +1027,140 @@
             return liuShen[remainder - 1];
         }
 
-        // 获取详细万物取象 (修改版：三传逻辑)
+        // 获取详细万物取象 (完整版：含三传、核心、天气、物象)
         function getDetailedImages(god1, god2, god3) {
             let result = "";
 
             // 获取数据
-            const s1 = shenShaImages[god1.name];
+            const s1 = shenShaImages[god1.name]; // 扩展详情
             const s2 = shenShaImages[god2.name];
-            const s3 = shenShaImages[god3.name]; // 核心结果
+            const s3 = shenShaImages[god3.name];
 
-            // 1. 三传时间轴 (展示起因、经过、结果)
+            const w1 = wuXing[god1.name]; // 五行物象库
+            const w2 = wuXing[god2.name];
+            const w3 = wuXing[god3.name];
+
+            // ------------------------------------------
+            // 1. 三传流年推演 (Timeline)
+            // ------------------------------------------
             result += `<h4>🔮 三传流年推演</h4>`;
             result += `<div class="timeline">`;
 
             // 起因
             result += `
-    <div class="timeline-item">
-        <div class="timeline-dot start"></div>
-        <div class="timeline-title">起因 (初传)：${god1.name}</div>
-        <div class="timeline-content">
-            <div><strong>时机/人物：</strong>${s1.time} / ${s1.person}</div>
-        </div>
-    </div>`;
+            <div class="timeline-item">
+                <div class="timeline-dot start"></div>
+                <div class="timeline-title">起因：${god1.name}</div>
+                <div class="timeline-content">
+                    <div><strong>时机/人物：</strong>${s1.time} / ${s1.person}</div>
+                </div>
+            </div>`;
 
             // 经过
             result += `
-    <div class="timeline-item">
-        <div class="timeline-dot process"></div>
-        <div class="timeline-title">经过 (中传)：${god2.name}</div>
-        <div class="timeline-content">
-            <div><strong>过程特征：</strong>${god2.characteristics}</div>
-        </div>
-    </div>`;
+            <div class="timeline-item">
+                <div class="timeline-dot process"></div>
+                <div class="timeline-title">经过：${god2.name}</div>
+                <div class="timeline-content">
+                    <div><strong>过程特征：</strong>${god2.characteristics}</div>
+                </div>
+            </div>`;
 
             // 结果
             result += `
-    <div class="timeline-item">
-        <div class="timeline-dot end"></div>
-        <div class="timeline-title">结果 (末传)：${god3.name}</div>
-        <div class="timeline-content">
-            <div><strong>最终定局：</strong>${god3.detail}</div>
-        </div>
-    </div>`;
+            <div class="timeline-item">
+                <div class="timeline-dot end"></div>
+                <div class="timeline-title">结果：${god3.name}</div>
+                <div class="timeline-content">
+                    <div><strong>最终定局：</strong>${god3.detail}</div>
+                </div>
+            </div>`;
             result += `</div>`;
 
-            // 2. 核心具体取象 (只显示第三个神煞的详细信息)
+            // ------------------------------------------
+            // 2. 天象与环境 (新增模块)
+            // ------------------------------------------
+
+            // 随机抽取物象组合 (每个神煞抽2个词)
+            const imgPool = [
+                ...getRandomElements(w1.images, 2),
+                ...getRandomElements(w2.images, 2),
+                ...getRandomElements(w3.images, 2)
+            ];
+
+            // 简单的天气组合逻辑
+            let weatherStr = `${w1.weather} 转 ${w3.weather}`;
+            if (god1.name === god3.name) weatherStr = `持续${w1.weather}`;
+
+            result += `<h4>🌤️ 天象与物象组合</h4>`;
+            result += `<div class="image-grid">`;
+
+            // 天气
+            result += `
+            <div class="image-item" style="grid-column: span 2;">
+                <span class="image-label">☁️ 天气/天时</span>
+                <span class="image-value">${weatherStr}</span>
+            </div>`;
+
+            // 画面感 (蒙太奇)
+            result += `
+            <div class="image-item" style="grid-column: span 2; border-left: 3px solid var(--primary-color);">
+                <span class="image-label">🖼️ 读象 · 画面感 (直觉联想)</span>
+                <span class="image-value highlight-text" style="line-height:1.6; letter-spacing:1px;">
+                    ${imgPool.join(" · ")}
+                </span>
+            </div>`;
+            result += `</div>`;
+
+            // ------------------------------------------
+            // 3. 核心定局详情 (以结果论)
+            // ------------------------------------------
             result += `<h4>📍 核心定局 (以结果论)</h4>`;
             result += `<div class="image-grid">`;
 
             // 方位
             result += `
-    <div class="image-item">
-        <span class="image-label">🧭 寻人/物方位</span>
-        <span class="image-value highlight-text">${s3.direction}</span>
-    </div>`;
-
-            // 失物
-            result += `
-    <div class="image-item" style="grid-column: span 2;">
-        <span class="image-label">🔍 失物线索</span>
-        <span class="image-value">${s3.lostItem}</span>
-    </div>`;
-
-            // 身体/疾病
-            result += `
-    <div class="image-item" style="grid-column: span 2;">
-        <span class="image-label">💊 身体/疾病</span>
-        <span class="image-value">${s3.disease} <br><span style="font-size:12px;color:#888">部位：${s3.body}</span></span>
-    </div>`;
-
-            // 场所
-            result += `
-    <div class="image-item">
-        <span class="image-label">🏠 场所特征</span>
-        <span class="image-value">${s3.place}</span>
-    </div>`;
+            <div class="image-item">
+                <span class="image-label">🧭 寻人/物方位</span>
+                <span class="image-value highlight-text">${s3.direction}</span>
+            </div>`;
 
             // 数字
             result += `
-    <div class="image-item">
-        <span class="image-label">🔢 关联数字</span>
-        <span class="image-value">${s3.number}</span>
-    </div>`;
+            <div class="image-item">
+                <span class="image-label">🔢 关联数字</span>
+                <span class="image-value">${s3.number}</span>
+            </div>`;
+
+            // 失物
+            result += `
+            <div class="image-item" style="grid-column: span 2;">
+                <span class="image-label">🔍 失物线索</span>
+                <span class="image-value">${s3.lostItem}</span>
+            </div>`;
+
+            // 身体/疾病
+            result += `
+            <div class="image-item" style="grid-column: span 2;">
+                <span class="image-label">💊 身体/疾病</span>
+                <span class="image-value">${s3.disease} <br><span style="font-size:12px;color:#888">部位：${s3.body}</span></span>
+            </div>`;
 
             // 颜色
             result += `
-    <div class="image-item">
-        <span class="image-label">🎨 幸运颜色</span>
-        <span class="image-value">${s3.color}</span>
-    </div>`;
+            <div class="image-item">
+                <span class="image-label">🎨 幸运颜色</span>
+                <span class="image-value">${s3.color}</span>
+            </div>`;
 
-            result += `</div>`; // 结束网格
+            // 场所
+            result += `
+            <div class="image-item">
+                <span class="image-label">🏠 场所特征</span>
+                <span class="image-value">${s3.place}</span>
+            </div>`;
+
+            result += `</div>`; // End grid
 
             return result;
         }
