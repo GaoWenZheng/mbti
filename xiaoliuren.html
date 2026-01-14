@@ -1056,7 +1056,7 @@
             
             // 组合模板：[场景] 之中，[动态]，最后只见 [物象]。
             return {
-                text: `${scene}之中，亦见${action}，终落得${object}之象。`,
+                text: `${scene}${scene.includes('之中') ? '' : '之中'}，亦见${action}，终落得${object}之象。`,
                 keywords: [scene, action, object]
             };
         }
