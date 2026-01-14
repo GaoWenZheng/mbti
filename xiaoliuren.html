@@ -3,300 +3,728 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>小六壬占卜</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>小六壬</title>
     <style>
+        :root {
+            --primary-color: #8B1E1E;
+            /* 朱砂红 */
+            --primary-light: #FCE8E8;
+            --text-main: #2C2C2C;
+            --text-secondary: #666666;
+            --bg-body: #F7F5F2;
+            /* 米纸色 */
+            --bg-card: #FFFFFF;
+            --border-radius: 12px;
+            --shadow: 0 4px 12px rgba(139, 30, 30, 0.08);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         body {
-            font-family: 'Microsoft YaHei', 'SimHei', sans-serif;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 10px;
+            background-color: var(--bg-body);
+            color: var(--text-main);
             line-height: 1.6;
-            background-color: #f9f9f9;
-            color: #333;
+            background-image: radial-gradient(#e0e0e0 1px, transparent 1px);
+            background-size: 20px 20px;
         }
 
         .container {
-            background-color: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 0 auto;
         }
 
         h1 {
             text-align: center;
-            color: #8b0000;
-            margin-bottom: 30px;
+            color: var(--primary-color);
+            margin: 10px 0 10px;
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.8);
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            box-shadow: var(--shadow);
+            margin-bottom: 15px;
+            border: 1px solid rgba(0, 0, 0, 0.03);
         }
 
         h2 {
-            color: #8b0000;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 5px;
-        }
-
-        .input-section {
-            margin-bottom: 20px;
-            padding: 15px;
-            background-color: #f5f5f5;
-            border-radius: 5px;
-        }
-
-        button {
-            background-color: #8b0000;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            margin: 5px;
-        }
-
-        button:hover {
-            background-color: #6d0000;
-        }
-
-        input {
-            padding: 8px;
-            margin: 5px;
-            border-radius: 3px;
-            border: 1px solid #ddd;
-            width: 80px;
-        }
-
-        .result {
-            margin-top: 20px;
-            padding: 15px;
-            border-left: 4px solid #8b0000;
-            background-color: #fff8f8;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 15px 0;
-        }
-
-        th,
-        td {
-            padding: 8px;
-            text-align: left;
-            border: 1px solid #ddd;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-
-        .symbol {
-            font-size: 24px;
-            font-weight: bold;
-            display: inline-block;
-            margin-right: 10px;
-            color: #8b0000;
-        }
-
-        .tabs {
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--primary-light);
             display: flex;
+            align-items: center;
+        }
+
+        h2::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background-color: var(--primary-color);
+            margin-right: 8px;
+            border-radius: 2px;
+        }
+
+        /* 输入区域优化 */
+        .input-group {
+            display: flex;
+            gap: 10px;
             margin-bottom: 15px;
         }
 
-        .tab {
-            padding: 10px 20px;
-            background-color: #e9e9e9;
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            text-align: center;
+            outline: none;
+            transition: var(--transition);
+            background: #FAFAFA;
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        input:focus {
+            border-color: var(--primary-color);
+            background: #fff;
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        /* 隐藏数字输入框的小箭头 */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            border-radius: 5px 5px 0 0;
-            margin-right: 5px;
+            transition: var(--transition);
+        }
+
+        #calculate {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 6px rgba(139, 30, 30, 0.2);
+        }
+
+        #calculate:active {
+            transform: translateY(2px);
+        }
+
+        #random {
+            background-color: #fff;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        #random:active {
+            background-color: var(--primary-light);
+        }
+
+        /* 结果区域展示 */
+        .result-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .god-card {
+            background: linear-gradient(135deg, #fff 0%, #fefefe 100%);
+            border: 1px solid #eee;
+            border-radius: 10px;
+            padding: 12px 5px;
+            /*稍微减小上下内边距*/
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .god-symbol {
+            font-size: 24px;
+            /* 从28px调小一点，容纳两个字 */
+            font-weight: bold;
+            color: var(--primary-color);
+            display: block;
+            margin-top: 5px;
+            margin-bottom: 4px;
+            font-family: "KaiTi", "STKaiti", "SimSun", serif;
+            /* 楷体 */
+            letter-spacing: 2px;
+            /* 增加字间距，更有古韵 */
+        }
+
+        .god-summary {
+            font-size: 12px;
+            color: #888;
+            background-color: #f7f5f2;
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: nowrap;
+            /* 防止换行 */
+            transform: scale(0.95);
+            /* 稍微缩小一点显得精致 */
+        }
+
+        .god-nature {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            font-size: 10px;
+            color: #999;
+            border: 1px solid #eee;
+            padding: 0 4px;
+            border-radius: 4px;
+            background: #fff;
+        }
+
+        /* Tabs 优化 */
+        .tabs {
+            display: flex;
+            background: #f0f0f0;
+            border-radius: 10px;
+            padding: 4px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px 5px;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            transition: var(--transition);
         }
 
         .tab.active {
-            background-color: #8b0000;
-            color: white;
+            background-color: #fff;
+            color: var(--primary-color);
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .tab-content {
             display: none;
-            padding: 15px;
-            background-color: #f8f8f8;
-            border-radius: 0 5px 5px 5px;
+            animation: fadeIn 0.3s ease;
         }
 
         .tab-content.active {
             display: block;
         }
 
-        .explanation {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #f0f8ff;
-            border-radius: 5px;
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
+
+        /* 内容文本优化 */
+        .explanation-text p {
+            margin-bottom: 12px;
+            color: #444;
+            font-size: 15px;
+        }
+
+        .explanation-text h4 {
+            color: var(--primary-color);
+            margin: 15px 0 8px 0;
+            font-size: 16px;
+            border-left: 3px solid var(--primary-color);
+            padding-left: 8px;
+        }
+
+        /* 取象网格布局 */
+        .image-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .image-item {
+            background: #FAFAFA;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+
+        .image-label {
+            font-size: 12px;
+            color: #999;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .image-value {
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .highlight-text {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            min-width: 300px;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f9f9f9;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* 徽章样式 */
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-right: 5px;
+            background: #eee;
+        }
+
+        .badge-suitable {
+            background: #e6f7ed;
+            color: #008a45;
+        }
+
+        .badge-unsuitable {
+            background: #fbeaea;
+            color: #d32f2f;
+        }
+
+        /* --- 新增样式开始 --- */
+        /* 时间轴样式 */
+        .timeline {
+            position: relative;
+            padding-left: 20px;
+            border-left: 2px solid #eee;
+            margin-left: 10px;
+            margin-bottom: 25px;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -26px;
+            top: 0;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #ddd;
+            border: 2px solid #fff;
+        }
+
+        .timeline-dot.start {
+            background: #8bc34a;
+        }
+
+        /* 起因-绿 */
+        .timeline-dot.process {
+            background: #ffc107;
+        }
+
+        /* 经过-黄 */
+        .timeline-dot.end {
+            background: #8B1E1E;
+        }
+
+        /* 结果-红 */
+
+        .timeline-title {
+            font-weight: bold;
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .timeline-content {
+            font-size: 13px;
+            color: #666;
+            background: #fafafa;
+            padding: 8px;
+            border-radius: 6px;
+        }
+
+        /* 结果详情网格 */
+        .image-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .image-item {
+            background: #FAFAFA;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+
+        .image-label {
+            font-size: 12px;
+            color: #999;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .image-value {
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .highlight-text {
+            color: #8B1E1E;
+            font-weight: bold;
+        }
+
+        /* --- 动态结果卡片样式 --- */
+        #mainSummary {
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 15px;
+            text-align: justify;
+            line-height: 1.8;
+            margin-top: 15px;
+
+            /* 核心修改：边框和背景现在通过 JS 动态控制，这里只设基础属性 */
+            border: 1px solid transparent;
+            color: #333;
+            /* 默认深灰字，保证阅读清晰 */
+
+            transition: all 0.5s ease;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 增加纹理层，让渐变更有质感 */
+        #mainSummary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: radial-gradient(#000 1px, transparent 1px);
+            background-size: 20px 20px;
+            opacity: 0.03;
+            /* 极淡的噪点 */
+            pointer-events: none;
+        }
+
+        /* 结果徽章样式 (动态变色) */
+        .verdict-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            /* 胶囊形 */
+            font-size: 13px;
+            font-weight: bold;
+            margin-right: 8px;
+            vertical-align: middle;
+            letter-spacing: 1px;
+            background: rgba(255, 255, 255, 0.7);
+            /* 半透明白底 */
+            border: 1px solid currentColor;
+            /* 边框跟随文字颜色 */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        /* --- 新增样式结束 --- */
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h1>小六壬占卜系统</h1>
+        <h1>小六壬</h1>
 
-        <div class="input-section">
-            <h2>请输入三个数字(1-999)或选择随机生成</h2>
-            <div>
-                <input type="number" id="num1" min="1" max="999" placeholder="第一个数">
-                <input type="number" id="num2" min="1" max="999" placeholder="第二个数">
-                <input type="number" id="num3" min="1" max="999" placeholder="第三个数">
-                <button id="calculate">计算结果</button>
-                <button id="random">随机生成</button>
+        <div class="card">
+            <h2>起卦</h2>
+            <div class="input-section">
+                <div style="margin-bottom: 10px; font-size: 14px; color: #666;">请输入三个数字 (1-999)</div>
+                <div class="input-group">
+                    <input type="number" id="num1" min="1" max="999" placeholder="数一">
+                    <input type="number" id="num2" min="1" max="999" placeholder="数二">
+                    <input type="number" id="num3" min="1" max="999" placeholder="数三">
+                </div>
+                <div class="btn-group">
+                    <button id="random">随机生成</button>
+                    <button id="calculate">立即占卜</button>
+                </div>
             </div>
         </div>
 
         <div id="resultSection" class="hidden">
-            <h2>占卜结果</h2>
-            <div class="result" id="resultContent"></div>
-
-            <div class="tabs">
-                <div class="tab active" data-tab="basic">基本解释</div>
-                <div class="tab" data-tab="detail">详细解释</div>
-                <div class="tab" data-tab="combo">组合意义</div>
-                <div class="tab" data-tab="images">万物取象</div>
+            <!-- 结果摘要卡片 -->
+            <div class="card" style="border-top: 4px solid var(--primary-color);">
+                <h2>占卜结果</h2>
+                <div class="result-cards" id="resultCards">
+                    <!-- JS 生成卡片 -->
+                </div>
+                <div id="mainSummary"
+                    style="background: #FDF6F6; padding: 12px; border-radius: 8px; color: #5D1010; font-size: 15px; text-align: justify; line-height: 1.8;">
+                    <!-- JS 生成总评 -->
+                </div>
             </div>
 
-            <div id="basicTab" class="tab-content active">
-                <div id="basicExplanation"></div>
+            <!-- 详细解释卡片 -->
+            <div class="card">
+                <div class="tabs">
+                    <div class="tab active" data-tab="basic">基本含义</div>
+                    <div class="tab" data-tab="detail">详细分析</div>
+                    <div class="tab" data-tab="combo">组合关系</div>
+                    <div class="tab" data-tab="images">万物类象</div>
+                </div>
+
+                <div id="basicTab" class="tab-content active explanation-text">
+                    <div id="basicExplanation"></div>
+                </div>
+
+                <div id="detailTab" class="tab-content explanation-text">
+                    <div id="detailExplanation"></div>
+                </div>
+
+                <div id="comboTab" class="tab-content explanation-text">
+                    <div id="comboExplanation"></div>
+                </div>
+
+                <div id="imagesTab" class="tab-content explanation-text">
+                    <div id="imagesExplanation"></div>
+                </div>
             </div>
-
-            <div id="detailTab" class="tab-content">
-                <div id="detailExplanation"></div>
-            </div>
-
-            <div id="comboTab" class="tab-content">
-                <div id="comboExplanation"></div>
-            </div>
-
-            <div id="imagesTab" class="tab-content">
-                <div id="imagesExplanation"></div>
-            </div>
-        </div>
-
-        <div class="explanation">
-            <h2>小六壬介绍</h2>
-            <p>小六壬是中国古代占卜术的一种，由六个神煞组成：大安、留连、速喜、赤口、小吉、空亡。通过数字的组合计算，可以预测事情的吉凶祸福。</p>
-
-            <table>
-                <tr>
-                    <th>六神</th>
-                    <th>基本属性</th>
-                    <th>简要含义</th>
-                </tr>
-                <tr>
-                    <td>大安</td>
-                    <td>土</td>
-                    <td>平安、稳定、吉祥</td>
-                </tr>
-                <tr>
-                    <td>留连</td>
-                    <td>火</td>
-                    <td>拖延、等待、迟缓</td>
-                </tr>
-                <tr>
-                    <td>速喜</td>
-                    <td>木</td>
-                    <td>快速、喜庆、有利</td>
-                </tr>
-                <tr>
-                    <td>赤口</td>
-                    <td>金</td>
-                    <td>争端、口舌、不顺</td>
-                </tr>
-                <tr>
-                    <td>小吉</td>
-                    <td>水</td>
-                    <td>小有所成、平顺</td>
-                </tr>
-                <tr>
-                    <td>空亡</td>
-                    <td>金</td>
-                    <td>虚空、变化、难测</td>
-                </tr>
-            </table>
         </div>
     </div>
 
     <script>
-        // 六神数据
+        // 六神数据 (新增 color 和 accent 属性)
         const liuShen = [
             {
                 name: "大安",
-                symbol: "安",
+                symbol: "大安",
+                summary: "大吉 · 事事昌顺",
                 nature: "土",
+                // 杏仁黄：代表稳重、土地、收获
+                color: "#FFF9C4",
+                accent: "#FBC02D",
                 basic: "大安事事昌，求财在坤方，失物去不远，宅舍保安康。",
                 detail: "大安为六神之首，主吉利平安，诸事大吉大利。代表稳定、和谐、顺利，是最好的卦象。",
                 characteristics: "平稳、祥和、顺畅、圆满、吉祥",
                 suitable: "婚姻、交易、出行、求财、入宅",
-                unsuitable: "诉讼、争斗",
-                images: "高山、大地、安居、满谷"
+                unsuitable: "诉讼、争斗"
             },
             {
                 name: "留连",
-                symbol: "留",
+                symbol: "留连",
+                summary: "中凶 · 谋事未明",
                 nature: "火",
+                // 沉香褐：代表拖延、陈旧、土地焦灼
+                color: "#D7CCC8",
+                accent: "#5D4037",
                 basic: "留连事难成，求谋日未明，官事凶不利，移徙阻南行。",
                 detail: "留连主延迟、拖延、犹豫不决。事情进展缓慢，需要耐心等待。代表事物的发展会遇到阻碍，需要时间才能解决。",
                 characteristics: "拖延、徘徊、犹豫、迂回、等待",
                 suitable: "守成、等待时机、细水长流的事业",
-                unsuitable: "急事、快速见效的事情",
-                images: "流水、长河、云雾、藤蔓"
+                unsuitable: "急事、快速见效的事情"
             },
             {
                 name: "速喜",
-                symbol: "喜",
+                symbol: "速喜",
+                summary: "中吉 · 喜讯立至",
                 nature: "木",
+                // 桃夭粉：代表喜庆、桃花、火焰
+                color: "#FFCDD2",
+                accent: "#C62828",
                 basic: "速喜喜来临，求财向东行，失物申午未，行人立便至。",
                 detail: "速喜代表好消息快速到来，事情迅速见效。主快速、愉快、顺利成功。是一个喜气洋洋的卦象，预示着好事将至。",
                 characteristics: "迅速、欢喜、兴旺、顺利、成功",
                 suitable: "婚姻、庆典、升迁、求财、会友",
-                unsuitable: "需要长期规划的事情",
-                images: "春风、朝阳、花开、喜鹊"
+                unsuitable: "需要长期规划的事情"
             },
             {
                 name: "赤口",
                 symbol: "赤",
+                summary: "小凶 · 口舌是非",
                 nature: "金",
+                // 银朱红/灰：代表兵刃、争吵、尖锐 (这里用冷灰带红调)
+                color: "#E0E0E0",
+                accent: "#455A64", // 或者用深红 #BF360C
                 basic: "赤口主口舌，官非切要防，失物西方寻，行人未回转。",
                 detail: "赤口代表口舌是非、争端、灾祸。主不顺、阻碍、争执。做事容易遇到阻力，人际关系可能紧张，需要小心处理。",
                 characteristics: "冲突、争执、不顺、阻碍、是非",
                 suitable: "慎重决策、避免冲突",
-                unsuitable: "谈判、面试、交友、出行",
-                images: "刀剑、火焰、争端、烈日"
+                unsuitable: "谈判、面试、交友、出行"
             },
             {
                 name: "小吉",
-                symbol: "吉",
+                symbol: "小吉",
+                summary: "小吉 · 诸事和合",
                 nature: "水",
+                // 柳梢绿：代表生机、小确幸、水流
+                color: "#C8E6C9",
+                accent: "#2E7D32",
                 basic: "小吉主小益，求财宜早行，婚姻与家宅，诸事皆平平。",
                 detail: "小吉象征小的吉祥与顺利。虽不及大安那样圆满，但仍属吉利之象。主平稳中有小的收获，事情会朝好的方向发展。",
                 characteristics: "小利、渐进、平稳、温和、略有收获",
                 suitable: "小投资、小生意、循序渐进的事业",
-                unsuitable: "大动作、大决策",
-                images: "细雨、小溪、微风、新芽"
+                unsuitable: "大动作、大决策"
             },
             {
                 name: "空亡",
-                symbol: "空",
+                symbol: "空亡",
+                summary: "大凶 · 音信全无",
                 nature: "金",
+                // 苍山灰/蓝：代表虚空、夜晚、深邃
+                color: "#CFD8DC",
+                accent: "#37474F",
                 basic: "空亡阴阳空，病者药不灵，寻人不相见，官事有虚惊。",
                 detail: "空亡代表虚无、空寂、难以把握。主不确定性大，事情难以预测，容易落空。是变化多端的卦象，需谨慎对待。",
                 characteristics: "虚无、难测、无常、变化、不实",
                 suitable: "思考、冥想、放下、暂缓行动",
-                unsuitable: "投资、婚姻、合作、重要决策",
-                images: "虚空、迷雾、风沙、幻影"
+                unsuitable: "投资、婚姻、合作、重要决策"
             }
         ];
-
+        // 扩展的万物类象数据 (新增核心)
+        const shenShaImages = {
+            "大安": {
+                direction: "西南、东北、东方",
+                color: "黄、青、棕",
+                number: "1、5、7",
+                body: "腿脚、肝胆、脾胃",
+                person: "贵人、长辈、官员",
+                place: "田园、老宅、树林、机关",
+                lostItem: "没丢远，在家里或熟悉处，静止物体旁。",
+                disease: "病情稳定，多为慢性或内伤。",
+                time: "白天，长久"
+            },
+            "留连": {
+                direction: "南方、东南",
+                color: "红、紫、粉",
+                number: "2、8、6",
+                body: "心脏、眼睛、血液",
+                person: "妇女、纠缠者、拖延者",
+                place: "街道、窗户边、厨房",
+                lostItem: "被遮盖或借走。寻找需时间，在明亮处。",
+                disease: "拖延反复，发热炎症。",
+                time: "缓慢，拖延"
+            },
+            "速喜": {
+                direction: "东方、南方",
+                color: "绿、红、橙",
+                number: "3、6、9",
+                body: "头部、咽喉、神经",
+                person: "信使、年轻人、艺人",
+                place: "学校、花草旁、高处",
+                lostItem: "立刻找能找到，在显眼处，往东/南找。",
+                disease: "急病，外感风寒或上火。",
+                time: "迅速，早晨"
+            },
+            "赤口": {
+                direction: "西方",
+                color: "白、金、银",
+                number: "4、7、10",
+                body: "肺部、牙齿、骨骼",
+                person: "军警、律师、仇人",
+                place: "金属旁、工地、缺口处",
+                lostItem: "恐已损坏或被盗。在金属/尖锐物旁。",
+                disease: "呼吸道，牙痛，外伤手术。",
+                time: "下午，秋季"
+            },
+            "小吉": {
+                direction: "北方",
+                color: "黑、蓝、灰",
+                number: "1、5、6",
+                body: "肾脏、耳朵、泌尿",
+                person: "商人、司机、桃花",
+                place: "水边、浴室、阴暗处",
+                lostItem: "没丢，放忘了。在水边/低处/潮湿处。",
+                disease: "寒湿，拉肚子，感冒。",
+                time: "夜晚，冬季"
+            },
+            "空亡": {
+                direction: "中央、西北",
+                color: "白、灰、透明",
+                number: "0、3、6",
+                body: "神经衰弱、虚症",
+                person: "僧道、骗子、无能者",
+                place: "荒地、坟墓、空房",
+                lostItem: "难找了，可能遗失在路上或不存在。",
+                disease: "虚病，精神萎靡，查无病因。",
+                time: "半夜，虚无"
+            }
+        };
         // 六神组合意义
         const combinations = {
             "大安+大安": "双重吉祥，万事顺遂，事业兴旺，家庭和睦，财运亨通。最佳组合之一。",
@@ -560,179 +988,125 @@
             "6,6,6": "空亡三连，大凶之象。近期运势极差，万事难成，应当避静修身，重新规划。"
         };
 
-        // 万物取象数据
-        const wanwuImages = {
-            // 天象
-            "天": ["高空", "云层", "日月", "星辰", "风雨", "雷电", "虹霓", "霜雪"],
-
-            // 地象
-            "地": ["山岳", "平原", "江河", "湖泊", "海洋", "森林", "沙漠", "石头"],
-
-            // 人事
-            "人": ["官爵", "婚姻", "家宅", "疾病", "行人", "文书", "讼事", "财物"],
-
-            // 动物
-            "兽": ["龙", "凤", "虎", "狮", "马", "牛", "羊", "猪", "狗", "猫", "鼠", "兔"],
-
-            // 植物
-            "植": ["松", "柏", "梅", "兰", "竹", "菊", "桃", "柳", "莲", "谷", "豆", "麦"],
-
-            // 物品
-            "物": ["刀剑", "弓箭", "车船", "书画", "珠宝", "衣食", "门户", "道路"]
-        };
-
-        // 六神对应的五行和物象
-        const wuXing = {
-            "大安": {
-                element: "土",
-                images: ["大地", "高山", "丘陵", "屋舍", "田亩", "仓廪", "碑石"]
-            },
-            "留连": {
-                element: "火",
-                images: ["炉灶", "烛灯", "焰火", "骄阳", "红霞", "锅釜", "温泉"]
-            },
-            "速喜": {
-                element: "木",
-                images: ["繁花", "青木", "树林", "草药", "藤蔓", "果实", "风车"]
-            },
-            "赤口": {
-                element: "金",
-                images: ["刀剑", "兵甲", "钟鼎", "锣钹", "钱币", "珠玉", "铃铛"]
-            },
-            "小吉": {
-                element: "水",
-                images: ["河川", "湖泊", "井泉", "雨露", "雾气", "墨水", "泪珠"]
-            },
-            "空亡": {
-                element: "金",
-                images: ["虚空", "云雾", "幻影", "沙尘", "落叶", "浮萍", "残月"]
-            }
-        };
-
         // 计算六神函数
         function calculateLiuShen(num) {
-            // 将数字映射到1-6
             let remainder = num % 6;
             if (remainder === 0) remainder = 6;
-
-            // 映射到六神
             return liuShen[remainder - 1];
         }
 
-        // 获取详细万物取象
+        // 获取详细万物取象 (修改版：三传逻辑)
         function getDetailedImages(god1, god2, god3) {
             let result = "";
 
-            // 获取三个神煞的五行组合
-            const elements = [god1.nature, god2.nature, god3.nature];
-            const elementStr = elements.join("、");
+            // 获取数据
+            const s1 = shenShaImages[god1.name];
+            const s2 = shenShaImages[god2.name];
+            const s3 = shenShaImages[god3.name]; // 核心结果
 
-            result += `<h3>五行组合: ${elementStr}</h3>`;
-            result += "<p>根据五行相生相克原理解读:</p>";
+            // 1. 三传时间轴 (展示起因、经过、结果)
+            result += `<h4>🔮 三传流年推演</h4>`;
+            result += `<div class="timeline">`;
 
-            // 五行组合解析
-            if (new Set(elements).size === 1) {
-                result += `<p>三神同属${elements[0]}行，显示极强的${elements[0]}性质，可能有偏颇之象。</p>`;
-            } else if (new Set(elements).size === 2) {
-                result += "<p>两种五行交织，显示事物性质有所交融，变化不一。</p>";
-            } else {
-                result += "<p>三种五行并存，显示事物变化多端，需要综合考量。</p>";
-            }
+            // 起因
+            result += `
+    <div class="timeline-item">
+        <div class="timeline-dot start"></div>
+        <div class="timeline-title">起因 (初传)：${god1.name}</div>
+        <div class="timeline-content">
+            <div><strong>时机/人物：</strong>${s1.time} / ${s1.person}</div>
+        </div>
+    </div>`;
 
-            // 检查是否有相生相克
-            if (hasWuXingGeneration(elements)) {
-                result += "<p>含有五行相生关系，事物有助长发展的趋势。</p>";
-            }
+            // 经过
+            result += `
+    <div class="timeline-item">
+        <div class="timeline-dot process"></div>
+        <div class="timeline-title">经过 (中传)：${god2.name}</div>
+        <div class="timeline-content">
+            <div><strong>过程特征：</strong>${god2.characteristics}</div>
+        </div>
+    </div>`;
 
-            if (hasWuXingRestriction(elements)) {
-                result += "<p>含有五行相克关系，事物有制约抑制的倾向。</p>";
-            }
+            // 结果
+            result += `
+    <div class="timeline-item">
+        <div class="timeline-dot end"></div>
+        <div class="timeline-title">结果 (末传)：${god3.name}</div>
+        <div class="timeline-content">
+            <div><strong>最终定局：</strong>${god3.detail}</div>
+        </div>
+    </div>`;
+            result += `</div>`;
 
-            // 各类象征物
-            result += "<h3>万物取象综合解读:</h3>";
+            // 2. 核心具体取象 (只显示第三个神煞的详细信息)
+            result += `<h4>📍 核心定局 (以结果论)</h4>`;
+            result += `<div class="image-grid">`;
 
-            // 天象
-            result += "<h4>天象</h4>";
-            result += "<p>";
-            if (elements.includes("火")) {
-                result += "日光明媚，天气炎热，";
-            }
-            if (elements.includes("水")) {
-                result += "云层密布，可能有雨，";
-            }
-            if (elements.includes("木")) {
-                result += "春风和煦，生机盎然，";
-            }
-            if (elements.includes("金")) {
-                result += "秋高气爽，天空清澈，";
-            }
-            if (elements.includes("土")) {
-                result += "大地厚重，山川稳固，";
-            }
-            result += "</p>";
+            // 方位
+            result += `
+    <div class="image-item">
+        <span class="image-label">🧭 寻人/物方位</span>
+        <span class="image-value highlight-text">${s3.direction}</span>
+    </div>`;
 
-            // 人事
-            result += "<h4>人事</h4>";
-            result += "<p>";
-            if (god1.name === "大安" || god2.name === "大安" || god3.name === "大安") {
-                result += "家庭和睦，事业顺遂，";
-            }
-            if (god1.name === "留连" || god2.name === "留连" || god3.name === "留连") {
-                result += "行动迟缓，计划延期，";
-            }
-            if (god1.name === "速喜" || god2.name === "速喜" || god3.name === "速喜") {
-                result += "好消息临近，喜事将至，";
-            }
-            if (god1.name === "赤口" || god2.name === "赤口" || god3.name === "赤口") {
-                result += "口舌是非，人际纠纷，";
-            }
-            if (god1.name === "小吉" || god2.name === "小吉" || god3.name === "小吉") {
-                result += "小有收获，渐进发展，";
-            }
-            if (god1.name === "空亡" || god2.name === "空亡" || god3.name === "空亡") {
-                result += "虚无缥缈，难以把握，";
-            }
-            result += "</p>";
+            // 失物
+            result += `
+    <div class="image-item" style="grid-column: span 2;">
+        <span class="image-label">🔍 失物线索</span>
+        <span class="image-value">${s3.lostItem}</span>
+    </div>`;
 
-            // 具体物象
-            result += "<h4>物象组合</h4>";
-            result += "<p>";
-            // 从每个神的物象中随机选取一些
-            const allImages = [
-                ...getRandomElements(wuXing[god1.name].images, 2),
-                ...getRandomElements(wuXing[god2.name].images, 2),
-                ...getRandomElements(wuXing[god3.name].images, 2)
-            ];
-            result += allImages.join("、");
-            result += "</p>";
+            // 身体/疾病
+            result += `
+    <div class="image-item" style="grid-column: span 2;">
+        <span class="image-label">💊 身体/疾病</span>
+        <span class="image-value">${s3.disease} <br><span style="font-size:12px;color:#888">部位：${s3.body}</span></span>
+    </div>`;
+
+            // 场所
+            result += `
+    <div class="image-item">
+        <span class="image-label">🏠 场所特征</span>
+        <span class="image-value">${s3.place}</span>
+    </div>`;
+
+            // 数字
+            result += `
+    <div class="image-item">
+        <span class="image-label">🔢 关联数字</span>
+        <span class="image-value">${s3.number}</span>
+    </div>`;
+
+            // 颜色
+            result += `
+    <div class="image-item">
+        <span class="image-label">🎨 幸运颜色</span>
+        <span class="image-value">${s3.color}</span>
+    </div>`;
+
+            result += `</div>`; // 结束网格
 
             return result;
         }
-
-        // 判断是否有五行相生关系
+        // 判断五行相生
         function hasWuXingGeneration(elements) {
             const generationPairs = [
                 ["木", "火"], ["火", "土"], ["土", "金"], ["金", "水"], ["水", "木"]
             ];
-
             for (let pair of generationPairs) {
-                if (elements.includes(pair[0]) && elements.includes(pair[1])) {
-                    return true;
-                }
+                if (elements.includes(pair[0]) && elements.includes(pair[1])) return true;
             }
             return false;
         }
 
-        // 判断是否有五行相克关系
+        // 判断五行相克
         function hasWuXingRestriction(elements) {
             const restrictionPairs = [
                 ["木", "土"], ["土", "水"], ["水", "火"], ["火", "金"], ["金", "木"]
             ];
-
             for (let pair of restrictionPairs) {
-                if (elements.includes(pair[0]) && elements.includes(pair[1])) {
-                    return true;
-                }
+                if (elements.includes(pair[0]) && elements.includes(pair[1])) return true;
             }
             return false;
         }
@@ -752,7 +1126,9 @@
             const calculateBtn = document.getElementById('calculate');
             const randomBtn = document.getElementById('random');
             const resultSection = document.getElementById('resultSection');
-            const resultContent = document.getElementById('resultContent');
+            const resultCards = document.getElementById('resultCards');
+            const mainSummary = document.getElementById('mainSummary');
+
             const basicExplanation = document.getElementById('basicExplanation');
             const detailExplanation = document.getElementById('detailExplanation');
             const comboExplanation = document.getElementById('comboExplanation');
@@ -823,95 +1199,112 @@
                 // 显示结果
                 displayResult(num1, num2, num3, god1, god2, god3, he);
             });
+            // 动态生成渐变背景样式
+            function applyDynamicTheme(element, g1, g2, g3) {
+                // 1. 生成三段式渐变 (135度，从左上到右下)
+                // g1(起因) -> g2(经过) -> g3(结果)
+                const gradient = `linear-gradient(135deg, ${g1.color} 0%, ${g2.color} 50%, ${g3.color} 100%)`;
 
+                // 2. 应用背景
+                element.style.background = gradient;
+
+                // 3. 应用边框色 (使用"结果"的主题色，加深视觉定性)
+                element.style.borderColor = g3.accent;
+
+                // 4. 返回徽章的样式 (供内部HTML使用)
+                return `color: ${g3.accent}; border-color: ${g3.accent};`;
+            }
             // 显示结果函数
             function displayResult(num1, num2, num3, god1, god2, god3, he) {
                 // 显示结果区域
                 resultSection.classList.remove('hidden');
 
-                // 组合结果文本
-                let resultHTML = `
-                    <div>
-                        <p>您输入的数字是: <strong>${num1}, ${num2}, ${num3}</strong></p>
-                        <p>对应的六神是:</p>
-                        <div>
-                            <span class="symbol">${god1.symbol}</span> ${god1.name} (${god1.nature})
-                        </div>
-                        <div>
-                            <span class="symbol">${god2.symbol}</span> ${god2.name} (${god2.nature})
-                        </div>
-                        <div>
-                            <span class="symbol">${god3.symbol}</span> ${god3.name} (${god3.nature})
-                        </div>
+                // 顶部卡片展示三个神煞
+                let cardsHTML = `
+                    <div class="god-card">
+                        <span class="god-nature">${god1.nature}</span>
+                        <span class="god-symbol">${god1.symbol}</span>
+                        <span class="god-summary" style="background-color: ${god1.color}; border-color: ${god1.accent};">${god1.summary}</span>
+                    </div>
+                    <div class="god-card">
+                        <span class="god-nature">${god2.nature}</span>
+                        <span class="god-symbol">${god2.symbol}</span>
+                        <span class="god-summary" style="background-color: ${god2.color}; border-color: ${god2.accent};">${god2.summary}</span>
+                    </div>
+                    <div class="god-card">
+                        <span class="god-nature">${god3.nature}</span>
+                        <span class="god-symbol">${god3.symbol}</span>
+                        <span class="god-summary" style="background-color: ${god3.color}; border-color: ${god3.accent};">${god3.summary}</span>
                     </div>
                 `;
+                resultCards.innerHTML = cardsHTML;
+                // 1. 应用动态样式到主卡片
+                // badgeStyle 将用于下面的徽章 span
+                const badgeStyle = applyDynamicTheme(mainSummary, god1, god2, god3);
 
-                resultContent.innerHTML = resultHTML;
+                // 2. 简单的吉凶文本判断 (仅用于显示文字，不控制颜色)
+                const goodGods = ["大安", "速喜", "小吉"];
+                let label = "";
+                if (god3.name === "空亡") label = "虚空 · 变数";
+                else if (goodGods.includes(god3.name)) label = "吉象 · 顺遂";
+                else label = "凶象 · 慎行";
+
+                // 3. 生成 HTML
+                mainSummary.innerHTML = `
+                    <span class="verdict-badge" style="${badgeStyle}">${label}</span>
+                    <strong>总断：</strong>${combinations1[he] || "数据组合待补充..."}
+                `;
 
                 // 基本解释
                 let basicHTML = `
-                    <h3>基本解释</h3>
-                    <div>
-                        <h4>${god1.name}</h4>
-                        <p>${god1.basic}</p>
-                        
-                        <h4>${god2.name}</h4>
-                        <p>${god2.basic}</p>
-                        
-                        <h4>${god3.name}</h4>
-                        <p>${god3.basic}</p>
-
-                        <h4>总体解释</h4>
-                        <p>${combinations1[he]}</p>
-                    </div>
+                    <h4>${god1.name}</h4>
+                    <p>${god1.basic}</p>
+                    
+                    <h4>${god2.name}</h4>
+                    <p>${god2.basic}</p>
+                    
+                    <h4>${god3.name}</h4>
+                    <p>${god3.basic}</p>
                 `;
 
                 basicExplanation.innerHTML = basicHTML;
 
                 // 详细解释
                 let detailHTML = `
-                    <h3>详细解释</h3>
-                    <div>
-                        <h4>${god1.name}</h4>
-                        <p>${god1.detail}</p>
-                        <p><strong>特性:</strong> ${god1.characteristics}</p>
-                        <p><strong>适合:</strong> ${god1.suitable}</p>
-                        <p><strong>不适合:</strong> ${god1.unsuitable}</p>
-                        
-                        <h4>${god2.name}</h4>
-                        <p>${god2.detail}</p>
-                        <p><strong>特性:</strong> ${god2.characteristics}</p>
-                        <p><strong>适合:</strong> ${god2.suitable}</p>
-                        <p><strong>不适合:</strong> ${god2.unsuitable}</p>
-                        
-                        <h4>${god3.name}</h4>
-                        <p>${god3.detail}</p>
-                        <p><strong>特性:</strong> ${god3.characteristics}</p>
-                        <p><strong>适合:</strong> ${god3.suitable}</p>
-                        <p><strong>不适合:</strong> ${god3.unsuitable}</p>
-                    </div>
+                    <h4>${god1.name}</h4>
+                    <p>${god1.detail}</p>
+                    <p><strong>特性:</strong> ${god1.characteristics}</p>
+                    <p><span class="badge badge-suitable">宜</span>${god1.suitable}</p>
+                    <p><span class="badge badge-unsuitable">忌</span>${god1.unsuitable}</p>
+                    
+                    <h4>${god2.name}</h4>
+                    <p>${god2.detail}</p>
+                    <p><strong>特性:</strong> ${god2.characteristics}</p>
+                    <p><span class="badge badge-suitable">宜</span>${god2.suitable}</p>
+                    <p><span class="badge badge-unsuitable">忌</span>${god2.unsuitable}</p>
+                    
+                    <h4>${god3.name}</h4>
+                    <p>${god3.detail}</p>
+                    <p><strong>特性:</strong> ${god3.characteristics}</p>
+                    <p><span class="badge badge-suitable">宜</span>${god3.suitable}</p>
+                    <p><span class="badge badge-unsuitable">忌</span>${god3.unsuitable}</p>
                 `;
 
                 detailExplanation.innerHTML = detailHTML;
 
                 // 组合解释
                 let comboHTML = `
-                    <h3>组合意义</h3>
-                    <div>
-                        <h4>${god1.name} + ${god2.name}</h4>
-                        <p>${combinations[`${god1.name}+${god2.name}`]}</p>
-                        
-                        <h4>${god2.name} + ${god3.name}</h4>
-                        <p>${combinations[`${god2.name}+${god3.name}`]}</p>
-                        
-                        <h4>${god1.name} + ${god3.name}</h4>
-                        <p>${combinations[`${god1.name}+${god3.name}`]}</p>
-                    </div>
+                    <h4>${god1.name} + ${god2.name}</h4>
+                    <p>${combinations[`${god1.name}+${god2.name}`]}</p>
                     
-                    <div>
-                        <h4>三神组合总体解读</h4>
-                        <p>${getTripleComboExplanation(god1, god2, god3)}</p>
-                    </div>
+                    <h4>${god2.name} + ${god3.name}</h4>
+                    <p>${combinations[`${god2.name}+${god3.name}`]}</p>
+                    
+                    <h4>${god1.name} + ${god3.name}</h4>
+                    <p>${combinations[`${god1.name}+${god3.name}`]}</p>
+                    
+                    <h4>三神组合总体解读</h4>
+                    <p>${getTripleComboExplanation(god1, god2, god3)}</p>
                 `;
 
                 comboExplanation.innerHTML = comboHTML;
@@ -921,7 +1314,7 @@
                 imagesExplanation.innerHTML = imagesHTML;
 
                 // 滚动到结果区域
-                resultSection.scrollIntoView({ behavior: 'smooth' });
+                resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
 
             // 三神组合解释函数
