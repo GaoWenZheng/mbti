@@ -987,39 +987,79 @@
             "6,6,5": "空亡连连终小吉，柳暗花明。长期困境后略有转机，但改善有限。",
             "6,6,6": "空亡三连，大凶之象。近期运势极差，万事难成，应当避静修身，重新规划。"
         };
-        // 补充：六神五行与详细物象库 (用于生成画面感)
         const wuXing = {
             "大安": {
-                element: "土",
-                weather: "阴天、多云、微风",
-                images: ["大地", "高山", "老宅", "田园", "方盒", "土堆", "家具"]
+                weather: "微风拂面，云淡风轻",
+                // 场景：静态、稳固的地方
+                scenes: ["古树之下", "田园庭院", "宽阔大路", "庄严大厅", "静谧书房"],
+                // 动态：平稳、不动的动作
+                actions: ["静坐等待", "安稳放置", "徐徐而行", "维持原状"],
+                // 物象：方形、土产、稳固之物
+                objects: ["磐石", "印章", "方盒", "五谷", "家具"]
             },
             "留连": {
-                element: "火",
-                weather: "炎热、燥热、久阴",
-                images: ["纠结", "绳索", "街道", "旧物", "证件", "灶台", "枷锁"]
+                weather: "阴雨绵绵，雾气缭绕",
+                // 场景：纠结、粘滞的地方
+                scenes: ["泥泞小路", "十字街头", "老旧厨房", "幽深巷弄"],
+                // 动态：拖延、反复的动作
+                actions: ["徘徊不前", "反复纠缠", "被绳索绊住", "寻找无果"],
+                // 物象：绳索、粘稠物、旧证件
+                objects: ["乱麻", "锁链", "旧物", "湿土", "藤蔓"]
             },
             "速喜": {
-                element: "木",
-                weather: "有风、晴朗、虹霓",
-                images: ["鲜花", "树木", "奖杯", "喜报", "乐器", "电塔", "飞机"]
+                weather: "阳光明媚，彩虹乍现",
+                // 场景：热闹、高处
+                scenes: ["繁华闹市", "学校操场", "向阳高处", "花园之中"],
+                // 动态：快速、愉悦的动作
+                actions: ["奔跑而来", "含笑相迎", "飞鸟掠过", "鼓掌欢呼"],
+                // 物象：喜庆之物、火光
+                objects: ["奖杯", "鲜花", "喜报", "火炬", "电子产品"]
             },
             "赤口": {
-                element: "金",
-                weather: "雷雨、冰雹、大风",
-                images: ["刀剑", "剪刀", "金属", "白骨", "牙齿", "锯子", "破损"]
+                weather: "雷雨交加，狂风大作",
+                // 场景：冲突、金属多之地
+                scenes: ["建筑工地", "屠宰集市", "破损缺口", "荒乱战场"],
+                // 动态：激烈、伤害的动作
+                actions: ["大声争吵", "器物破碎", "挥刀相向", "惊雷乍响"],
+                // 物象：尖锐、金属、破损之物
+                objects: ["利刃", "碎玻璃", "白骨", "剪刀", "面具"]
             },
             "小吉": {
-                element: "水",
-                weather: "小雨、湿润、雪",
-                images: ["小溪", "酒水", "鱼缸", "汤药", "黑衣", "桃花", "幼苗"]
+                weather: "细雨蒙蒙，露水沾衣",
+                // 场景：流动、水边
+                scenes: ["小溪河畔", "酒馆茶楼", "桃花林间", "浴室水边"],
+                // 动态：流动、滋润的动作
+                actions: ["流水潺潺", "把酒言欢", "小船漂流", "嫩芽破土"],
+                // 物象：液体、小物件
+                objects: ["酒杯", "游鱼", "镜子", "药汤", "黑衣"]
             },
             "空亡": {
-                element: "金",
-                weather: "阴晦、雾霾、空旷",
-                images: ["空盒子", "荒地", "枯骨", "牢狱", "窟窿", "影子", "空气"]
+                weather: "阴霾笼罩，暮色四合",
+                // 场景：虚无、空旷
+                scenes: ["荒郊野外", "枯井深渊", "无人空屋", "坟墓荒地"],
+                // 动态：落空、消失的动作
+                actions: ["跌入深渊", "烟消云散", "抓握不住", "迷失方向"],
+                // 物象：空虚、阴暗之物
+                objects: ["空箱子", "影子", "窟窿", "枯骨", "尘埃"]
             }
         };
+        // 画面生成引擎
+        function generateImagery(g1, g2, g3) {
+            const w1 = wuXing[g1.name];
+            const w2 = wuXing[g2.name];
+            const w3 = wuXing[g3.name];
+            
+            // 随机抽取
+            const scene = w1.scenes[Math.floor(Math.random() * w1.scenes.length)];
+            const action = w2.actions[Math.floor(Math.random() * w2.actions.length)];
+            const object = w3.objects[Math.floor(Math.random() * w3.objects.length)];
+            
+            // 组合模板：[场景] 之中，[动态]，最后只见 [物象]。
+            return {
+                text: `${scene}之中，亦见${action}，终落得${object}之象。`,
+                keywords: [scene, action, object]
+            };
+        }
         // 计算六神函数
         function calculateLiuShen(num) {
             let remainder = num % 6;
@@ -1077,40 +1117,57 @@
             </div>`;
             result += `</div>`;
 
+// ------------------------------------------
+            // 2. 读象 · 画面感 (重构版：电影叙事模式)
             // ------------------------------------------
-            // 2. 天象与环境 (新增模块)
-            // ------------------------------------------
+            
+            // 调用造句引擎
+            const imagery = generateImagery(god1, god2, god3);
+            
+            // 天气逻辑
+            let weatherStr = "";
+            if (god1.name === god3.name) {
+                 weatherStr = `从头至尾皆是 ${w1.weather}`;
+            } else {
+                 weatherStr = `初时${w1.weather}，终转${w3.weather}`;
+            }
 
-            // 随机抽取物象组合 (每个神煞抽2个词)
-            const imgPool = [
-                ...getRandomElements(w1.images, 2),
-                ...getRandomElements(w2.images, 2),
-                ...getRandomElements(w3.images, 2)
-            ];
-
-            // 简单的天气组合逻辑
-            let weatherStr = `${w1.weather} 转 ${w3.weather}`;
-            if (god1.name === god3.name) weatherStr = `持续${w1.weather}`;
-
-            result += `<h4>🌤️ 天象与物象组合</h4>`;
-            result += `<div class="image-grid">`;
-
-            // 天气
+            result += `<h4>🖼️ 读象 · 意境还原</h4>`;
+            
+            // 这是一个新的卡片样式，模拟"画卷"
             result += `
-            <div class="image-item" style="grid-column: span 2;">
-                <span class="image-label">☁️ 天气/天时</span>
-                <span class="image-value">${weatherStr}</span>
-            </div>`;
+            <div style="
+                background: linear-gradient(to right, #fcfcfc, #f5f5f5); 
+                border-left: 4px solid var(--primary-color);
+                border-radius: 8px;
+                padding: 15px;
+                margin-top: 10px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            ">
+                <div style="font-size:12px; color:#999; margin-bottom:5px;">🌤️ 天时推演</div>
+                <div style="font-size:14px; color:#555; margin-bottom:15px; font-style:italic;">${weatherStr}</div>
 
-            // 画面感 (蒙太奇)
-            result += `
-            <div class="image-item" style="grid-column: span 2; border-left: 3px solid var(--primary-color);">
-                <span class="image-label">🖼️ 读象 · 画面感 (直觉联想)</span>
-                <span class="image-value highlight-text" style="line-height:1.6; letter-spacing:1px;">
-                    ${imgPool.join(" · ")}
-                </span>
-            </div>`;
-            result += `</div>`;
+                <div style="font-size:12px; color:#999; margin-bottom:5px;">🎬 意象蒙太奇</div>
+                <div style="
+                    font-size: 16px; 
+                    color: #333; 
+                    font-weight: bold; 
+                    line-height: 1.6; 
+                    font-family: 'KaiTi', serif;
+                ">
+                    “ ${imagery.text} ”
+                </div>
+                
+                <!-- 关键词胶囊展示 -->
+                <div style="margin-top:12px; display:flex; gap:8px;">
+                    <span style="background:#eee; padding:2px 8px; border-radius:4px; font-size:12px; color:#666;">📍 ${imagery.keywords[0]}</span>
+                    <span style="background:#eee; padding:2px 8px; border-radius:4px; font-size:12px; color:#666;">⚡ ${imagery.keywords[1]}</span>
+                    <span style="background:#eee; padding:2px 8px; border-radius:4px; font-size:12px; color:#666;">📦 ${imagery.keywords[2]}</span>
+                </div>
+            </div>
+            `;
+            
+            // 注意：这里去掉了原来的 <div class="image-grid"> 的开头，
 
             // ------------------------------------------
             // 3. 核心定局详情 (以结果论)
