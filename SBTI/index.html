@@ -1634,7 +1634,7 @@
 
     const DRUNK_TRIGGER_QUESTION_ID = 'drink_gate_q2';
 
-    const app = {
+const app = {
       shuffledQuestions: [],
       answers: {},
       previewMode: false
@@ -1643,7 +1643,8 @@
     const screens = {
       intro: document.getElementById('intro'),
       test: document.getElementById('test'),
-      result: document.getElementById('result')
+      result: document.getElementById('result'),
+      gallery: document.getElementById('gallery') // 新增的图鉴页面
     };
 
     const questionList = document.getElementById('questionList');
@@ -1652,9 +1653,13 @@
     const submitBtn = document.getElementById('submitBtn');
     const testHint = document.getElementById('testHint');
 
+    // 弹窗相关 DOM
+    const modalOverlay = document.getElementById('detailModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+
     function showScreen(name) {
       Object.entries(screens).forEach(([key, el]) => {
-        el.classList.toggle('active', key === name);
+        if(el) el.classList.toggle('active', key === name);
       });
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -1852,6 +1857,7 @@
       }).join('');
     }
 
+    // ========= 核心结果渲染与分享链接生成 =========
     function renderResult() {
       const result = computeResult();
       const type = result.finalType;
@@ -1881,11 +1887,28 @@
 
       renderDimList(result);
       showScreen('result');
+
+      // 生成 Base64 并更新地址栏 URL，实现分享功能
+      try {
+        const jsonStr = JSON.stringify(app.answers);
+        const base64Str = btoa(jsonStr); 
+        const newUrl = new URL(window.location.href);
+        newUrl.searchParams.set('share', base64Str);
+        window.history.replaceState(null, '', newUrl.toString());
+      } catch (e) {
+        console.warn("URL 更新失败", e);
+      }
     }
 
     function startTest(preview = false) {
       app.previewMode = preview;
       app.answers = {};
+      
+      // 清空 URL 分享参数，防止干扰新测试
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.delete('share');
+      window.history.replaceState(null, '', newUrl.toString());
+
       const shuffledRegular = shuffle(questions);
       const insertIndex = Math.floor(Math.random() * shuffledRegular.length) + 1;
       app.shuffledQuestions = [
@@ -1897,21 +1920,7 @@
       showScreen('test');
     }
 
-    document.getElementById('startBtn').addEventListener('click', () => startTest(false));
-    document.getElementById('backIntroBtn').addEventListener('click', () => showScreen('intro'));
-    document.getElementById('submitBtn').addEventListener('click', renderResult);
-    document.getElementById('restartBtn').addEventListener('click', () => startTest(false));
-    document.getElementById('toTopBtn').addEventListener('click', () => showScreen('intro'));
-    // ================= 新增功能 1：图鉴渲染逻辑 =================
-    screens.gallery = document.getElementById('gallery');
-
-// ================= 新增功能 1：图鉴渲染逻辑与点击事件 =================
-    screens.gallery = document.getElementById('gallery');
-    
-    // 弹窗相关元素
-    const modalOverlay = document.getElementById('detailModal');
-    const closeModalBtn = document.getElementById('closeModalBtn');
-
+    // ========= 新增：图鉴与弹窗渲染逻辑 =========
     function renderGallery() {
       const galleryList = document.getElementById('galleryList');
       if (galleryList.innerHTML !== '') return; // 防重复渲染
@@ -1922,7 +1931,6 @@
           ? `<img src="${imgSrc}" class="gallery-img" loading="lazy" alt="${type.code}">` 
           : `<div class="gallery-img" style="display:flex;align-items:center;justify-content:center;color:#999;font-size:12px;">暂无图片</div>`;
         return `
-          <!-- 加了 data-code 属性用来识别被点击的是谁 -->
           <div class="gallery-card" data-code="${type.code}">
             ${imgHtml}
             <div class="gallery-info">
@@ -1934,19 +1942,15 @@
         `;
       }).join('');
 
-      // 给整个图鉴列表加一个点击事件监听（事件委托）
+      // 图鉴列表点击弹窗事件
       galleryList.addEventListener('click', (e) => {
-        // 找到被点击的卡片
         const card = e.target.closest('.gallery-card');
         if (!card) return;
-        
-        // 获取这个人格的代号，打开弹窗
         const code = card.getAttribute('data-code');
         openDetailModal(code);
       });
     }
 
-    // 打开详情弹窗函数
     function openDetailModal(code) {
       const type = TYPE_LIBRARY[code];
       if (!type) return;
@@ -1966,35 +1970,42 @@
       document.getElementById('modalIntro').textContent = type.intro;
       document.getElementById('modalDesc').textContent = type.desc;
       
-      // 显示弹窗
       modalOverlay.classList.add('active');
-      document.body.style.overflow = 'hidden'; // 防止背景滚动
+      document.body.style.overflow = 'hidden'; 
     }
 
-    // 关闭弹窗
     function closeDetailModal() {
       modalOverlay.classList.remove('active');
-      document.body.style.overflow = ''; // 恢复背景滚动
+      document.body.style.overflow = ''; 
     }
 
-    closeModalBtn.addEventListener('click', closeDetailModal);
 
-    // 点击弹窗黑色半透明背景处也可以关闭弹窗
-    modalOverlay.addEventListener('click', (e) => {
-      if (e.target === modalOverlay) {
-        closeDetailModal();
+    // ========= 基础事件监听绑定 =========
+    document.getElementById('startBtn').addEventListener('click', () => startTest(false));
+    document.getElementById('backIntroBtn').addEventListener('click', () => showScreen('intro'));
+    document.getElementById('submitBtn').addEventListener('click', renderResult);
+
+    // 重新测试与返回首页（带 URL 参数清理）
+    function clearUrlAndRestart(mode) {
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.delete('share');
+      window.history.replaceState(null, '', newUrl.toString());
+      if (mode === 'test') {
+        startTest(false);
+      } else {
+        showScreen('intro');
       }
-    });
-    document.getElementById('toGalleryBtn1').addEventListener('click', () => {
-      renderGallery();
-      showScreen('gallery');
-    });
-    document.getElementById('toGalleryBtn2').addEventListener('click', () => {
-      renderGallery();
-      showScreen('gallery');
-    });
-    document.getElementById('galleryBackBtn').addEventListener('click', () => {
-      // 如果用户已经答完题了，返回结果页；否则返回首页
+    }
+    document.getElementById('restartBtn').addEventListener('click', () => clearUrlAndRestart('test'));
+    document.getElementById('toTopBtn').addEventListener('click', () => clearUrlAndRestart('intro'));
+
+    // 图鉴按钮事件
+    const btn1 = document.getElementById('toGalleryBtn1');
+    if (btn1) btn1.addEventListener('click', () => { renderGallery(); showScreen('gallery'); });
+    const btn2 = document.getElementById('toGalleryBtn2');
+    if (btn2) btn2.addEventListener('click', () => { renderGallery(); showScreen('gallery'); });
+    const btnBack = document.getElementById('galleryBackBtn');
+    if (btnBack) btnBack.addEventListener('click', () => {
       if (Object.keys(app.answers).length > 0 && submitBtn.disabled === false) {
         showScreen('result');
       } else {
@@ -2002,34 +2013,27 @@
       }
     });
 
-    // ================= 新增功能 2：URL Base64 分享与解析 =================
-    // 重写 renderResult 函数，使其在渲染结果后自动修改 URL
-    const originalRenderResult = renderResult;
-    renderResult = function() {
-      originalRenderResult(); 
-      try {
-        const jsonStr = JSON.stringify(app.answers);
-        const base64Str = btoa(jsonStr); 
-        const newUrl = new URL(window.location.href);
-        newUrl.searchParams.set('share', base64Str);
-        window.history.replaceState(null, '', newUrl.toString());
-      } catch (e) {
-        console.warn("URL 更新失败", e);
-      }
-    };
-
-    // 复制链接功能
-    document.getElementById('copyShareBtn').addEventListener('click', function() {
-      navigator.clipboard.writeText(window.location.href).then(() => {
-        const originalText = this.textContent;
-        this.textContent = '✅ 已复制';
-        setTimeout(() => { this.textContent = originalText; }, 2000);
-      }).catch(() => {
-        alert("复制失败，请手动复制浏览器顶部地址栏的链接！");
-      });
+    // 弹窗关闭事件
+    if (closeModalBtn) closeModalBtn.addEventListener('click', closeDetailModal);
+    if (modalOverlay) modalOverlay.addEventListener('click', (e) => {
+      if (e.target === modalOverlay) closeDetailModal();
     });
 
-    // 页面刚加载时，检查是否有分享链接
+    // 分享链接复制事件
+    const copyBtn = document.getElementById('copyShareBtn');
+    if(copyBtn) {
+      copyBtn.addEventListener('click', function() {
+        navigator.clipboard.writeText(window.location.href).then(() => {
+          const originalText = this.textContent;
+          this.textContent = '✅ 已复制';
+          setTimeout(() => { this.textContent = originalText; }, 2000);
+        }).catch(() => {
+          alert("复制失败，请手动复制浏览器顶部地址栏的链接！");
+        });
+      });
+    }
+
+    // ========= 页面加载：解析分享链接自动出结果 =========
     window.addEventListener('DOMContentLoaded', () => {
       const urlParams = new URLSearchParams(window.location.search);
       const shareData = urlParams.get('share');
@@ -2041,8 +2045,8 @@
           
           if (typeof parsedAnswers === 'object' && Object.keys(parsedAnswers).length > 0) {
             app.answers = parsedAnswers;
-            submitBtn.disabled = false; // 标记为已完成
-            renderResult(); // 直接跳过答题，显示结果
+            submitBtn.disabled = false;
+            renderResult(); // 有结果数据直接跳到最终结果页
           }
         } catch (e) {
           console.error("分享链接解析失败或已损坏", e);
@@ -2054,5 +2058,5 @@
     });
   </script>
 
-<!-- Cloudflare Pages Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "d44d4fe6b56c4b46892c3f789d8ac0c5"}'></script><!-- Cloudflare Pages Analytics --></body>
+</body>
 </html>
