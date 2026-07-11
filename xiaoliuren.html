@@ -82,6 +82,37 @@
         }
 
         /* 输入区域优化 */
+        .question-row {
+            display: grid;
+            grid-template-columns: 86px 1fr;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .question-row label {
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        select {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #fafafa;
+            color: var(--text-main);
+            font-size: 15px;
+            outline: none;
+        }
+
+        select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px var(--primary-light);
+            background: #fff;
+        }
+
         .input-group {
             display: flex;
             gap: 10px;
@@ -616,70 +647,288 @@
             border-radius: 6px;
             margin-top: 10px;
         }
+
+
+        button:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .result-meta {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #888;
+            text-align: center;
+        }
+
+        .score-line {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #777;
+        }
+
+        @media (max-width: 390px) {
+            .question-row { grid-template-columns: 1fr; gap: 6px; }
+            body { padding: 6px; }
+            .card { padding: 12px; }
+            .result-cards { gap: 6px; }
+            .god-symbol { font-size: 20px; letter-spacing: 1px; }
+            .god-summary { white-space: normal; line-height: 1.3; }
+            .flow-node { width: 50px; height: 50px; font-size: 12px; }
+            .rel-badge { padding: 1px 4px; font-size: 10px; }
+            .image-grid { grid-template-columns: 1fr; }
+            .image-item[style*="grid-column"] { grid-column: auto !important; }
+        }
+
+
+        /* ===== App V2 界面系统 ===== */
+        :root {
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 18px;
+            --surface: #ffffff;
+            --surface-soft: #fbfaf8;
+            --line: #ebe7e1;
+            --muted: #77716b;
+            --good: #2e7d5b;
+            --neutral: #b27a22;
+            --bad: #a43d36;
+        }
+        html { scroll-behavior: smooth; }
+        body { padding: 0 12px 28px; background-image: none; background: linear-gradient(180deg,#f2ebe2 0,#f7f5f2 180px,#f7f5f2 100%); }
+        .container { max-width: 720px; }
+        .app-header { text-align:center; padding:28px 12px 18px; }
+        .app-header h1 { margin:0; font-size:2rem; }
+        .subtitle { margin:5px 0 0; color:var(--muted); font-size:13px; letter-spacing:2px; }
+        .card { border:1px solid var(--line); border-radius:var(--radius-lg); box-shadow:none; padding:18px; }
+        .primary-card { box-shadow:0 12px 32px rgba(80,50,32,.08); }
+        .section-eyebrow { color:var(--primary-color); font-size:12px; font-weight:700; letter-spacing:2px; margin-bottom:5px; }
+        .section-title { font-size:18px; font-weight:750; margin:0 0 14px; }
+        .input-hint { padding:11px 12px; border-radius:var(--radius-md); background:#f8f2eb; color:#655e58; font-size:13px; margin:12px 0; }
+        .question-row { display:grid; gap:6px; }
+        .question-row label,.number-label { font-size:12px; color:var(--muted); font-weight:650; }
+        select { width:100%; padding:13px 12px; border:1px solid #ddd5cc; border-radius:var(--radius-md); background:#fff; color:#333; font-size:15px; outline:none; }
+        select:focus { border-color:var(--primary-color); box-shadow:0 0 0 3px var(--primary-light); }
+        .number-field { min-width:0; }
+        .number-label { display:block; text-align:center; margin-bottom:5px; }
+        .input-group { margin-bottom:14px; }
+        input { border-radius:var(--radius-md); background:#fff; }
+        .btn-group { align-items:stretch; }
+        #random { flex:.7; }
+        #calculate { flex:1.3; }
+        button { border-radius:var(--radius-md); }
+        .result-shell { animation:fadeIn .35s ease; }
+        .summary-card { position:relative; overflow:hidden; border-left:5px solid var(--status-color,#8B1E1E); }
+        .summary-flow-line { height:5px; margin:-18px -18px 17px; background:linear-gradient(to right,var(--start-color) 0 33.33%,var(--process-color) 33.33% 66.66%,var(--end-color) 66.66%); }
+        .summary-head { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+        .status-pill { display:inline-flex; align-items:center; gap:6px; padding:5px 10px; border-radius:999px; background:var(--status-soft,#f5eee8); color:var(--status-color); font-weight:750; font-size:13px; }
+        .oracle-title { font-family:'KaiTi','STKaiti',serif; font-size:22px; font-weight:750; letter-spacing:2px; text-align:right; }
+        .plain-summary { font-size:16px; line-height:1.75; margin:15px 0 12px; color:#363330; }
+        .advice-box { background:#f8f5f1; border:1px solid var(--line); border-radius:var(--radius-md); padding:13px; line-height:1.65; font-size:14px; }
+        .trend-ref { margin-top:12px; font-size:12px; color:var(--muted); }
+        .result-time { margin-top:7px; font-size:11px; color:#9b958f; }
+        .flow-card { padding:16px 12px; }
+        .three-flow { display:grid; grid-template-columns:1fr auto 1fr auto 1fr; align-items:center; gap:8px; }
+        .stage-card { text-align:center; min-width:0; padding:13px 5px; border-radius:var(--radius-md); background:var(--surface-soft); border:1px solid var(--line); }
+        .stage-card.result { transform:translateY(-2px); border-width:2px; box-shadow:0 8px 20px rgba(0,0,0,.07); }
+        .stage-role { font-size:11px; color:var(--muted); }
+        .stage-name { font-family:'KaiTi','STKaiti',serif; font-size:21px; font-weight:750; margin:2px 0; }
+        .stage-nature { font-size:12px; color:var(--muted); }
+        .flow-link { text-align:center; min-width:58px; }
+        .flow-link-line { height:2px; background:#d8d1c9; position:relative; }
+        .flow-link-line:after { content:''; position:absolute; right:-1px; top:-4px; border-left:7px solid #d8d1c9; border-top:5px solid transparent; border-bottom:5px solid transparent; }
+        .flow-link-label { display:block; font-size:10px; color:#665f58; margin-bottom:7px; white-space:nowrap; }
+        .reality-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+        .reality-card { background:var(--surface-soft); border:1px solid var(--line); border-radius:var(--radius-md); padding:14px; }
+        .reality-card strong { display:block; color:var(--primary-color); font-size:13px; margin-bottom:6px; }
+        .reality-card p { margin:0; font-size:14px; line-height:1.65; color:#4b4743; }
+        .detail-toggle { width:100%; background:#fff; border:1px solid var(--line); color:var(--primary-color); margin-bottom:15px; }
+        .details-panel.hidden { display:none; }
+        .tabs { position:sticky; top:8px; z-index:20; overflow-x:auto; scrollbar-width:none; background:#eeeae5; }
+        .tabs::-webkit-scrollbar { display:none; }
+        .tab { flex:0 0 auto; min-width:84px; }
+        .context-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+        .context-item { padding:12px; border:1px solid var(--line); background:#faf9f7; border-radius:var(--radius-md); }
+        .context-label { display:block; font-size:11px; color:var(--muted); margin-bottom:4px; }
+        .context-value { font-size:14px; line-height:1.55; }
+        .meta-disclosure { margin-top:14px; border-top:1px dashed var(--line); padding-top:10px; }
+        details summary { cursor:pointer; color:var(--muted); font-size:13px; }
+        .compact-divination { padding:12px 16px; }
+        .compact-divination > :not(.compact-bar) { display:none !important; }
+        .compact-bar { display:none; align-items:center; justify-content:space-between; gap:12px; }
+        .compact-divination .compact-bar { display:flex; }
+        .compact-main { min-width:0; }
+        .compact-label { font-size:11px; color:var(--muted); margin-bottom:2px; }
+        .compact-value { font-size:14px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .compact-actions { display:flex; flex:0 0 auto; gap:7px; }
+        .compact-action { width:auto; padding:8px 11px; font-size:13px; border-radius:9px; }
+        .compact-edit { background:#fff; border:1px solid var(--line); color:var(--primary-color); }
+        .compact-restart { background:var(--primary-color); border:1px solid var(--primary-color); color:#fff; }
+        .editing-note { display:none; margin:0 0 12px; padding:9px 11px; border-radius:10px; background:#fff8e8; color:#7b6227; font-size:12px; }
+        .divination-editing .editing-note { display:block; }
+        .divination-editing { box-shadow:0 12px 32px rgba(80,50,32,.08); }
+        @media(max-width:430px){.compact-bar{align-items:flex-start}.compact-value{font-size:13px;white-space:normal}.compact-actions{flex-direction:column;gap:5px}.compact-action{padding:7px 10px;font-size:12px}}
+        @media(max-width:560px){
+            body{padding-left:8px;padding-right:8px}.card{padding:14px}.summary-flow-line{margin:-14px -14px 15px}.reality-grid,.context-grid{grid-template-columns:1fr}.three-flow{gap:4px}.flow-link{min-width:36px}.flow-link-label{font-size:9px}.stage-name{font-size:18px}.stage-card{padding:11px 3px}.oracle-title{font-size:19px}.summary-head{align-items:center}.input-group{gap:7px}
+        }
+        @media(max-width:380px){.three-flow{grid-template-columns:1fr}.flow-link{padding:2px 0}.flow-link-line{width:2px;height:24px;margin:auto}.flow-link-line:after{right:-4px;top:auto;bottom:-1px;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid #d8d1c9}.flow-link-label{margin-bottom:3px}.stage-card.result{transform:none}}
+
+
+        .option-switch{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px;color:var(--text-secondary);cursor:pointer;user-select:none}
+        .option-switch input{width:17px;height:17px;accent-color:var(--primary-color)}
+        .full-section{margin-top:16px;padding-top:14px;border-top:1px dashed #ddd}
+        .full-section-title{font-weight:700;color:var(--primary-color);margin-bottom:8px}
+        .all-images-toggle{width:100%;margin-top:12px;padding:11px;border:1px solid var(--primary-color);background:#fff;color:var(--primary-color);border-radius:9px;font-weight:700;cursor:pointer}
+        .all-images-panel{margin-top:12px}
+        .triple-summary{padding:16px;border-radius:14px;background:#faf8f5;border:1px solid #ece6df;line-height:1.75}
+        .pattern-hero{padding:16px;border-radius:12px;background:linear-gradient(135deg,var(--pattern-soft,#f7f2ea),#fff);border-left:5px solid var(--pattern-color,#8B1E1E);margin-bottom:14px}
+        .pattern-hero-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+        .pattern-hero h4{margin:0 0 5px;font-size:20px;color:#2f2a26;border:0;padding:0}
+        .pattern-subtitle{font-size:13px;color:#777}
+        .pattern-level{flex:0 0 auto;padding:5px 10px;border-radius:999px;background:#fff;border:1px solid currentColor;color:var(--pattern-color,#8B1E1E);font-size:12px;font-weight:700}
+        .pattern-poem{margin:13px 0 0;padding:10px 12px;border-radius:9px;background:rgba(255,255,255,.75);font-family:"KaiTi","STKaiti",serif;font-size:16px;color:#4b4037}
+        .triple-badges{display:flex;flex-wrap:wrap;gap:7px;margin:11px 0}
+        .triple-badge{padding:4px 9px;border-radius:999px;background:#f0ece7;font-size:12px;color:#555}
+        .pattern-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+        .pattern-card{padding:13px;border-radius:10px;background:#fff;border:1px solid #ece7e1;min-width:0}
+        .pattern-card strong{display:block;margin-bottom:6px;color:#5c312d;font-size:14px}
+        .pattern-card p{margin:0;color:#555;font-size:14px;line-height:1.7}
+        .pattern-card.full{grid-column:1/-1}
+        .pattern-structure{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;gap:7px;margin:14px 0;padding:13px;border-radius:11px;background:#fff;border:1px solid #ece7e1}
+        .pattern-node{text-align:center;padding:9px 5px;border-radius:8px;background:#faf8f5;font-weight:700}
+        .pattern-node small{display:block;color:#888;font-weight:400;margin-bottom:2px}
+        .pattern-arrow{font-size:11px;text-align:center;color:#777;white-space:nowrap}
+        .pattern-arrow b{display:block;color:#5c312d}
+        .pattern-conclusion{margin-top:12px;padding:13px;border-radius:10px;background:var(--pattern-soft,#f7f2ea);border:1px solid rgba(0,0,0,.05)}
+        @media(max-width:520px){.pattern-grid{grid-template-columns:1fr}.pattern-card.full{grid-column:auto}.pattern-structure{grid-template-columns:1fr;gap:5px}.pattern-arrow{padding:3px 0}.pattern-arrow::before{content:"↓ ";}.pattern-hero-top{align-items:center}.pattern-hero h4{font-size:18px}}
+
+        .image-featured > h4,
+        .image-group > h4 {
+            margin: 14px 0 10px;
+            color: var(--primary-color);
+            font-size: 15px;
+        }
+        .image-group {
+            padding-top: 4px;
+            margin-top: 12px;
+            border-top: 1px dashed #e6dfd8;
+        }
+        .all-images-panel {
+            margin-top: 12px;
+        }
+        .all-images-toggle {
+            width: 100%;
+            margin-top: 14px;
+        }
+
+        /* 过程页增强 */
+        .process-overview{padding:14px 15px;border:1px solid var(--line);border-left:4px solid var(--primary-color);border-radius:12px;background:#fffaf7;margin-bottom:14px;line-height:1.75}
+        .process-overview strong{color:var(--primary-color)}
+        .process-stage-list{display:grid;gap:12px}
+        .process-stage-card{position:relative;border:1px solid var(--line);border-radius:14px;padding:15px;background:#fff;overflow:hidden}
+        .process-stage-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--stage-color,var(--primary-color))}
+        .process-stage-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+        .process-stage-title{font-weight:800;font-size:16px}.process-stage-tag{font-size:12px;padding:3px 9px;border-radius:999px;background:#f5f2ee;color:var(--muted)}
+        .process-stage-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+        .process-info{padding:10px;border-radius:9px;background:#faf9f7;border:1px solid #f0ece7;font-size:13px;line-height:1.65}
+        .process-info b{display:block;color:#555;margin-bottom:3px}
+        .process-transition{margin:12px 0;padding:12px 14px;border-radius:12px;background:#f7f7f7;border:1px dashed #d8d2cc;line-height:1.7}
+        .process-transition-title{font-weight:800;color:var(--primary-color);margin-bottom:4px}
+        .process-conclusion{margin-top:14px;padding:14px;border-radius:12px;background:#f8f4ed;border:1px solid #eadfce;line-height:1.75}
+        .process-checks{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}.process-check{font-size:12px;border:1px solid #ded8d1;background:#fff;padding:4px 9px;border-radius:999px;color:#666}
+        @media(max-width:520px){.process-stage-grid{grid-template-columns:1fr}.process-stage-head{align-items:flex-start;flex-direction:column;gap:5px}}
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h1>小六壬</h1>
+        <header class="app-header">
+            <h1>小六壬</h1>
+            <p class="subtitle">一事一占 · 静心取数</p>
+        </header>
 
-        <div class="card">
-            <h2>起卦</h2>
-            <div class="input-section">
-                <div style="margin-bottom: 10px; font-size: 14px; color: #666;">请输入三个数字 (1-999)</div>
-                <div class="input-group">
-                    <input type="number" id="num1" min="1" max="999" placeholder="数一">
-                    <input type="number" id="num2" min="1" max="999" placeholder="数二">
-                    <input type="number" id="num3" min="1" max="999" placeholder="数三">
-                </div>
-                <div class="btn-group">
-                    <button id="random">随机生成</button>
-                    <button id="calculate">立即占卜</button>
+        <section class="card primary-card" id="divinationCard">
+            <div class="compact-bar" id="compactBar">
+                <div class="compact-main"><div class="compact-label">本次起卦</div><div class="compact-value" id="compactValue">—</div></div>
+                <div class="compact-actions">
+                    <button class="compact-action compact-edit" id="compactEdit" type="button">修改数字</button>
+                    <button class="compact-action compact-restart" id="compactRestart" type="button">重新起卦</button>
                 </div>
             </div>
-        </div>
-
-        <div id="resultSection" class="hidden">
-            <!-- 结果摘要卡片 -->
-            <div class="card" style="border-top: 4px solid var(--primary-color);">
-                <h2>占卜结果</h2>
-                <div class="result-cards" id="resultCards">
-                    <!-- JS 生成卡片 -->
-                </div>
-                <div id="mainSummary"
-                    style="background: #FDF6F6; padding: 12px; border-radius: 8px; color: #5D1010; font-size: 15px; text-align: justify; line-height: 1.8;">
-                    <!-- JS 生成总评 -->
-                </div>
+            <div class="editing-note">修改数字或事项后，再点击“重新计算”更新结果。</div>
+            <div class="section-eyebrow">数字起卦</div>
+            <div class="section-title">专注于一件具体的事</div>
+            <div class="question-row">
+                <label for="questionType">所问事项</label>
+                <select id="questionType" aria-label="选择所问事项">
+                    <optgroup label="综合与近期">
+                        <option value="general">综合运势</option>
+                        <option value="daily">近期发展</option>
+                        <option value="decision">选择决策</option>
+                        <option value="message">消息联系</option>
+                    </optgroup>
+                    <optgroup label="事业与学业">
+                        <option value="career">工作事业</option>
+                        <option value="job">求职面试</option>
+                        <option value="promotion">升职调动</option>
+                        <option value="study">学业考试</option>
+                        <option value="project">项目进展</option>
+                        <option value="cooperation">合作签约</option>
+                    </optgroup>
+                    <optgroup label="财务与交易">
+                        <option value="wealth">求财收入</option>
+                        <option value="business">生意经营</option>
+                        <option value="investment">投资交易</option>
+                        <option value="debt">借贷回款</option>
+                        <option value="purchase">买卖采购</option>
+                    </optgroup>
+                    <optgroup label="感情与人际">
+                        <option value="love">感情婚姻</option>
+                        <option value="reconcile">复合和解</option>
+                        <option value="friendship">朋友人际</option>
+                        <option value="family">家庭关系</option>
+                    </optgroup>
+                    <optgroup label="办事与生活">
+                        <option value="travel">出行办事</option>
+                        <option value="lawsuit">诉讼纠纷</option>
+                        <option value="document">手续审批</option>
+                        <option value="house">房屋搬迁</option>
+                        <option value="lost">失物寻人</option>
+                        <option value="health">健康状态</option>
+                    </optgroup>
+                </select>
             </div>
+            <div class="input-hint">心中默念所问之事，凭第一直觉依次输入三个 1–999 的数字。</div>
+            <div class="input-group">
+                <div class="number-field"><label class="number-label" for="num1">初数</label><input type="number" id="num1" min="1" max="999" inputmode="numeric" placeholder="数一"></div>
+                <div class="number-field"><label class="number-label" for="num2">中数</label><input type="number" id="num2" min="1" max="999" inputmode="numeric" placeholder="数二"></div>
+                <div class="number-field"><label class="number-label" for="num3">末数</label><input type="number" id="num3" min="1" max="999" inputmode="numeric" placeholder="数三"></div>
+            </div>
+            <div class="btn-group"><button id="random" type="button">随机取数</button><button id="calculate" type="button">开始起卦</button></div>
+            <label class="option-switch"><input type="checkbox" id="randomAuto"><span>随机取数后自动起卦</span></label>
+        </section>
 
-            <!-- 详细解释卡片 -->
-            <div class="card">
+        <main id="resultSection" class="hidden result-shell">
+            <section id="mainSummary" class="card summary-card"></section>
+            <section class="card flow-card">
+                <div class="section-eyebrow">三传走势</div><div class="section-title">起因 → 经过 → 结果</div>
+                <div id="resultCards"></div>
+            </section>
+            <button id="detailToggle" class="detail-toggle" type="button" aria-expanded="false">展开完整解读</button>
+            <section id="detailsPanel" class="card details-panel hidden">
                 <div class="tabs">
-                    <div class="tab active" data-tab="basic">基本含义</div>
-                    <div class="tab" data-tab="detail">详细分析</div>
-                    <div class="tab" data-tab="combo">组合关系</div>
-                    <div class="tab" data-tab="images">万物类象</div>
+                    <div class="tab active" data-tab="basic">总览</div><div class="tab" data-tab="detail">过程</div><div class="tab" data-tab="combo">关系</div><div class="tab" data-tab="triple">综合格局</div><div class="tab" data-tab="reality">现实读象</div><div class="tab" data-tab="images">类象</div>
                 </div>
-
-                <div id="basicTab" class="tab-content active explanation-text">
-                    <div id="basicExplanation"></div>
-                </div>
-
-                <div id="detailTab" class="tab-content explanation-text">
-                    <div id="detailExplanation"></div>
-                </div>
-
-                <div id="comboTab" class="tab-content explanation-text">
-                    <div id="comboExplanation"></div>
-                </div>
-
-                <div id="imagesTab" class="tab-content explanation-text">
-                    <div id="imagesExplanation"></div>
-                </div>
-            </div>
-        </div>
+                <div id="basicTab" class="tab-content active explanation-text"><div id="basicExplanation"></div></div>
+                <div id="detailTab" class="tab-content explanation-text"><div id="detailExplanation"></div></div>
+                <div id="comboTab" class="tab-content explanation-text"><div id="comboExplanation"></div></div>
+                <div id="tripleTab" class="tab-content explanation-text"><div id="tripleExplanation"></div></div>
+                <div id="realityTab" class="tab-content explanation-text"><div id="realityExplanation"></div></div>
+                <div id="imagesTab" class="tab-content explanation-text"><div id="imagesExplanation"></div></div>
+            </section>
+        </main>
     </div>
-
     <script>
         // 六神数据 (新增 color 和 accent 属性)
         const liuShen = [
@@ -837,6 +1086,124 @@
                 time: "半夜，虚无"
             }
         };
+
+        // 扩展类象库：用于“类象”页的完整补充，避免只显示少量基础字段
+        const extendedImages = {
+            "大安": {
+                season: "春末、四季交替之月，气候平稳",
+                environment: "安静、规整、宽敞、有人长期维护的环境",
+                shape: "方形、厚实、端正、体积较大的物体",
+                object: "印章、证件、家具、箱柜、土产、书籍、固定设备",
+                action: "停留、守候、整理、保存、缓慢推进、按计划执行",
+                sound: "声音低沉平稳，节奏缓慢，重复而有规律",
+                profession: "管理者、公职人员、地产人员、教师、长辈型人物",
+                temperament: "稳重、保守、讲原则、重信用、不喜冒险",
+                event: "签订长期安排、安家置业、稳定合作、手续落实",
+                relationship: "关系稳定，重承诺，进展不快但可靠",
+                finance: "适合稳健积累、固定收益、长期项目，不宜追涨杀跌",
+                document: "合同、证明、档案、房产资料、长期有效的文件",
+                transport: "步行、固定路线、常用车辆、运行平稳的交通工具",
+                communication: "回复稳妥但不急，重事实，倾向当面或正式沟通",
+                storage: "柜子、抽屉、书架、桌下、固定角落、原本常放的位置",
+                searchTips: "先找熟悉区域和固定收纳处，再问长辈或负责人。",
+                omen: "事情有底盘，关键在耐心、程序和持续执行。"
+            },
+            "留连": {
+                season: "夏季湿热、阴雨时段，时间感拉长",
+                environment: "狭窄、杂乱、潮湿、道路反复或人员流动缓慢之处",
+                shape: "弯曲、缠绕、细长、带绳线或多层包裹的物体",
+                object: "绳索、线缆、旧衣、袋子、窗帘、票据、未完成文件",
+                action: "拖延、反复修改、来回确认、排队、等待、被牵制",
+                sound: "重复提醒、嘈杂低语、断断续续的消息或电话",
+                profession: "中介、客服、协调人员、家务人员、流程审批者",
+                temperament: "犹豫、顾虑多、容易反复、依赖关系或旧习惯",
+                event: "审批延迟、约定变更、关系纠缠、计划反复修改",
+                relationship: "牵挂较深但态度不明，容易冷处理或反复联系",
+                finance: "回款慢、账期延长、资金被占用，需核对隐藏成本",
+                document: "待补资料、退回文件、重复修改的合同和申请表",
+                transport: "堵车、绕路、换乘、延误、停靠时间较长",
+                communication: "已读迟回、反复确认、话说不清、信息被搁置",
+                storage: "被衣物遮挡、夹层、袋中袋、窗边、厨房或杂物堆",
+                searchTips: "沿原行动路线倒推，重点检查被覆盖、被借用或临时放置处。",
+                omen: "不是完全无望，而是进度慢且容易被旧问题牵住。"
+            },
+            "速喜": {
+                season: "春夏之交、晴朗清晨，变化来得快",
+                environment: "明亮、热闹、开放、人多、信息流动快的环境",
+                shape: "尖长、轻巧、鲜艳、向上或容易移动的物体",
+                object: "手机、通知、鲜花、礼物、票证、灯具、电子设备",
+                action: "快速抵达、主动联系、立即决定、庆祝、公开宣布",
+                sound: "铃声、提示音、笑声、广播声、节奏明快的音乐",
+                profession: "媒体、销售、快递、教育、活动策划、年轻从业者",
+                temperament: "积极、直率、反应快、爱表达、容易兴奋",
+                event: "好消息、邀约、成交、录取、获奖、临时机会",
+                relationship: "互动升温快，容易主动表态，但也要观察后续稳定性",
+                finance: "机会出现快，适合及时确认，但忌因兴奋忽略细节",
+                document: "通知书、录取信息、电子合同、即时消息、确认函",
+                transport: "高铁、快车、骑行、短途出行、临时赶路",
+                communication: "回复快、主动联系、公开表达，常伴随明确消息",
+                storage: "显眼处、桌面、上层、门口、手机附近、刚用过的位置",
+                searchTips: "立即寻找，不要拖延；优先检查明亮、高处和最近活动区域。",
+                omen: "转机来得快，重点在及时响应并迅速落实。"
+            },
+            "赤口": {
+                season: "秋季、干燥多风、午后或天气突变时",
+                environment: "嘈杂、尖锐、施工、金属多、边角破损的环境",
+                shape: "尖锐、坚硬、带缺口、圆刃、金属框架或碎裂形态",
+                object: "刀剪、钥匙、金属工具、玻璃、机械、牙具、锁具",
+                action: "争论、拒绝、切割、修理、碰撞、投诉、快速反击",
+                sound: "争吵声、金属碰撞声、警报声、尖锐提示音",
+                profession: "律师、军警、维修、外科、安保、质检、投诉处理人员",
+                temperament: "强硬、直接、警觉、好胜、说话锋利",
+                event: "争执、投诉、违约、修理、受伤、规则冲突",
+                relationship: "容易因措辞和立场产生冲突，需避免翻旧账和情绪对抗",
+                finance: "防罚款、赔付、维修费用、合同争议和冲动交易",
+                document: "告知书、处罚单、投诉记录、法律文件、修改意见",
+                transport: "车辆故障、急刹、剐蹭、施工路段、安检节点",
+                communication: "语气直接、容易误解，适合留下书面证据并减少争辩",
+                storage: "金属架旁、工具箱、车内、门锁附近、破损或尖角处",
+                searchTips: "先检查金属物、工具区和可能发生碰撞的位置，注意物品是否受损。",
+                omen: "核心风险来自口舌、规则与冲动，越冷静越容易化解。"
+            },
+            "小吉": {
+                season: "冬季、夜晚、细雨或湿润时段",
+                environment: "水边、低处、流动空间、休闲场所、舒适私密环境",
+                shape: "圆润、小巧、柔软、流线形、可盛装液体的物体",
+                object: "杯瓶、镜子、药品、小包、饰品、饮品、票卡",
+                action: "协商、分享、流动、聚会、小额往来、逐步改善",
+                sound: "流水声、轻音乐、低声交谈、温和通知",
+                profession: "商人、司机、服务业、餐饮、护理、自由职业者",
+                temperament: "随和、灵活、重人情、善于协调、愿意让步",
+                event: "小额收益、聚会合作、关系缓和、渐进恢复",
+                relationship: "相处融洽、容易建立默契，适合慢慢培养信任",
+                finance: "小利可得，适合分批推进、控制规模、重视现金流",
+                document: "收据、账单、会员卡、小额合同、聊天确认记录",
+                transport: "出租车、网约车、船、水路、夜间短途出行",
+                communication: "语气柔和、愿意协商，适合私下沟通和逐步确认",
+                storage: "低处、床边、浴室、包内、小盒、车座下、水源附近",
+                searchTips: "重点找低处、小容器、随身包和潮湿区域，也可询问同行者。",
+                omen: "大事未必立成，但小步推进往往能得到实际收获。"
+            },
+            "空亡": {
+                season: "深夜、季节交替、阴霾或能见度较低时",
+                environment: "空置、荒凉、封闭、无人管理、路线中断的环境",
+                shape: "中空、破损、透明、缺失、不完整或难辨轮廓的物体",
+                object: "空盒、旧壳、废弃物、影像、虚拟账号、无效票据",
+                action: "取消、失联、遗忘、落空、走错、误判、重新开始",
+                sound: "无回应、杂音、断线、空旷回声、信息缺失",
+                profession: "临时人员、自由职业者、宗教人士、失联对象、无明确职责者",
+                temperament: "疏离、回避、迷茫、缺乏计划、承诺感较弱",
+                event: "计划取消、消息失真、资源落空、对象失联、方向改变",
+                relationship: "容易出现距离感、失联或期待落空，需要核实真实意愿",
+                finance: "防空头承诺、无效项目、虚假收益和资金去向不明",
+                document: "过期证件、空白文件、无效合同、遗漏资料、虚假截图",
+                transport: "走错路、临时取消、无人接应、路线中断、空驶",
+                communication: "信息不完整、无人回复、答非所问，必须二次核实",
+                storage: "空房、废弃袋、垃圾桶附近、路途中、被清理或误丢的位置",
+                searchTips: "先确认物品是否真实带出或是否已被处理，再扩大到途中和公共区域。",
+                omen: "最大问题不是阻力，而是目标、信息或承诺本身可能不真实。"
+            }
+        };
         // 六神组合意义
         const combinations = {
             // --- 大安 (稳固) 开头 ---
@@ -978,41 +1345,24 @@
         };
 
         // ---------------------------------------------------------
-        // 6. 核心引擎：生成 216 种唯一解释
+        // 6. 核心引擎：由初传 + 中末传36宫矩阵组合生成216种结果
         // ---------------------------------------------------------
-        function getOracleVerdict(n1, n2, n3) {
-            const n11 = (n1 - 1) % 6 + 1;
-            const n22 = (n11 + n2 + 4) % 6 + 1;
-            const n33 = (n22 + n3 + 4) % 6 + 1;
-            // 1. 优先检查特殊格局
-            const keyExact = `${n11},${n22},${n33}`;
+        function getOracleVerdict(index1, index2, index3) {
+            const keyExact = `${index1},${index2},${index3}`;
             if (specialGrid[keyExact]) {
-                return {
-                    title: specialGrid[keyExact].t,
-                    poem: specialGrid[keyExact].p, // 特殊格局本身就是完整的两句诗
-                    desc: specialGrid[keyExact].d
-                };
+                return { ...specialGrid[keyExact] };
             }
 
-            // 2. 查阅 36宫矩阵 (获取后半部分逻辑)
-            // matrixData[结果][经过]
-            const core = matrixData[n33][n22];
-
-            // 3. 获取起因文字
-            const god1Name = liuShen[n11 - 1].name;
-            const startLine = startPoems[god1Name]; // 第一句诗
-
-            // 4. 组合最终断语
-            // 标题：使用矩阵的核心标题
-            // 诗句：起因诗 + 矩阵核心诗 (组成七言绝句)
-            // 描述：起因描述 + 矩阵核心描述
+            const core = matrixData[index3]?.[index2];
+            const god1Name = liuShen[index1 - 1]?.name;
+            if (!core || !god1Name) {
+                return { t: "卦象异常", p: "数据未能对应，请重新起卦。", d: "请检查输入和基础资料。" };
+            }
 
             return {
-                title: core.t,
-                // 拼接两句诗，中间加逗号
-                poem: `${startLine}，${core.p}`,
-                // 拼接白话解
-                desc: `【${god1Name}起局】${core.d}`
+                t: core.t,
+                p: `${startPoems[god1Name]}，${core.p}`,
+                d: `【${god1Name}起局】${core.d}`
             };
         }
         const wuXing = {
@@ -1071,64 +1421,152 @@
                 objects: ["空箱子", "影子", "窟窿", "枯骨", "尘埃"]
             }
         };
-        // 画面生成引擎
-        function generateImagery(g1, g2, g3) {
-            const w1 = wuXing[g1.name];
-            const w2 = wuXing[g2.name];
-            const w3 = wuXing[g3.name];
+        // 现实读象引擎：不再只拼接抽象意象，而是把三传转换为可理解的现实情境
+        const realityReading = {
+            大安: {
+                phase: "局面较稳，已有基础或熟悉的人事物可依靠",
+                action: "先维持秩序，按原计划稳步推进",
+                person: "稳重的人、长辈、负责人或长期合作对象",
+                sign: "固定场所、旧有资源、正式文件、家中或单位内部"
+            },
+            留连: {
+                phase: "事情被拖住，常见反复沟通、等待回复或手续未齐",
+                action: "补齐信息并设定期限，不要无限等待",
+                person: "犹豫者、反复改口的人、流程经办人或暂时脱不开身的人",
+                sign: "未读消息、待审批事项、旧问题、角落或被遮挡处"
+            },
+            速喜: {
+                phase: "进展突然加快，容易收到消息、邀约或临时机会",
+                action: "及时回应并抓住窗口，但先核实关键细节",
+                person: "年轻人、主动联系者、传递消息的人或行动迅速的人",
+                sign: "手机消息、电话、通知、交通节点、明亮显眼处"
+            },
+            赤口: {
+                phase: "分歧和言语冲突增多，也可能卡在合同、规则或责任划分",
+                action: "少争辩，多留证据；重要内容尽量书面确认",
+                person: "强势者、竞争者、执法或审核人员、情绪急躁的人",
+                sign: "金属物、破损处、门口通道、合同票据或聊天记录"
+            },
+            小吉: {
+                phase: "事情可以通过协商、人情或小范围调整逐渐改善",
+                action: "先促成小成果，再逐步扩大，不宜一步要求到位",
+                person: "朋友、中间人、合作伙伴、服务人员或愿意帮忙的人",
+                sign: "水边、低处、随身小物、饮食场所或日常往来区域"
+            },
+            空亡: {
+                phase: "信息不完整或目标本身有变，容易出现承诺落空、找错方向",
+                action: "先确认事情是否真实存在，再决定是否继续投入",
+                person: "失联者、说法含糊者、临时退出者或无法做主的人",
+                sign: "空置处、遗忘处、途中、已被清理的位置或无有效记录的事项"
+            }
+        };
 
-            // 随机抽取
-            const scene = w1.scenes[Math.floor(Math.random() * w1.scenes.length)];
-            const action = w2.actions[Math.floor(Math.random() * w2.actions.length)];
-            const object = w3.objects[Math.floor(Math.random() * w3.objects.length)];
+        const questionScene = {
+            general: { subject: "当前整体局面", focus: "核验消息、人员行动和结果是否真正落地", evidence: "观察承诺是否兑现、关键事项是否形成书面或实际结果", risk: "不要把短期情绪当成最终结论" },
+            daily: { subject: "近期发展", focus: "看未来一段时间的节奏变化与主要转折", evidence: "以实际通知、日程变化和身边人的行动为准", risk: "避免因一两件小事放大整体趋势" },
+            decision: { subject: "当前选择", focus: "比较哪个方案更容易执行、成本更低、结果更稳定", evidence: "优先核对资源、时间、责任人和退出条件", risk: "信息不全时不宜仓促做不可逆决定" },
+            message: { subject: "消息与联系", focus: "看对方是否回复、信息是否真实以及联系能否持续", evidence: "以回复内容、时间和后续行动交叉验证", risk: "不要只凭已读、语气或单次联络下结论" },
+            career: { subject: "工作事业", focus: "看职责、资源、领导态度与实际推进权限", evidence: "核对任务分配、考核标准和书面安排", risk: "防止责任增加而权限、回报没有同步" },
+            job: { subject: "求职面试", focus: "看岗位真实性、流程速度、竞争与最终录用", evidence: "以正式邀约、薪资范围和录用通知为准", risk: "口头意向不等于正式录用" },
+            promotion: { subject: "升职调动", focus: "看上级支持、名额、组织流程和最终任命", evidence: "关注正式通知、岗位编制与职责变化", risk: "防止只有工作增加而职级待遇不变" },
+            study: { subject: "学业考试", focus: "看准备程度、临场状态、复习重点和结果稳定性", evidence: "用模拟成绩、错题和时间分配验证", risk: "不要依赖临时冲刺或侥幸猜题" },
+            project: { subject: "项目进展", focus: "看资源、节点、协作方与最终交付", evidence: "核对里程碑、负责人、预算和验收标准", risk: "防止前期热闹、后期延期或范围失控" },
+            cooperation: { subject: "合作签约", focus: "看双方诚意、权责、利益分配和履约能力", evidence: "以合同条款、付款安排和退出机制为准", risk: "不要只看关系和口头承诺" },
+            wealth: { subject: "求财收入", focus: "看收入来源、回款速度、成本与落袋情况", evidence: "核对订单、付款节点、税费和实际到账", risk: "防止账面收益无法兑现" },
+            business: { subject: "生意经营", focus: "看客源、现金流、供应、复购和经营稳定性", evidence: "以真实订单、毛利和现金流数据验证", risk: "防止盲目扩张、库存积压或回款过慢" },
+            investment: { subject: "投资交易", focus: "看风险收益、流动性、止损和退出条件", evidence: "以公开数据、规则和自身风险承受能力为准", risk: "传统类象不能代替专业投资判断" },
+            debt: { subject: "借贷回款", focus: "看对方偿付能力、意愿、时间和凭证", evidence: "核对借据、转账记录、还款计划和担保", risk: "避免继续追加无保障资金" },
+            purchase: { subject: "买卖采购", focus: "看价格、品质、交付、售后和合同细节", evidence: "以实物验收、报价单和售后条款为准", risk: "防止低价诱导、隐性费用或交付缩水" },
+            love: { subject: "感情婚姻", focus: "看双方态度、沟通质量、投入与实际行动", evidence: "观察是否稳定联系、解决问题并规划未来", risk: "不要把一时热情等同长期承诺" },
+            reconcile: { subject: "复合和解", focus: "看旧问题是否解决、双方是否真正改变", evidence: "以持续行动、边界和责任承担为准", risk: "只恢复联系不代表关系已修复" },
+            friendship: { subject: "朋友人际", focus: "看信任、利益边界、沟通与互相支持", evidence: "观察对方在关键事情上的实际表现", risk: "防止因人情压力忽略自身边界" },
+            family: { subject: "家庭关系", focus: "看责任分配、沟通方式和长期相处安排", evidence: "以是否愿意共同解决具体问题为准", risk: "避免旧账反复、情绪化指责" },
+            travel: { subject: "出行办事", focus: "核对时间、路线、证件、预约和临时变化", evidence: "以实时通知、票务、天气和官方要求为准", risk: "预留延误和替代方案" },
+            lawsuit: { subject: "诉讼纠纷", focus: "看证据、程序、对方态度与调解空间", evidence: "以合同、记录、证据链和专业法律意见为准", risk: "传统类象不能代替律师意见" },
+            document: { subject: "手续审批", focus: "看材料齐全度、经办人、流程节点和补件可能", evidence: "以受理回执、系统状态和正式通知为准", risk: "防止因材料遗漏反复退回" },
+            house: { subject: "房屋搬迁", focus: "看房源、合同、费用、环境和搬迁时机", evidence: "核验产权、租约、设施、交通和隐性成本", risk: "不要在信息不全时仓促签约" },
+            lost: { subject: "失物或寻人", focus: "回查最后确认位置，再结合方位、场所和移动状态缩小范围", evidence: "查看监控、通话、支付、定位和现场记录", risk: "先排除被移动、代收或记忆偏差" },
+            health: { subject: "身体状态", focus: "观察症状、持续时间、诱因和变化趋势", evidence: "以正规检查、检测指标和医生意见为准", risk: "传统类象仅供文化参考，不能替代诊疗" }
+        };
 
-            // 组合模板：在[场景]，[动态]，最后只见 [物象]。
+        function generateRealityReading(g1, g2, g3, questionType = "general") {
+            const startInfo = realityReading[g1.name];
+            const middleInfo = realityReading[g2.name];
+            const endInfo = realityReading[g3.name];
+            const scene = questionScene[questionType] || questionScene.general;
+            const type1 = getInteraction(g1, g2);
+            const type2 = getInteraction(g2, g3);
+            const relation1 = wuxingRelation[type1] || wuxingRelation.未知;
+            const relation2 = wuxingRelation[type2] || wuxingRelation.未知;
+            const endData = shenShaImages[g3.name];
+
+            const momentum = ["生", "同"].includes(type2)
+                ? `后段形成“${relation2.label}”，中途积累的力量能传到结果，转机来自支持、配合或条件成熟。`
+                : ["克", "耗"].includes(type2)
+                    ? `后段形成“${relation2.label}”，临近结果时更容易出现限制、竞争或额外成本，必须先处理阻力。`
+                    : `后段形成“${relation2.label}”，需要持续投入时间、沟通或资源，结果不会自动出现。`;
+
+            const timing = g3.name === "速喜" ? "变化往往较快，消息窗口短，应及时确认和回应。"
+                : g3.name === "留连" ? "进展偏慢且容易反复，适合设置明确期限并分阶段核验。"
+                : g3.name === "大安" ? "节奏相对稳定，适合按既定步骤推进，不必频繁改变方向。"
+                : g3.name === "小吉" ? "先出现小范围改善，再逐步扩大，宜接受阶段性成果。"
+                : g3.name === "赤口" ? "关键变化常伴随争议、规则或沟通冲突，应先降温并保存证据。"
+                : "结果存在落空或重新定义的可能，应先确认目标和信息是否真实有效。";
+
             return {
-                text: `在${scene}，亦见${action}，终落得${object}之象。`,
-                keywords: [scene, action, object]
+                subject: scene.subject,
+                situation: `${scene.subject}目前由${g1.name}起局：${startInfo.phase}。这代表事情并非凭空发生，而是已经有明确的背景、基础或诱因。`,
+                development: `进入${g2.name}阶段后，${middleInfo.phase}。起因到经过为“${relation1.label}”，表现为${relation1.desc}。`,
+                obstacle: `${scene.risk}。过程中尤其要留意${middleInfo.person}，以及${middleInfo.sign}所对应的现实线索。`,
+                turning: momentum,
+                outcome: `末传落${g3.name}：${endInfo.phase}。最终判断应以实际落地为准，而不是只看前期声势。`,
+                people: `主要人物可能包括${startInfo.person}；中途重点关注${middleInfo.person}；最终能否落实，取决于相关人员是否真正承担责任并采取行动。`,
+                clues: `可核验的地点或线索包括${endInfo.sign}；结果宫场所类象为${endData.place}，方位可参考${endData.direction}。`,
+                timing,
+                verification: `${scene.focus}。${scene.evidence}。`,
+                action: `${middleInfo.action}；随后${endInfo.action}。先做可验证、可撤回的小步骤，再决定是否扩大投入。`
             };
         }
         // 五行生克关系字典
         const wuxingRelation = {
-            "生": { label: "相生", icon: "🟢", desc: "顺遂、滋养、推动", class: "rel-sheng" },
-            "克": { label: "相克", icon: "⚔️", desc: "阻碍、压力、冲突", class: "rel-ke" },
+            "生": { label: "受生", icon: "🌱", desc: "得到支持、资源补充", class: "rel-sheng" },
+            "克": { label: "受克", icon: "⚔️", desc: "受到压制、阻碍压力", class: "rel-ke" },
             "同": { label: "比和", icon: "🤝", desc: "帮扶、叠加、竞争", class: "rel-tong" },
-            "泄": { label: "被泄", icon: "💧", desc: "付出、消耗、劳累", class: "rel-xie" }, // 我生他
-            "耗": { label: "被耗", icon: "🛡️", desc: "花费、牵制、受累", class: "rel-hao" }  // 我克他
+            "泄": { label: "生出", icon: "💧", desc: "主动付出、传递力量", class: "rel-xie" },
+            "耗": { label: "克出", icon: "🛡️", desc: "主动控制、自身耗力", class: "rel-hao" },
+            "未知": { label: "未知", icon: "？", desc: "资料异常", class: "" }
         };
 
-        // 核心算法：判断 A 对 B 的作用 (A -> B)
+        // 核心算法：以 A 为观察主体，判断 B 对 A / A 对 B 的五行作用
         function getInteraction(godA, godB) {
-            const five = { "木": 1, "火": 2, "土": 3, "金": 4, "水": 5 };
-            const na = five[godA.nature];
-            const nb = five[godB.nature];
+            const five = { 木: 1, 火: 2, 土: 3, 金: 4, 水: 5 };
+            const a = five[godA.nature];
+            const b = five[godB.nature];
 
-            // 计算差值逻辑
-            if (na === nb) return "同";
+            if (!a || !b) return "未知";
+            if (a === b) return "同";
 
-            // 生克逻辑 (循环链表: 1->2->3->4->5->1)
-            if ((na === 1 && nb === 2) || (na === 2 && nb === 3) || (na === 3 && nb === 4) || (na === 4 && nb === 5) || (na === 5 && nb === 1))
-                return "生"; // A生B
+            const generates = { 1: 2, 2: 3, 3: 4, 4: 5, 5: 1 };
+            const controls = { 1: 3, 2: 4, 3: 5, 4: 1, 5: 2 };
 
-            if ((nb === 1 && na === 2) || (nb === 2 && na === 3) || (nb === 3 && na === 4) || (nb === 4 && na === 5) || (nb === 5 && na === 1))
-                return "泄"; // A被B泄 (B生A)
-
-            if ((na === 1 && nb === 3) || (na === 2 && nb === 4) || (na === 3 && nb === 5) || (na === 4 && nb === 1) || (na === 5 && nb === 2))
-                return "克"; // A克B
-
-            return "耗"; // A被B耗 (B克A)
+            if (generates[b] === a) return "生"; // B 生 A，A 得生
+            if (generates[a] === b) return "泄"; // A 生 B，A 泄气
+            if (controls[b] === a) return "克";  // B 克 A，A 受克
+            if (controls[a] === b) return "耗";  // A 克 B，A 耗力
+            return "未知";
         }
 
         // 获取详细的生克解释文案
         function getRelationText(type, g1, g2) {
             const texts = {
-                "生": `<strong>${g1.name}(${g1.nature}) 生 ${g2.name}(${g2.nature})</strong>：运势顺畅，前者为后者提供动力。${g1.name}的基础有助于${g2.name}的发展，过程虽有变化，但是向上的趋势。`,
-                "泄": `<strong>${g1.name}(${g1.nature}) 生 ${g2.name}(${g2.nature})</strong>：${g1.name}泄气给${g2.name}，代表需要付出代价或精力才能推进下一步。虽然能成，但起初会比较累。`,
-                "克": `<strong>${g1.name}(${g1.nature}) 克 ${g2.name}(${g2.nature})</strong>：五行相克，冲突明显。${g1.name}不仅不支持，反而压制${g2.name}，代表阻力大，有人从中作梗或环境不利。`,
-                "耗": `<strong>${g2.name}(${g2.nature}) 克 ${g1.name}(${g1.nature})</strong>：${g1.name}受制于${g2.name}，想动动不了，想做做不成。代表压力大，被动等待。`,
-                "同": `<strong>五行比和 (${g1.nature}见${g2.nature})</strong>：力量叠加。若是吉神则吉上加吉，若是凶神则凶相加倍。`
+                生: `<strong>${g2.name}(${g2.nature}) 生 ${g1.name}(${g1.nature})</strong>：${g1.name}得到${g2.name}的支持与滋养，资源较充足，推进相对顺畅。`,
+                泄: `<strong>${g1.name}(${g1.nature}) 生 ${g2.name}(${g2.nature})</strong>：${g1.name}主动向后传递力量，事情可以推进，但需要付出时间、精力或资源。`,
+                克: `<strong>${g2.name}(${g2.nature}) 克 ${g1.name}(${g1.nature})</strong>：${g1.name}受到${g2.name}压制，外部阻力明显，宜先化解矛盾再行动。`,
+                耗: `<strong>${g1.name}(${g1.nature}) 克 ${g2.name}(${g2.nature})</strong>：${g1.name}虽能控制局面，但自身消耗较大，容易费力、费财或分心。`,
+                同: `<strong>五行比和（${g1.nature}见${g2.nature}）</strong>：力量叠加。吉象可增强助力，凶象也可能放大问题，同时要留意同类竞争。`,
+                未知: `五行资料不完整，暂时无法判断关系。`
             };
-            return texts[type] || "";
+            return texts[type] || texts.未知;
         }
         // 计算六神函数
         function calculateLiuShen(num) {
@@ -1138,7 +1576,7 @@
         }
 
         // 获取详细万物取象 (完整版：含三传、核心、天气、物象)
-        function getDetailedImages(god1, god2, god3) {
+        function getDetailedImages(god1, god2, god3, num1, num2, num3, questionType = "general") {
             let result = "";
 
             // 获取数据
@@ -1188,59 +1626,12 @@
             result += `</div>`;
 
             // ------------------------------------------
-            // 2. 读象 · 画面感 (重构版：电影叙事模式)
+            // 2. 传统类象补充
+            // 现实读象已在独立卡片中展示，此处不再重复渲染。
             // ------------------------------------------
 
-            // 调用造句引擎
-            const imagery = generateImagery(god1, god2, god3);
-
-            // 天气逻辑
-            let weatherStr = "";
-            if (god1.name === god3.name) {
-                weatherStr = `从头至尾皆是 ${w1.weather}`;
-            } else {
-                weatherStr = `初时${w1.weather}，终转${w3.weather}`;
-            }
-
-            result += `<h4>🖼️ 读象 · 意境还原</h4>`;
-
-            // 这是一个新的卡片样式，模拟"画卷"
-            result += `
-            <div style="
-                background: linear-gradient(to right, #fcfcfc, #f5f5f5); 
-                border-left: 4px solid var(--primary-color);
-                border-radius: 8px;
-                padding: 15px;
-                margin-top: 10px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-            ">
-                <div style="font-size:12px; color:#999; margin-bottom:5px;">🌤️ 天时推演</div>
-                <div style="font-size:14px; color:#555; margin-bottom:15px; font-style:italic;">${weatherStr}</div>
-
-                <div style="font-size:12px; color:#999; margin-bottom:5px;">🎬 意象蒙太奇</div>
-                <div style="
-                    font-size: 16px; 
-                    color: #333; 
-                    font-weight: bold; 
-                    line-height: 1.6; 
-                    font-family: 'KaiTi', serif;
-                ">
-                    “ ${imagery.text} ”
-                </div>
-                
-                <!-- 关键词胶囊展示 -->
-                <div style="margin-top:12px; display:flex; gap:8px;">
-                    <span style="background:#eee; padding:2px 8px; border-radius:4px; font-size:12px; color:#666;">📍 ${imagery.keywords[0]}</span>
-                    <span style="background:#eee; padding:2px 8px; border-radius:4px; font-size:12px; color:#666;">⚡ ${imagery.keywords[1]}</span>
-                    <span style="background:#eee; padding:2px 8px; border-radius:4px; font-size:12px; color:#666;">📦 ${imagery.keywords[2]}</span>
-                </div>
-            </div>
-            `;
-
-            // 注意：这里去掉了原来的 <div class="image-grid"> 的开头，
-
             // ------------------------------------------
-            // 3. 核心定局详情 (以结果论)
+            // 3. 核心定局详情（以结果论）
             // ------------------------------------------
             result += `<h4>📍 核心定局 (以结果论)</h4>`;
             result += `<div class="image-grid">`;
@@ -1288,543 +1679,512 @@
             </div>`;
 
             result += `</div>`; // End grid
+            result += `<p class="result-meta" style="margin-top:14px;">${systemMeta.disclaimer}</p>`;
 
             return result;
         }
-        // 判断五行相生
-        function hasWuXingGeneration(elements) {
-            const generationPairs = [
-                ["木", "火"], ["火", "土"], ["土", "金"], ["金", "水"], ["水", "木"]
-            ];
-            for (let pair of generationPairs) {
-                if (elements.includes(pair[0]) && elements.includes(pair[1])) return true;
-            }
-            return false;
+        // 统一数值到 1-6
+        function normalizeSix(value) {
+            return ((value - 1) % 6 + 6) % 6 + 1;
         }
 
-        // 判断五行相克
-        function hasWuXingRestriction(elements) {
-            const restrictionPairs = [
-                ["木", "土"], ["土", "水"], ["水", "火"], ["火", "金"], ["金", "木"]
-            ];
-            for (let pair of restrictionPairs) {
-                if (elements.includes(pair[0]) && elements.includes(pair[1])) return true;
-            }
-            return false;
+        // 唯一起卦入口，避免多处公式不一致
+        function calculateThreePalaces(num1, num2, num3) {
+            const first = normalizeSix(num1);
+            const second = normalizeSix(first + num2 - 1);
+            const third = normalizeSix(second + num3 - 1);
+            const indexes = [first, second, third];
+            return {
+                indexes,
+                gods: indexes.map(index => liuShen[index - 1]),
+                key: indexes.join(",")
+            };
         }
 
-        // 从数组中随机选取n个元素
-        function getRandomElements(array, n) {
-            const shuffled = [...array].sort(() => 0.5 - Math.random());
-            return shuffled.slice(0, n);
+        function sanitizeNumber(value) {
+            const number = Number.parseInt(value, 10);
+            if (!Number.isFinite(number) || number < 1 || number > 999) return null;
+            return number;
         }
 
-        // 当页面加载完成时
-        document.addEventListener('DOMContentLoaded', function () {
-            // 获取DOM元素
-            const num1Input = document.getElementById('num1');
-            const num2Input = document.getElementById('num2');
-            const num3Input = document.getElementById('num3');
-            const calculateBtn = document.getElementById('calculate');
-            const randomBtn = document.getElementById('random');
-            const resultSection = document.getElementById('resultSection');
-            const resultCards = document.getElementById('resultCards');
-            const mainSummary = document.getElementById('mainSummary');
+        const systemMeta = {
+            school: "自定义三宫数字起课体系",
+            version: "2.0.0",
+            principle: "末传定局，初中传定过程，五行关系修正",
+            disclaimer: "不同流派的五行、方位与断语可能存在差异；本工具仅作传统文化娱乐参考。"
+        };
 
-            const basicExplanation = document.getElementById('basicExplanation');
-            const detailExplanation = document.getElementById('detailExplanation');
-            const comboExplanation = document.getElementById('comboExplanation');
-            const imagesExplanation = document.getElementById('imagesExplanation');
+        const questionConfig = {
+            general:{label:"综合运势",weights:{}}, daily:{label:"近期发展",weights:{大安:.35,速喜:.35,小吉:.25,留连:-.25,赤口:-.35,空亡:-.55}},
+            decision:{label:"选择决策",weights:{大安:.45,速喜:.1,小吉:.25,留连:-.35,赤口:-.45,空亡:-.75}}, message:{label:"消息联系",weights:{大安:.2,速喜:.6,小吉:.3,留连:-.45,赤口:-.35,空亡:-.8}},
+            career:{label:"工作事业",weights:{大安:.5,速喜:.25,小吉:.25,留连:-.3,赤口:-.4,空亡:-.65}}, job:{label:"求职面试",weights:{大安:.35,速喜:.55,小吉:.3,留连:-.45,赤口:-.4,空亡:-.7}},
+            promotion:{label:"升职调动",weights:{大安:.5,速喜:.35,小吉:.2,留连:-.35,赤口:-.45,空亡:-.7}}, study:{label:"学业考试",weights:{大安:.4,速喜:.35,小吉:.25,留连:-.35,赤口:-.25,空亡:-.65}},
+            project:{label:"项目进展",weights:{大安:.45,速喜:.35,小吉:.25,留连:-.45,赤口:-.5,空亡:-.75}}, cooperation:{label:"合作签约",weights:{大安:.45,速喜:.25,小吉:.4,留连:-.3,赤口:-.65,空亡:-.75}},
+            wealth:{label:"求财收入",weights:{大安:.45,速喜:.35,小吉:.25,留连:-.25,赤口:-.35,空亡:-.65}}, business:{label:"生意经营",weights:{大安:.5,速喜:.3,小吉:.35,留连:-.35,赤口:-.5,空亡:-.7}},
+            investment:{label:"投资交易",weights:{大安:.35,速喜:.15,小吉:.2,留连:-.35,赤口:-.55,空亡:-.9}}, debt:{label:"借贷回款",weights:{大安:.4,速喜:.35,小吉:.2,留连:-.45,赤口:-.65,空亡:-.9}},
+            purchase:{label:"买卖采购",weights:{大安:.4,速喜:.3,小吉:.35,留连:-.3,赤口:-.5,空亡:-.7}}, love:{label:"感情婚姻",weights:{大安:.25,速喜:.35,小吉:.55,留连:-.3,赤口:-.65,空亡:-.55}},
+            reconcile:{label:"复合和解",weights:{大安:.25,速喜:.3,小吉:.5,留连:-.45,赤口:-.7,空亡:-.7}}, friendship:{label:"朋友人际",weights:{大安:.3,速喜:.3,小吉:.5,留连:-.25,赤口:-.6,空亡:-.55}},
+            family:{label:"家庭关系",weights:{大安:.45,速喜:.2,小吉:.45,留连:-.3,赤口:-.65,空亡:-.55}}, travel:{label:"出行办事",weights:{大安:.35,速喜:.55,小吉:.2,留连:-.55,赤口:-.5,空亡:-.45}},
+            lawsuit:{label:"诉讼纠纷",weights:{大安:.25,速喜:.1,小吉:.25,留连:-.55,赤口:-.85,空亡:-.45}}, document:{label:"手续审批",weights:{大安:.4,速喜:.4,小吉:.25,留连:-.6,赤口:-.4,空亡:-.7}},
+            house:{label:"房屋搬迁",weights:{大安:.55,速喜:.25,小吉:.35,留连:-.4,赤口:-.45,空亡:-.7}}, lost:{label:"失物寻人",weights:{大安:.35,速喜:.45,小吉:.3,留连:-.25,赤口:-.35,空亡:-.85}},
+            health:{label:"健康状态",weights:{大安:.45,速喜:-.1,小吉:.25,留连:-.45,赤口:-.55,空亡:-.65}}
+        };
 
-            // 设置标签切换功能
-            const tabs = document.querySelectorAll('.tab');
-            tabs.forEach(tab => {
-                tab.addEventListener('click', function () {
-                    // 移除所有标签的active类
-                    tabs.forEach(t => t.classList.remove('active'));
-                    // 添加当前标签的active类
-                    this.classList.add('active');
+        function getQuestionAdvice(type, gods, luckStatus) {
+            const [g1,g2,g3]=gods, end=g3.name;
+            const common=luckStatus.level<=2?"可推进，但必须用现实证据逐步确认。":luckStatus.level===3?"宜小步试探，设置止损和复核节点。":"宜先降风险、补信息，不要强行推进。";
+            const scene=questionScene[type]||questionScene.general;
+            const special={
+                lost:`${shenShaImages[end].lostItem} 优先方位：${shenShaImages[end].direction}。`,
+                health:`${shenShaImages[end].disease} 仅作传统类象参考，明显或持续不适应及时就医。`,
+                investment:"先明确最大可承受损失、退出条件和资金期限，不因卦象替代专业判断。",
+                lawsuit:"先整理完整证据链、时间线和书面材料，并咨询专业法律人士。",
+                debt:"先固定债权证据和还款计划，未落实保障前不要继续追加资金。",
+                job:"跟进正式流程、薪资与入职条件，口头意向不算最终结果。",
+                study:"把判断落实为复习计划、模拟测试和错题复盘，不靠临时运气。",
+                reconcile:"先观察旧问题是否真正改变，再决定是否恢复更深层关系。"
+            };
+            return `${special[type]||`${scene.focus}。`} ${common}`;
+        }
 
-                    // 隐藏所有内容
-                    const tabContents = document.querySelectorAll('.tab-content');
-                    tabContents.forEach(content => content.classList.remove('active'));
+        // 综合评分：末传权重最高，五行流转与事项类型作为修正项
+        function getLuckStatus(god1, god2, god3, questionType = "general") {
+            const godScores = { 大安: 3, 速喜: 2.5, 小吉: 1.5, 留连: -1, 赤口: -2, 空亡: -3 };
+            const weights = [0.2, 0.3, 0.5];
+            const relationScores = { 生: 0.8, 同: 0.35, 泄: -0.25, 耗: -0.55, 克: -0.9, 未知: 0 };
+            const gods = [god1, god2, god3];
 
-                    // 显示当前标签对应的内容
-                    const tabId = this.getAttribute('data-tab');
-                    document.getElementById(tabId + 'Tab').classList.add('active');
+            let score = gods.reduce((total, god, index) => total + godScores[god.name] * weights[index], 0);
+            score += relationScores[getInteraction(god1, god2)] || 0;
+            score += (relationScores[getInteraction(god2, god3)] || 0) * 1.2;
+
+            const typeWeights = questionConfig[questionType]?.weights || {};
+            score += (typeWeights[god3.name] || 0);
+            score += (typeWeights[god2.name] || 0) * 0.35;
+
+            if (god3.name === "空亡") score -= 1.2;
+            if (god1.name === god2.name && god2.name === god3.name) score *= 1.2;
+
+            if (score >= 2.3) return { level: 1, score, label: "上上 · 大吉" };
+            if (score >= 0.9) return { level: 2, score, label: "顺势 · 可为" };
+            if (score >= -0.5) return { level: 3, score, label: "吉凶 · 参半" };
+            if (score >= -1.8) return { level: 4, score, label: "阻滞 · 慎行" };
+            return { level: 5, score, label: "凶象 · 宜止" };
+        }
+
+        function applyDynamicTheme(element, g1, g2, g3) {
+            element.style.background = `linear-gradient(135deg, ${g1.color} 0%, ${g2.color} 50%, ${g3.color} 100%)`;
+            element.style.borderColor = g3.accent;
+            return `color:${g3.accent};border-color:${g3.accent};`;
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const $ = id => document.getElementById(id);
+            const numInputs = [$("num1"), $("num2"), $("num3")];
+            const questionTypeSelect = $("questionType");
+            const calculateBtn = $("calculate");
+            const randomBtn = $("random");
+            const resultSection = $("resultSection");
+            const resultCards = $("resultCards");
+            const mainSummary = $("mainSummary");
+            const basicExplanation = $("basicExplanation");
+            const detailExplanation = $("detailExplanation");
+            const comboExplanation = $("comboExplanation");
+            const realityExplanation = $("realityExplanation");
+            const imagesExplanation = $("imagesExplanation");
+
+            document.querySelectorAll(".tab").forEach(tab => {
+                tab.addEventListener("click", () => {
+                    document.querySelectorAll(".tab").forEach(item => item.classList.remove("active"));
+                    document.querySelectorAll(".tab-content").forEach(item => item.classList.remove("active"));
+                    tab.classList.add("active");
+                    $(`${tab.dataset.tab}Tab`).classList.add("active");
                 });
             });
 
-            // 点击计算按钮时
-            calculateBtn.addEventListener('click', function () {
-                const num1 = parseInt(num1Input.value);
-                const num2 = parseInt(num2Input.value);
-                const num3 = parseInt(num3Input.value);
-
-                // 验证输入
-                if (isNaN(num1) || isNaN(num2) || isNaN(num3) ||
-                    num1 < 1 || num1 > 999 || num2 < 1 || num2 > 999 || num3 < 1 || num3 > 999) {
-                    alert('请输入三个1-999之间的数字');
-                    return;
+            function readInputs() {
+                const values = numInputs.map(input => sanitizeNumber(input.value));
+                if (values.some(value => value === null)) {
+                    alert("请输入三个 1-999 之间的整数");
+                    return null;
                 }
-                const num11 = (num1 - 1) % 6 + 1;
-                const num22 = (num11 + num2 + 4) % 6 + 1;
-                const num33 = (num22 + num3 + 4) % 6 + 1;
-                // 计算六神
-                const god1 = calculateLiuShen(num11);
-                const god2 = calculateLiuShen(num22);
-                const god3 = calculateLiuShen(num33);
-                const he = `${num11},${num22},${num33}`;
-                // 显示结果
-                displayResult(num1, num2, num3, god1, god2, god3, he);
-            });
-
-            // 点击随机按钮时
-            randomBtn.addEventListener('click', function () {
-                //生成三个随机数字
-                const num1 = Math.floor(Math.random() * 999) + 1;
-                const num2 = Math.floor(Math.random() * 999) + 1;
-                const num3 = Math.floor(Math.random() * 999) + 1;
-                const num11 = (num1 - 1) % 6 + 1;
-                const num22 = (num11 + num2 + 4) % 6 + 1;
-                const num33 = (num22 + num3 + 4) % 6 + 1;
-                // 显示随机数字
-                num1Input.value = num1;
-                num2Input.value = num2;
-                num3Input.value = num3;
-
-                // 计算六神
-                const god1 = calculateLiuShen(num11);
-                const god2 = calculateLiuShen(num22);
-                const god3 = calculateLiuShen(num33);
-                const he = `${num11},${num22},${num33}`;
-                // 显示结果
-                displayResult(num1, num2, num3, god1, god2, god3, he);
-            });
-            // 计算吉凶等级 (最终版：权重顺序逻辑)
-            // 逻辑核心：末传(结果)定大局，初中传(过程)定深浅
-            function getLuckStatus(god1, god2, god3) {
-                const goodGods = ["大安", "速喜", "小吉"];
-
-                // 1. 先看结局 (第三个数)
-                const isEndGood = goodGods.includes(god3.name);
-                const isEndKongWang = (god3.name === "空亡");
-
-                // 2. 统计全程吉神数量 (用于判断过程是顺是逆)
-                let goodCount = 0;
-                [god1, god2, god3].forEach(god => {
-                    if (goodGods.includes(god.name)) goodCount++;
-                });
-
-                // --- 判定逻辑开始 ---
-
-                // Level 5: 镜花水月 (灰)
-                // 结局是空亡。无论过程多么热闹，最后一场空，定性为虚无。
-                if (isEndKongWang) {
-                    return { css: "summary-lvl5", label: "虚空 · 变数" };
-                }
-
-                // 结局是吉 (大安/速喜/小吉) -> 紫色或绿色
-                if (isEndGood) {
-                    // Level 1: 上上大吉 (紫)
-                    // 结局好，且全程吉神多(>=2)，说明过程也顺。
-                    if (goodCount >= 2) {
-                        return { css: "summary-lvl1", label: "上上 · 大吉" };
-                    }
-                    // Level 2: 否极泰来 (绿)
-                    // 结局好，但全程吉神少(<2)，说明前面经历了磨难，最后转好。
-                    else {
-                        return { css: "summary-lvl2", label: "回转 · 泰来" };
-                    }
-                }
-
-                // 结局是凶 (留连/赤口) -> 黄色或红色
-                else {
-                    // Level 3: 虎头蛇尾 (黄)
-                    // 结局不好，但全程吉神多(>=2)，说明开局和过程都不错，最后坏了。
-                    // 这种属于"惋惜"和"警示"，用黄色。
-                    if (goodCount >= 2) {
-                        return { css: "summary-lvl3", label: "警示 · 慎行" };
-                    }
-                    // Level 4: 下下之签 (红)
-                    // 结局不好，过程也不好，雪上加霜。
-                    else {
-                        return { css: "summary-lvl4", label: "凶象 · 阻滞" };
-                    }
-                }
-            }
-            // 动态生成渐变背景样式
-            function applyDynamicTheme(element, g1, g2, g3) {
-                // 1. 生成三段式渐变 (135度，从左上到右下)
-                // g1(起因) -> g2(经过) -> g3(结果)
-                const gradient = `linear-gradient(135deg, ${g1.color} 0%, ${g2.color} 50%, ${g3.color} 100%)`;
-
-                // 2. 应用背景
-                element.style.background = gradient;
-
-                // 3. 应用边框色 (使用"结果"的主题色，加深视觉定性)
-                element.style.borderColor = g3.accent;
-
-                // 4. 返回徽章的样式 (供内部HTML使用)
-                return `color: ${g3.accent}; border-color: ${g3.accent};`;
-            }
-            // 显示结果函数
-            function displayResult(num1, num2, num3, god1, god2, god3, he) {
-                // 显示结果区域
-                resultSection.classList.remove('hidden');
-
-                // 顶部卡片展示三个神煞
-                let cardsHTML = `
-                    <div class="god-card">
-                        <span class="god-nature">${god1.nature}</span>
-                        <span class="god-symbol">${god1.symbol}</span>
-                        <span class="god-summary" style="background-color: ${god1.color}; border-color: ${god1.accent};">${god1.summary}</span>
-                    </div>
-                    <div class="god-card">
-                        <span class="god-nature">${god2.nature}</span>
-                        <span class="god-symbol">${god2.symbol}</span>
-                        <span class="god-summary" style="background-color: ${god2.color}; border-color: ${god2.accent};">${god2.summary}</span>
-                    </div>
-                    <div class="god-card">
-                        <span class="god-nature">${god3.nature}</span>
-                        <span class="god-symbol">${god3.symbol}</span>
-                        <span class="god-summary" style="background-color: ${god3.color}; border-color: ${god3.accent};">${god3.summary}</span>
-                    </div>
-                `;
-                resultCards.innerHTML = cardsHTML;
-                // --- 修改开始：天机签文模式 ---
-
-                // 1. 获取基础吉凶颜色 (调用之前的 getLuckStatus 逻辑)
-                // 确保你已经有 getLuckStatus 函数，如果没有，用下面的 simplified version
-                const luckStatus = getLuckStatus(god1, god2, god3);
-
-                // 2. 获取天机断语
-                const oracle = getOracleVerdict(num1, num2, num3);
-
-                // 3. 应用动态渐变背景
-                const badgeStyle = applyDynamicTheme(mainSummary, god1, god2, god3);
-
-                // 4. 生成 HTML (古风签文布局)
-                mainSummary.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                        <span class="verdict-badge" style="${badgeStyle}">${luckStatus.label}</span>
-                        <span style="font-family:'KaiTi',serif; font-size:18px; font-weight:bold; color:#333; letter-spacing:2px;">
-                            ${oracle.title}
-                        </span>
-                    </div>
-                    
-                    <!-- 诗句区 -->
-                    <div style="
-                        text-align: center; 
-                        margin: 15px 0; 
-                        padding: 10px 0;
-                        border-top: 1px dashed rgba(0,0,0,0.1);
-                        border-bottom: 1px dashed rgba(0,0,0,0.1);
-                    ">
-                        <p style="
-                            font-family: 'KaiTi', 'SimSun', serif; 
-                            font-size: 16px; 
-                            color: #444; 
-                            margin: 0; 
-                            line-height: 1.6;
-                            font-style: italic;
-                        ">
-                            ${oracle.poem.split('，').join('，<br>')}
-                        </p>
-                    </div>
-
-                    <!-- 白话解 -->
-                    <div style="font-size:14px; color:#555; text-align:justify;">
-                        <strong>💡 指引：</strong>${oracle.desc}
-                    </div>
-                `;
-
-                // --- 修改结束 ---
-
-                // 基本解释
-                let basicHTML = `
-                    <h4>${god1.name}</h4>
-                    <p>${god1.basic}</p>
-                    
-                    <h4>${god2.name}</h4>
-                    <p>${god2.basic}</p>
-                    
-                    <h4>${god3.name}</h4>
-                    <p>${god3.basic}</p>
-                `;
-
-                basicExplanation.innerHTML = basicHTML;
-
-                // 详细解释
-                let detailHTML = `
-                    <h4>${god1.name}</h4>
-                    <p>${god1.detail}</p>
-                    <p><strong>特性:</strong> ${god1.characteristics}</p>
-                    <p><span class="badge badge-suitable">宜</span>${god1.suitable}</p>
-                    <p><span class="badge badge-unsuitable">忌</span>${god1.unsuitable}</p>
-                    
-                    <h4>${god2.name}</h4>
-                    <p>${god2.detail}</p>
-                    <p><strong>特性:</strong> ${god2.characteristics}</p>
-                    <p><span class="badge badge-suitable">宜</span>${god2.suitable}</p>
-                    <p><span class="badge badge-unsuitable">忌</span>${god2.unsuitable}</p>
-                    
-                    <h4>${god3.name}</h4>
-                    <p>${god3.detail}</p>
-                    <p><strong>特性:</strong> ${god3.characteristics}</p>
-                    <p><span class="badge badge-suitable">宜</span>${god3.suitable}</p>
-                    <p><span class="badge badge-unsuitable">忌</span>${god3.unsuitable}</p>
-                `;
-
-                detailExplanation.innerHTML = detailHTML;
-                // --- 组合解释 (完美融合版：五行逻辑 + 传统断语) ---
-
-                // 1. 计算五行关系 (同上)
-                const rel1 = getInteraction(god1, god2);
-                const info1 = wuxingRelation[rel1];
-                const rel2 = getInteraction(god2, god3);
-                const info2 = wuxingRelation[rel2];
-                const rel3 = getInteraction(god1, god3);
-                const info3 = wuxingRelation[rel3];
-
-                // 2. 获取传统断语 (复活旧数据 combinations)
-                const comboKey1 = `${god1.name}+${god2.name}`;
-                const comboKey2 = `${god2.name}+${god3.name}`;
-                const comboKey3 = `${god1.name}+${god3.name}`;
-
-                // 容错处理，防止找不到key
-                const text1 = combinations[comboKey1] || "暂无特定断语";
-                const text2 = combinations[comboKey2] || "暂无特定断语";
-                const text3 = combinations[comboKey3] || "暂无特定断语";
-
-                let comboHTML = `
-                    <h4>⚡ 五行能量流转图</h4>
-                    
-                    <!-- 1. 视觉流转图 (保持不变) -->
-                    <div class="card" style="border:none; box-shadow:none; background:transparent;">
-                        <div class="flow-container">
-                            <div class="flow-node" style="border-color: ${god1.accent}">
-                                <span style="font-weight:bold; color:${god1.accent}">${god1.name}</span>
-                            </div>
-                            <div class="flow-arrow"><span class="rel-badge ${info1.class}">${info1.label}</span></div>
-                            <div class="flow-node" style="border-color: ${god2.accent}">
-                                <span style="font-weight:bold; color:${god2.accent}">${god2.name}</span>
-                            </div>
-                            <div class="flow-arrow"><span class="rel-badge ${info2.class}">${info2.label}</span></div>
-                            <div class="flow-node" style="border-color: ${god3.accent}">
-                                <span style="font-weight:bold; color:${god3.accent}">${god3.name}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 2. 分段详解 (融合 五行解释 + 传统断语) -->
-                    <div class="combo-card">
-                        <div class="combo-header">
-                            <span>① 起承：${god1.name} ➔ ${god2.name}</span>
-                        </div>
-                        <div class="combo-text">
-                            <p><strong>[五行]</strong> ${getRelationText(rel1, god1, god2)}</p>
-                            <div style="margin-top:8px; padding-top:8px; border-top:1px dashed #ddd; color:#888; font-size:13px;">
-                                <strong>[断语]</strong> ${text1}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="combo-card">
-                        <div class="combo-header">
-                            <span>② 转合：${god2.name} ➔ ${god3.name}</span>
-                        </div>
-                        <div class="combo-text">
-                            <p><strong>[五行]</strong> ${getRelationText(rel2, god2, god3)}</p>
-                            <div style="margin-top:8px; padding-top:8px; border-top:1px dashed #ddd; color:#888; font-size:13px;">
-                                <strong>[断语]</strong> ${text2}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="combo-card" style="background:#fcfcfc; border-style:dashed;">
-                        <div class="combo-header" style="font-size:13px; color:#666;">
-                            <span>🔍 暗局：初末关系 (${god1.name} vs ${god3.name})</span>
-                        </div>
-                        <div class="combo-text" style="font-size:13px;">
-                            <p>此局从${god1.name}起，至${god3.name}终，呈【${info3.label}】之势。</p>
-                            <div style="margin-top:5px; color:#666;">
-                                <strong>[综合判词]</strong> ${text3}
-                            </div>
-                        </div>
-                    </div>
-                `;
-
-                comboExplanation.innerHTML = comboHTML;
-
-                // 万物取象
-                let imagesHTML = getDetailedImages(god1, god2, god3);
-                imagesExplanation.innerHTML = imagesHTML;
-
-                // 滚动到结果区域
-                resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                return values;
             }
 
-            // 三神组合解释函数
-            function getTripleComboExplanation(god1, god2, god3) {
+            function renderGodCard(god, stage) {
+                return `
+                    <div class="god-card" title="${stage}：${god.name}">
+                        <span class="god-nature">${god.nature}</span>
+                        <span class="god-symbol">${god.symbol}</span>
+                        <span class="god-summary" style="background-color:${god.color};border-color:${god.accent};">${god.summary}</span>
+                    </div>`;
+            }
+
+            function renderDetailBlock(god, title) {
+                return `
+                    <h4>${title} · ${god.name}</h4>
+                    <p>${god.detail}</p>
+                    <p><strong>特性：</strong>${god.characteristics}</p>
+                    <p><span class="badge badge-suitable">宜</span>${god.suitable}</p>
+                    <p><span class="badge badge-unsuitable">忌</span>${god.unsuitable}</p>`;
+            }
+
+
+            function buildProcessAnalysis(god1, god2, god3, questionType, questionLabel, advice) {
                 const gods = [god1, god2, god3];
-                const godNames = gods.map(g => g.name);
+                const roles = ["起因", "经过", "结果"];
+                const roleNotes = [
+                    "说明事情为何形成、现有基础和最初推动力",
+                    "说明真正发生变化的阶段，也是最容易出现转折与反复的位置",
+                    "说明事情最终如何落地，以及结果能否稳定维持"
+                ];
+                const scene = questionScene[questionType] || questionScene.general;
+                const rel12 = getInteraction(god1, god2);
+                const rel23 = getInteraction(god2, god3);
 
-                // 统计各个神煞出现的次数
-                const counts = {};
-                godNames.forEach(name => {
-                    counts[name] = (counts[name] || 0) + 1;
+                const stageText = gods.map((god, i) => {
+                    const rr = realityReading[god.name];
+                    const sx = shenShaImages[god.name];
+                    const stageAdvice = i === 0
+                        ? `先确认现有条件是否真实，重点核对${scene.focus}。`
+                        : i === 1
+                            ? `${rr.action}；这是全局最需要主动处理的阶段。`
+                            : `${rr.action}；以实际结果、正式通知或可验证行动作为定局依据。`;
+                    const signal = i === 0
+                        ? `${rr.sign}；相关人物可能是${rr.person}。`
+                        : i === 1
+                            ? `${rr.sign}，并留意${sx.time}所代表的节奏变化。`
+                            : `${sx.place}、${sx.direction}及${rr.sign}可作为结果核验线索。`;
+                    const risk = god.name === "大安" ? "稳定中容易过度乐观，需防把暂时平稳当成已经完成。"
+                        : god.name === "留连" ? "拖延、反复确认或旧问题回潮，最忌无限等待。"
+                        : god.name === "速喜" ? "消息来得快，但窗口短，需防只见声势、不见落实。"
+                        : god.name === "赤口" ? "争议、规则、合同或责任划分容易成为卡点。"
+                        : god.name === "小吉" ? "可有小成果，但不宜把阶段改善夸大成全面成功。"
+                        : "信息失真、目标变化或承诺落空，需要先确认事情本身是否仍成立。";
+                    return `<article class="process-stage-card" style="--stage-color:${god.accent}">
+                        <div class="process-stage-head"><div class="process-stage-title">${roles[i]} · ${god.name}</div><span class="process-stage-tag">${god.nature} · ${god.summary}</span></div>
+                        <div class="process-stage-grid">
+                            <div class="process-info"><b>阶段作用</b>${roleNotes[i]}</div>
+                            <div class="process-info"><b>现实表现</b>${rr.phase}</div>
+                            <div class="process-info"><b>应验信号</b>${signal}</div>
+                            <div class="process-info"><b>主要风险</b>${risk}</div>
+                            <div class="process-info"><b>适合推进</b>${god.suitable}</div>
+                            <div class="process-info"><b>阶段应对</b>${stageAdvice}</div>
+                        </div>
+                    </article>`;
                 });
 
-                // 判断是否有三个相同的神煞
-                if (Object.values(counts).includes(3)) {
-                    const godName = Object.keys(counts).find(key => counts[key] === 3);
-
-                    switch (godName) {
-                        case "大安":
-                            return "三重大安，最为吉利，万事如意，大吉大利。事业有成，家庭幸福，财运亨通，健康平安。一切顺遂，无往不利。";
-                        case "留连":
-                            return "三重留连，极度拖延，事情停滞不前。需要彻底改变策略或放弃当前计划。陷入漫长等待，难有突破。";
-                        case "速喜":
-                            return "三重速喜，极大喜事即将到来。可能有意外之喜，惊喜连连。事业、爱情、财运都有极好的发展。";
-                        case "赤口":
-                            return "三重赤口，极度不顺，多有口舌是非，争端不断。需特别小心人际关系，避免冲突和官司。";
-                        case "小吉":
-                            return "三重小吉，稳步上升，逐渐积累。虽无大喜大悲，但平稳发展，积少成多，最终可能有不错的成果。";
-                        case "空亡":
-                            return "三重空亡，极度虚无，计划难以实现。现实与理想有很大差距，需重新审视目标，避免痴心妄想。";
-                    }
+                function transitionBlock(a, b, rel, title) {
+                    const relation = wuxingRelation[rel] || wuxingRelation.未知;
+                    const combo = combinations[`${a.name}+${b.name}`] || "";
+                    const plain = relationPlain(rel);
+                    const practical = rel === "生" ? "后一阶段会给前一阶段补充资源，现实中常表现为有人支持、条件补齐或机会成熟。"
+                        : rel === "同" ? "两阶段性质接近，力量会被放大；吉象更顺，问题也可能反复强化。"
+                        : rel === "泄" ? "前一阶段需要向后一阶段持续投入，常表现为花时间、费精力或先付出后见结果。"
+                        : rel === "耗" ? "虽然能主动控制局面，但代价较高，要留意成本、情绪和注意力消耗。"
+                        : rel === "克" ? "后一阶段压制前一阶段，现实中容易出现规则限制、人员阻力或条件不允许。"
+                        : "关系资料不足，应以现实证据核验。";
+                    return `<div class="process-transition"><div class="process-transition-title">${title}：${relation.label} · ${plain}</div><div>${practical}</div>${combo ? `<div style="margin-top:5px;color:#666">${combo}</div>` : ""}</div>`;
                 }
 
-                // 判断是否有两个相同的神煞
-                if (Object.values(counts).includes(2)) {
-                    const repeatedGod = Object.keys(counts).find(key => counts[key] === 2);
-                    const singleGod = Object.keys(counts).find(key => counts[key] === 1);
+                const ending = god3.name === "大安" ? "结果趋于稳定，可持续推进，但仍要完成最后确认。"
+                    : god3.name === "速喜" ? "结果出现较快，应抓紧有效窗口并立即落实。"
+                    : god3.name === "小吉" ? "结果有改善和小成果，适合分阶段兑现。"
+                    : god3.name === "留连" ? "结果仍有拖延，需要设置期限、责任人和退出条件。"
+                    : god3.name === "赤口" ? "结果容易停在争议或规则问题上，应优先处理沟通与证据。"
+                    : "结果存在落空或重新定义的可能，继续投入前必须再次核验。";
 
-                    let result = `${repeatedGod}之象加强，${singleGod}之象辅助。`;
-
-                    // 根据不同组合给出具体解释
-                    if (repeatedGod === "大安") {
-                        result += "以平安稳定为主，";
-                        if (singleGod === "速喜") {
-                            result += "兼有喜庆之象，大吉大利。";
-                        } else if (singleGod === "小吉") {
-                            result += "兼有小吉之象，稳中有进，平安顺遂。";
-                        } else if (singleGod === "留连") {
-                            result += "但有拖延之象，虽平安但进展缓慢。";
-                        } else if (singleGod === "赤口") {
-                            result += "但有口舌之象，虽平安但需防小人。";
-                        } else if (singleGod === "空亡") {
-                            result += "但有虚无之象，表面平安内有变数。";
-                        }
-                    } else if (repeatedGod === "留连") {
-                        result += "以拖延徘徊为主，进展缓慢，";
-                        if (singleGod === "大安") {
-                            result += "但最终会有平安结果。";
-                        } else if (singleGod === "速喜") {
-                            result += "但最终会有转机。";
-                        } else if (singleGod === "小吉") {
-                            result += "中间可能有小的收获。";
-                        } else if (singleGod === "赤口") {
-                            result += "且多有口舌是非，处境困难。";
-                        } else if (singleGod === "空亡") {
-                            result += "且多有虚无迷茫，难以把握。";
-                        }
-                    } else if (repeatedGod === "速喜") {
-                        result += "以喜庆为主，好事将至，";
-                        if (singleGod === "大安") {
-                            result += "且能保持平安稳定，非常吉利。";
-                        } else if (singleGod === "留连") {
-                            result += "但可能有所延迟，需要耐心等待。";
-                        } else if (singleGod === "小吉") {
-                            result += "兼有小吉之象，喜气洋洋。";
-                        } else if (singleGod === "赤口") {
-                            result += "但也有口舌之象，喜中有忧。";
-                        } else if (singleGod === "空亡") {
-                            result += "但也有虚无之象，喜事可能有变数。";
-                        }
-                    } else if (repeatedGod === "赤口") {
-                        result += "以口舌是非为主，多有争端，";
-                        if (singleGod === "大安") {
-                            result += "但最终会趋于平安。";
-                        } else if (singleGod === "留连") {
-                            result += "且争端难以解决，拖延不决。";
-                        } else if (singleGod === "速喜") {
-                            result += "但最终会有转机，迎来好消息。";
-                        } else if (singleGod === "小吉") {
-                            result += "但有小吉调和，不至于太严重。";
-                        } else if (singleGod === "空亡") {
-                            result += "但可能是虚惊一场，不了了之。";
-                        }
-                    } else if (repeatedGod === "小吉") {
-                        result += "以小吉小利为主，稳步发展，";
-                        if (singleGod === "大安") {
-                            result += "兼有平安之象，稳中向好。";
-                        } else if (singleGod === "留连") {
-                            result += "但进展较慢，需要耐心等待。";
-                        } else if (singleGod === "速喜") {
-                            result += "兼有速喜之象，可能迎来好转机。";
-                        } else if (singleGod === "赤口") {
-                            result += "但有口舌之象，小有波折。";
-                        } else if (singleGod === "空亡") {
-                            result += "但有虚无之象，可能虚有其表。";
-                        }
-                    } else if (repeatedGod === "空亡") {
-                        result += "以虚无难测为主，变数很大，";
-                        if (singleGod === "大安") {
-                            result += "但最终会趋于平安。";
-                        } else if (singleGod === "留连") {
-                            result += "且进展缓慢，难以把握。";
-                        } else if (singleGod === "速喜") {
-                            result += "但可能有意外之喜。";
-                        } else if (singleGod === "赤口") {
-                            result += "且可能有口舌之争，但多为虚惊。";
-                        } else if (singleGod === "小吉") {
-                            result += "但可能有小的收获，不至于一无所获。";
-                        }
-                    }
-
-                    return result;
-                }
-
-                // 三个不同的神煞
-                // 判断整体吉凶
-                const positiveGods = ["大安", "速喜", "小吉"];
-                const negativeGods = ["赤口", "留连", "空亡"];
-
-                let positiveCount = 0;
-                let negativeCount = 0;
-
-                godNames.forEach(name => {
-                    if (positiveGods.includes(name)) positiveCount++;
-                    if (negativeGods.includes(name)) negativeCount++;
-                });
-
-                let result = "三神各异，变化多端。";
-
-                if (positiveCount > negativeCount) {
-                    result += "总体偏向吉利，虽有波折但基本向好。";
-                } else if (positiveCount < negativeCount) {
-                    result += "总体偏向不利，多有困难和阻碍。";
-                } else {
-                    result += "吉凶参半，喜忧参半，需具体问题具体分析。";
-                }
-
-                // 具体组合的特殊解释
-                if (godNames.includes("大安") && godNames.includes("速喜") && godNames.includes("小吉")) {
-                    result += "大安、速喜、小吉三吉并临，非常吉利。事业有成，喜事连连，财运亨通。";
-                } else if (godNames.includes("赤口") && godNames.includes("留连") && godNames.includes("空亡")) {
-                    result += "赤口、留连、空亡三凶同现，非常不利。多有口舌是非，进展缓慢，变数很大。";
-                } else if (godNames.includes("大安") && godNames.includes("速喜")) {
-                    result += "大安与速喜相助，主大吉大利。";
-                } else if (godNames.includes("赤口") && godNames.includes("空亡")) {
-                    result += "赤口与空亡相随，防虚假争端。";
-                }
-
-                return result;
+                return `<div class="process-overview"><strong>${questionLabel}过程总览：</strong>初传看事情从哪里开始，中传看真正的变化与阻力，末传看最终能否落地。当前最关键的是中传“${god2.name}”，而最终以末传“${god3.name}”定局。</div>
+                    <div class="process-stage-list">${stageText[0]}${transitionBlock(god1,god2,rel12,"第一次转折 · 起因进入经过")}${stageText[1]}${transitionBlock(god2,god3,rel23,"第二次转折 · 经过走向结果")}${stageText[2]}</div>
+                    <div class="process-conclusion"><strong>过程结论：</strong>${ending}<br><strong>当前重点：</strong>${scene.evidence}。<br><strong>行动建议：</strong>${advice}
+                    <div class="process-checks"><span class="process-check">核对真实进度</span><span class="process-check">确认责任人</span><span class="process-check">设置时间节点</span><span class="process-check">保留书面记录</span><span class="process-check">准备替代方案</span></div></div>`;
             }
+
+            function statusTheme(label) {
+                if (/大吉|顺势|偏吉/.test(label)) return { color: "#2E7D5B", soft: "#EAF5EF" };
+                if (/阻滞|凶|慎/.test(label)) return { color: "#A43D36", soft: "#FAECEA" };
+                return { color: "#B27A22", soft: "#FBF2E2" };
+            }
+
+            function relationPlain(type) {
+                return ({ "生":"得到帮助", "克":"受到压制", "同":"力量增强", "泄":"主动付出", "耗":"牵制消耗", "未知":"关系未明" })[type] || "关系未明";
+            }
+
+            function buildRealityCards(g1, g2, g3, questionType, advice) {
+                const r=generateRealityReading(g1,g2,g3,questionType);
+                const cards=[
+                    ["现实现状",r.situation],["发展过程",r.development],["主要阻力",r.obstacle],
+                    ["关键转机",r.turning],["最终落点",r.outcome],["相关人物",r.people],
+                    ["地点与线索",r.clues],["时间节奏",r.timing],["核验重点",r.verification],
+                    ["行动方案",`${r.action} ${advice}`]
+                ];
+                return `<div class="reality-grid">${cards.map(([title,text])=>`<article class="reality-card"><strong>${title}</strong><p>${text}</p></article>`).join("")}</div>`;
+            }
+
+            function getTripleComboExplanation(god1, god2, god3, oracle, questionLabel) {
+                const gods = [god1, god2, god3];
+                const names = gods.map(g => g.name);
+                const indexes = names.map(name => liuShen.findIndex(g => g.name === name) + 1);
+                const exact = specialGrid[indexes.join(",")];
+                const good = new Set(["大安", "速喜", "小吉"]);
+                const bad = new Set(["留连", "赤口", "空亡"]);
+                const scores = { "大安":3, "速喜":2.5, "小吉":1.5, "留连":-1, "赤口":-2, "空亡":-3 };
+                const counts = names.reduce((acc, name) => (acc[name] = (acc[name] || 0) + 1, acc), {});
+                const repeated = Object.entries(counts).sort((a,b)=>b[1]-a[1]).find(([,count])=>count > 1);
+                const goodCount = names.filter(name => good.has(name)).length;
+                const badCount = names.filter(name => bad.has(name)).length;
+                const rel12 = getInteraction(god1, god2);
+                const rel23 = getInteraction(god2, god3);
+                const rel13 = getInteraction(god1, god3);
+                const weighted = scores[god1.name] * .2 + scores[god2.name] * .3 + scores[god3.name] * .5;
+
+                let structure = "吉凶交错";
+                let structureDesc = "三传中助力与阻力并存，事情不会沿单一路线发展，需要结合阶段变化判断。";
+                if (exact) {
+                    structure = "特殊大格局";
+                    structureDesc = "三传次序符合预设特殊格局，格局效应高于一般组合，应优先参考其整体含义。";
+                } else if (names.every(n => good.has(n))) {
+                    structure = "三吉递进";
+                    structureDesc = "三传均为吉神，主要矛盾不在能否推进，而在节奏、承接能力和成果落地。";
+                } else if (names.every(n => bad.has(n))) {
+                    structure = "三阻叠加";
+                    structureDesc = "三传均带阻性，问题可能由一个环节扩散到整个过程，宜先止损、核实和降速。";
+                } else if (!good.has(god1.name) && good.has(god3.name)) {
+                    structure = "先难后易";
+                    structureDesc = "起局或过程有阻，但末传转吉，说明后续存在修复、补救或重新推进的空间。";
+                } else if (good.has(god1.name) && !good.has(god3.name)) {
+                    structure = "先吉后阻";
+                    structureDesc = "前期条件或消息较好，但后续承接不足，需防高开低走、兑现延迟或结果缩水。";
+                } else if (god1.name === god3.name && god1.name !== god2.name) {
+                    structure = "首尾回环";
+                    structureDesc = "初末同神，中间发生变化后又回到原主题，常见于反复确认、旧事重提或绕行后回归原方案。";
+                } else if (repeated) {
+                    structure = "同神强化";
+                    structureDesc = `${repeated[0]}出现${repeated[1]}次，其特性会贯穿多个阶段，成为本卦最显著的主线。`;
+                }
+
+                let level, color, soft;
+                if (exact && goodCount >= 2) { level="上格"; color="#2E7D5B"; soft="#EAF5EF"; }
+                else if (exact && badCount >= 2) { level="重阻格"; color="#913B35"; soft="#FAECEA"; }
+                else if (weighted >= 1.6) { level="成格偏强"; color="#2E7D5B"; soft="#EAF5EF"; }
+                else if (weighted >= .3) { level="成格中等"; color="#487866"; soft="#EEF6F1"; }
+                else if (weighted > -1.2) { level="格局交错"; color="#B27A22"; soft="#FBF2E2"; }
+                else { level="阻格偏强"; color="#A43D36"; soft="#FAECEA"; }
+
+                const supportTypes = new Set(["生", "同"]);
+                const pressureTypes = new Set(["克", "耗"]);
+                const supportCount = [rel12, rel23].filter(r => supportTypes.has(r)).length;
+                const pressureCount = [rel12, rel23].filter(r => pressureTypes.has(r)).length;
+                const basis = [
+                    exact ? `命中特殊格局“${exact.t}”` : `结构属于“${structure}”`,
+                    repeated ? `${repeated[0]}重复强化` : "三神没有完全重复",
+                    `末传为${god3.name}，结果权重最高`,
+                    `两段流转中助力${supportCount}段、压力${pressureCount}段`
+                ];
+
+                let coreConflict;
+                if (goodCount === 3) coreConflict = "吉势较足，但要避免因顺利而忽视落实、期限和成果确认。";
+                else if (badCount === 3) coreConflict = "阻力不是单点问题，而可能涉及信息、人员和执行多个环节。";
+                else if (good.has(god3.name)) coreConflict = "主要矛盾在过程，而不是最终方向；关键是能否熬过中段并保留推进条件。";
+                else if (god3.name === "空亡") coreConflict = "最大风险是事情看似推进，最终却没有明确结果、有效凭证或实际兑现。";
+                else coreConflict = "前期积极因素不足以覆盖后期阻力，需要重新评估投入与结果是否匹配。";
+
+                let turning;
+                if (supportTypes.has(rel23)) turning = `中传到末传形成“${relationPlain(rel23)}”，后半程存在助力，转机通常来自资源补充、态度改善或条件落实。`;
+                else if (rel23 === "泄") turning = "后半程需要主动投入时间、沟通或资源才能换来结果，不能只等待对方推动。";
+                else if (pressureTypes.has(rel23)) turning = `中传到末传形成“${relationPlain(rel23)}”，若关键阻力不解除，末传结果会被压缩。`;
+                else turning = "转机尚不明确，应通过实际回复、进度和凭证判断，而不是只凭口头态度。";
+
+                let failure;
+                if (god3.name === "空亡") failure = "口头承诺没有落地、关键人失联、资料不完整，或最后没有可确认的成果。";
+                else if (god3.name === "赤口") failure = "沟通升级为争执，责任边界不清，或因合同、措辞和利益分配引发冲突。";
+                else if (god3.name === "留连") failure = "迟迟没有时间表、反复修改、长期等待，最终消耗耐心与机会成本。";
+                else failure = "进展虽偏正向，但目标设得过高，或没有把阶段成果及时固定下来。";
+
+                const topicFocus = `${questionLabel}事项中，应把格局判断落实到“谁负责、何时完成、用什么结果证明”三个问题。`;
+                const conclusion = exact?.d || oracle.d;
+                const poem = exact?.p || oracle.p;
+                const badges = [
+                    `结构：${structure}`, `强度：${level}`, `吉神 ${goodCount}`, `阻神 ${badCount}`,
+                    `首尾：${god1.name}→${god3.name}`
+                ];
+
+                return `<section class="triple-summary" style="--pattern-color:${color};--pattern-soft:${soft}">
+                    <div class="pattern-hero">
+                        <div class="pattern-hero-top"><div><h4>${exact?.t || oracle.t}</h4><div class="pattern-subtitle">${structure} · ${questionLabel}</div></div><span class="pattern-level">${level}</span></div>
+                        <div class="pattern-poem">${poem}</div>
+                    </div>
+                    <div class="triple-badges">${badges.map(x=>`<span class="triple-badge">${x}</span>`).join("")}</div>
+                    <div class="pattern-structure">
+                        <div class="pattern-node"><small>初传 · 起势</small>${god1.name}</div>
+                        <div class="pattern-arrow"><b>${relationPlain(rel12)}</b>${god1.nature}→${god2.nature}</div>
+                        <div class="pattern-node"><small>中传 · 成事</small>${god2.name}</div>
+                        <div class="pattern-arrow"><b>${relationPlain(rel23)}</b>${god2.nature}→${god3.nature}</div>
+                        <div class="pattern-node"><small>末传 · 定局</small>${god3.name}</div>
+                    </div>
+                    <div class="pattern-grid">
+                        <article class="pattern-card"><strong>格局类型</strong><p>${structureDesc}</p></article>
+                        <article class="pattern-card"><strong>成局依据</strong><p>${basis.join("；")}。</p></article>
+                        <article class="pattern-card"><strong>核心矛盾</strong><p>${coreConflict}</p></article>
+                        <article class="pattern-card"><strong>转机条件</strong><p>${turning}</p></article>
+                        <article class="pattern-card"><strong>破格风险</strong><p>${failure}</p></article>
+                        <article class="pattern-card"><strong>事项落点</strong><p>${topicFocus}</p></article>
+                        <article class="pattern-card full"><strong>综合断定</strong><p>${conclusion} 初传决定事情从何处起，中传决定能否承接，末传决定最终是否真正落地；初末关系为“${relationPlain(rel13)}”，可作为全局潜在联系参考。</p></article>
+                    </div>
+                    <div class="pattern-conclusion"><strong>格局使用方法：</strong>先看“${structure}”确定整体结构，再看末传${god3.name}判断结果方向，最后用两段五行关系和现实进度核验格局是否真正成立。</div>
+                </section>`;
+            }
+
+            function displayResult(num1, num2, num3) {
+                const result = calculateThreePalaces(num1, num2, num3);
+                const [god1, god2, god3] = result.gods;
+                const questionType = questionTypeSelect.value;
+                const questionLabel = questionConfig[questionType]?.label || questionConfig.general.label;
+                const luckStatus = getLuckStatus(god1, god2, god3, questionType);
+                const oracle = getOracleVerdict(...result.indexes);
+                const questionAdvice = getQuestionAdvice(questionType, result.gods, luckStatus);
+                const rel1 = getInteraction(god1, god2), rel2 = getInteraction(god2, god3), rel3 = getInteraction(god1, god3);
+                const theme = statusTheme(luckStatus.label);
+                const timeText = new Intl.DateTimeFormat("zh-CN", {year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}).format(new Date());
+
+                resultSection.classList.remove("hidden");
+                divinationCard.classList.add("compact-divination");
+                divinationCard.classList.remove("divination-editing");
+                document.getElementById("compactValue").textContent = `${questionLabel} · ${num1} / ${num2} / ${num3}`;
+                calculateBtn.textContent = "重新计算";
+                mainSummary.style.setProperty("--status-color", theme.color);
+                mainSummary.style.setProperty("--status-soft", theme.soft);
+                mainSummary.style.setProperty("--start-color", god1.accent);
+                mainSummary.style.setProperty("--process-color", god2.accent);
+                mainSummary.style.setProperty("--end-color", god3.accent);
+                mainSummary.innerHTML = `<div class="summary-flow-line"></div>
+                    <div class="summary-head"><span class="status-pill">${luckStatus.label}</span><div class="oracle-title">${oracle.t}</div></div>
+                    <div class="plain-summary">${oracle.d}</div>
+                    <div class="advice-box"><strong>${questionLabel}建议：</strong>${questionAdvice}</div>
+                    <div class="trend-ref">综合倾向：${luckStatus.score >= 1 ? "偏吉" : luckStatus.score <= -1 ? "偏慎" : "中平"}　·　趋势参考 ${Math.max(0,Math.min(100,Math.round(50+luckStatus.score*15)))} / 100<br><small>分值仅用于比较卦局倾向，不代表事件发生概率。</small></div>
+                    <div class="result-time">${questionLabel} · 数字起卦 · ${timeText}</div>`;
+
+                resultCards.innerHTML = `<div class="three-flow">
+                    <div class="stage-card"><div class="stage-role">起因</div><div class="stage-name" style="color:${god1.accent}">${god1.name}</div><div class="stage-nature">${god1.nature} · ${god1.summary.split("·").pop().trim()}</div></div>
+                    <div class="flow-link"><span class="flow-link-label">${wuxingRelation[rel1]?.label || rel1} · ${relationPlain(rel1)}</span><div class="flow-link-line"></div></div>
+                    <div class="stage-card"><div class="stage-role">经过</div><div class="stage-name" style="color:${god2.accent}">${god2.name}</div><div class="stage-nature">${god2.nature} · ${god2.summary.split("·").pop().trim()}</div></div>
+                    <div class="flow-link"><span class="flow-link-label">${wuxingRelation[rel2]?.label || rel2} · ${relationPlain(rel2)}</span><div class="flow-link-line"></div></div>
+                    <div class="stage-card result" style="border-color:${god3.accent}"><div class="stage-role">结果</div><div class="stage-name" style="color:${god3.accent}">${god3.name}</div><div class="stage-nature">${god3.nature} · ${god3.summary.split("·").pop().trim()}</div></div>
+                </div>`;
+
+                basicExplanation.innerHTML = `<h4>${oracle.t}</h4><p style="font-family:'KaiTi',serif;font-size:17px;line-height:1.8">${oracle.p}</p><p>${oracle.d}</p><p><strong>${questionLabel}：</strong>${questionAdvice}</p>`;
+                detailExplanation.innerHTML = buildProcessAnalysis(god1, god2, god3, questionType, questionLabel, questionAdvice);
+                const pairs=[{a:god1,b:god2,title:"起因 → 经过"},{a:god2,b:god3,title:"经过 → 结果"}];
+                comboExplanation.innerHTML = pairs.map(pair=>{const rel=getInteraction(pair.a,pair.b);return `<div class="combo-card"><div class="combo-header">${pair.title}：${wuxingRelation[rel]?.label || rel} · ${relationPlain(rel)}</div><div class="combo-text">${getRelationText(rel,pair.a,pair.b)}<div style="margin-top:8px;padding-top:8px;border-top:1px dashed #ddd">${combinations[`${pair.a.name}+${pair.b.name}`] || ""}</div></div></div>`}).join("")+`<div class="combo-card"><div class="combo-header">初末暗局：${wuxingRelation[rel3]?.label || rel3} · ${relationPlain(rel3)}</div><div class="combo-text">${getRelationText(rel3,god1,god3)}<div style="margin-top:8px;padding-top:8px;border-top:1px dashed #ddd">${combinations[`${god1.name}+${god3.name}`] || ""}</div></div></div>`;
+                tripleExplanation.innerHTML = getTripleComboExplanation(god1,god2,god3,oracle,questionLabel);
+                const fullReality = getDetailedImages(god1,god2,god3,num1,num2,num3,questionType);
+                realityExplanation.innerHTML = `${buildRealityCards(god1,god2,god3,questionType,questionAdvice)}<div class="meta-disclosure"><details><summary>查看传统类象补充</summary>${fullReality}</details></div>`;
+                imagesExplanation.innerHTML = buildRelevantImages(god3, questionType, num1, num2, num3, result.indexes);
+                resultSection.scrollIntoView({behavior:"smooth",block:"start"});
+            }
+
+            function buildRelevantImages(god, questionType, num1, num2, num3, indexes) {
+                const s = shenShaImages[god.name];
+                const e = extendedImages[god.name] || {};
+                const common = {
+                    direction:["方位",s.direction], time:["时间",s.time], person:["人物",s.person],
+                    place:["场所",s.place], lost:["失物线索",s.lostItem],
+                    health:["身体与状态",`${s.disease}；部位：${s.body}`], color:["颜色",s.color],
+                    number:["关联数字",s.number], season:["季节与天候",e.season],
+                    environment:["环境特征",e.environment], shape:["形状特征",e.shape],
+                    object:["常见物品",e.object], action:["行为动态",e.action], sound:["声音信息",e.sound],
+                    profession:["职业身份",e.profession], temperament:["性格气质",e.temperament],
+                    event:["可能事件",e.event], relationship:["关系表现",e.relationship],
+                    finance:["财务表现",e.finance], document:["文书资料",e.document],
+                    transport:["交通出行",e.transport], communication:["沟通方式",e.communication],
+                    storage:["收纳位置",e.storage], searchTips:["寻找建议",e.searchTips], omen:["核心提示",e.omen]
+                };
+                const featured = {
+                    wealth:["person","profession","finance","document","place","time"], business:["finance","profession","event","document","person","time"], investment:["finance","document","event","time","omen","communication"], debt:["finance","document","person","communication","time","omen"], purchase:["object","document","finance","place","time","omen"],
+                    career:["profession","person","event","document","communication","time"], job:["profession","person","communication","document","time","omen"], promotion:["profession","person","event","document","time","relationship"], study:["environment","action","document","time","person","omen"], project:["event","profession","document","communication","time","omen"], cooperation:["relationship","document","finance","person","communication","omen"],
+                    love:["person","temperament","relationship","communication","time","place"], reconcile:["relationship","communication","person","temperament","time","omen"], friendship:["relationship","person","communication","event","place","omen"], family:["relationship","person","place","communication","event","omen"],
+                    travel:["direction","transport","time","environment","place","communication"], lawsuit:["document","communication","person","event","time","omen"], document:["document","person","communication","time","place","omen"], house:["place","environment","direction","document","object","time"],
+                    message:["communication","person","time","event","sound","omen"], decision:["event","person","document","time","omen","direction"], daily:["time","event","person","place","action","omen"],
+                    lost:["direction","storage","lost","searchTips","place","time"], health:["health","season","environment","action","time","omen"], general:["direction","time","person","event","place","omen"]
+                }[questionType] || ["direction","time","person","event","place","omen"];
+
+                const groups = [
+                    {title:"时空与环境", keys:["direction","time","season","environment","place"]},
+                    {title:"人物与关系", keys:["person","profession","temperament","relationship","communication"]},
+                    {title:"事物与动态", keys:["event","action","object","shape","sound"]},
+                    {title:"事项线索", keys:["finance","document","transport","lost","storage","searchTips"]},
+                    {title:"身体与辅助", keys:["health","color","number","omen"]}
+                ];
+
+                const renderCards = keys => `<div class="context-grid">${keys.filter(k=>common[k]&&common[k][1]).map(k=>`<div class="context-item"><span class="context-label">${common[k][0]}</span><span class="context-value">${common[k][1]}</span></div>`).join("")}</div>`;
+                const featuredSet = new Set(featured);
+                const expanded = groups.map(group => {
+                    const keys = group.keys.filter(k => !featuredSet.has(k) && common[k] && common[k][1]);
+                    if (!keys.length) return "";
+                    return `<section class="image-group"><h4>${group.title}</h4>${renderCards(keys)}</section>`;
+                }).join("");
+
+                return `<div class="image-featured"><h4>当前事项重点</h4>${renderCards(featured)}</div>
+                    <button class="all-images-toggle" type="button" data-action="toggle-all-images">查看全部类象</button>
+                    <div class="all-images-panel hidden">${expanded}</div>
+                    <div class="meta-disclosure"><details><summary>查看起卦数据与评分依据</summary><p>原始数字：${num1}、${num2}、${num3}<br>三宫数字：${indexes.join(" → ")}<br>${systemMeta.school} · ${systemMeta.principle}<br>评分依据：末传权重最高，并结合初传、中传、五行流转、重复神与事项权重综合计算。</p></details></div>`;
+            }
+
+            function runCalculation() {
+                const values = readInputs();
+                if (!values) return;
+                calculateBtn.disabled = true;
+                try { displayResult(...values); }
+                finally { calculateBtn.disabled = false; }
+            }
+
+            calculateBtn.addEventListener("click", runCalculation);
+            randomBtn.addEventListener("click", () => {
+                const values = numInputs.map(() => Math.floor(Math.random() * 999) + 1);
+                values.forEach((value, index) => { numInputs[index].value = value; });
+                if (document.getElementById("randomAuto").checked) runCalculation();
+                else numInputs[0].focus();
+            });
+            numInputs.forEach(input => input.addEventListener("keydown", event => {
+                if (event.key === "Enter") runCalculation();
+            }));
+
+            imagesExplanation.addEventListener("click", event => {
+                const button=event.target.closest('[data-action="toggle-all-images"]');
+                if (!button) return;
+                const panel=button.nextElementSibling;
+                const open=panel.classList.toggle("hidden")===false;
+                button.textContent=open?"收起全部类象":"查看全部类象";
+            });
+
+            const detailToggle = document.getElementById("detailToggle");
+            const detailsPanel = document.getElementById("detailsPanel");
+            detailToggle.addEventListener("click", () => {
+                const open = detailsPanel.classList.toggle("hidden") === false;
+                detailToggle.setAttribute("aria-expanded", String(open));
+                detailToggle.textContent = open ? "收起完整解读" : "展开完整解读";
+            });
+            function openDivinationEditor() {
+                divinationCard.classList.remove("compact-divination");
+                divinationCard.classList.add("divination-editing");
+                calculateBtn.textContent = "重新计算";
+                divinationCard.scrollIntoView({behavior:"smooth", block:"start"});
+                numInputs[0].focus();
+            }
+            document.getElementById("compactEdit").addEventListener("click", openDivinationEditor);
+            document.getElementById("compactRestart").addEventListener("click", () => {
+                numInputs.forEach(input => input.value = "");
+                questionTypeSelect.value = "general";
+                resultSection.classList.add("hidden");
+                divinationCard.classList.remove("compact-divination", "divination-editing");
+                detailsPanel.classList.add("hidden");
+                detailToggle.textContent = "展开完整解读";
+                detailToggle.setAttribute("aria-expanded","false");
+                calculateBtn.textContent = "开始起卦";
+                divinationCard.scrollIntoView({behavior:"smooth", block:"start"});
+                numInputs[0].focus();
+            });
         });
     </script>
 </body>
-
 </html>
