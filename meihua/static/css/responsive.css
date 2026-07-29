@@ -1,0 +1,467 @@
+/* 响应式布局：每个选择器在各断点内只声明一次 */
+
+@media only screen and (max-width: 768px) {
+  .tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .ant-input {
+    font-size: 16px;
+  }
+
+  .ant-select {
+    flex: 1;
+    min-width: 0;
+    font-size: 16px;
+  }
+
+  .ant-btn {
+    min-height: 40px;
+  }
+
+  .form-actions .ant-btn-primary {
+    flex: 1;
+  }
+
+  .manual-row {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .manual-label {
+    width: 100%;
+  }
+
+  .radio-group {
+    width: 100%;
+    flex: 1 0 100%;
+  }
+
+  .radio-group .choice {
+    flex: 1 0 calc(25% - 4px);
+    min-height: 40px;
+    margin: 2px;
+    border-radius: 6px;
+    padding-inline: 5px;
+  }
+
+  #timeMoving + .radio-group .choice {
+    flex-basis: calc(33.333% - 4px);
+  }
+
+  .time-row {
+    width: 100%;
+  }
+
+  .time-cast-row {
+    width: 100%;
+  }
+
+  .time-row .ant-input {
+    width: 100%;
+  }
+
+  .time-cast-row .ant-input {
+    width: 100%;
+  }
+
+  .time-cast-row > span {
+    width: 100%;
+  }
+
+  .cast-preview {
+    line-height: 1.7;
+  }
+
+  .object-choice-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .direction-choice-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .object-choice {
+    min-height: 48px;
+  }
+
+  .direction-choice {
+    min-height: 48px;
+  }
+
+  .observation-fields {
+    padding: 13px;
+  }
+
+  .observation-group-heading {
+    display: block;
+  }
+
+  .observation-group-heading span {
+    display: block;
+    margin-top: 3px;
+  }
+
+  .three-record-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .response-record-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .meihua {
+    min-width: 0;
+  }
+
+  .table-label-col {
+    width: 52px;
+  }
+
+  .shensha-list {
+    gap: 4px;
+  }
+
+  .shensha-tag {
+    min-height: 32px;
+    padding: 3px 6px;
+  }
+
+  .auxiliary-heading h2 {
+    font-size: 18px;
+  }
+
+  .auxiliary-details > summary {
+    padding: 12px 14px;
+  }
+
+  .gua-image-grid {
+    grid-template-columns: 1fr;
+    padding: 14px;
+  }
+
+  .auxiliary-note {
+    padding: 11px 14px;
+  }
+
+  .process-heading h2 {
+    font-size: 18px;
+  }
+
+  .process-basis {
+    grid-template-columns: 54px minmax(0, 1fr);
+    padding: 11px 14px;
+  }
+
+  .process-arrow {
+    height: 18px;
+    transform: rotate(90deg);
+  }
+
+  .process-stage {
+    padding: 12px;
+  }
+
+  .process-conclusion {
+    margin: 0 14px 10px;
+  }
+
+  .process-note {
+    padding: 0 14px 13px;
+  }
+
+  .classic-heading h2 {
+    font-size: 18px;
+  }
+
+  .yao-text-list {
+    grid-template-columns: 1fr;
+  }
+
+  .yao-text-main {
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+  }
+
+  .yao-text-item {
+    padding: 11px 12px;
+  }
+
+  .chart-grid {
+    grid-template-columns: 35px repeat(5, 100px);
+    gap: 10px;
+    min-width: 585px;
+  }
+
+  .gua {
+    gap: 10px;
+  }
+
+  .yao {
+    width: 100px;
+  }
+
+  .yao.yin {
+    gap: 5px;
+  }
+
+  .tiyong {
+    font-size: 25px;
+  }
+
+  .variable {
+    left: -10px;
+  }
+
+  .meihua-table tr {
+    padding: 5px 6px;
+    font-size: 12px;
+  }
+
+  .shengke {
+    gap: 3px;
+    font-size: 12px;
+  }
+
+  .meihua h3 {
+    margin-top: 5px;
+  }
+
+  .shensha {
+    gap: 0 2px;
+    font-size: 9px;
+    line-height: 13px;
+  }
+
+  body {
+    padding-bottom: 24px;
+  }
+
+  .App {
+    padding: 12px 12px 32px;
+  }
+
+  .App-header {
+    border-radius: 20px;
+    padding: 17px 15px;
+  }
+
+  .form-title {
+    font-size: 26px;
+  }
+
+  .tabs {
+    gap: 4px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    justify-content: flex-start;
+  }
+
+  .tab {
+    flex: 0 0 92px;
+    min-height: 36px;
+    padding-inline: 8px;
+  }
+
+  .guaxiang {
+    margin-inline: -12px;
+    padding: 16px 12px 20px;
+    margin: 14px 0 0;
+    border-radius: 18px;
+  }
+
+  .classic-texts {
+    margin: 6px 0 0;
+    border-radius: 18px;
+  }
+
+  .auxiliary-tools {
+    margin: 14px 0 0;
+    border-radius: 18px;
+  }
+
+  .process-analysis {
+    margin: 6px 0 14px;
+    border-radius: 18px;
+  }
+
+  .auxiliary-heading {
+    padding: 12px 14px;
+  }
+
+  .process-heading {
+    padding: 12px 14px;
+  }
+
+  .classic-heading {
+    padding: 12px 14px;
+  }
+
+  .process-flow {
+    grid-template-columns: 1fr;
+    padding: 10px;
+  }
+
+  .classic-selector {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    padding: 8px 6px;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+    gap: 3px;
+    overflow: visible;
+  }
+
+  .classic-selector-item {
+    min-height: 0;
+    padding: 6px 2px;
+  }
+
+  .classic-selector-item small {
+    display: none;
+  }
+
+  .classic-selector-item strong {
+    font-size: 12px;
+  }
+
+  .classic-summary {
+    padding: 15px 14px;
+    padding-inline: 12px;
+  }
+
+  .yao-text-panel {
+    padding: 15px 14px 16px;
+    padding-inline: 12px;
+  }
+
+  .meihua-table {
+    padding: 5px 6px;
+    font-size: 12px;
+    border-radius: 18px;
+  }
+
+  .meihua-table .table-label-col {
+    width: 52px;
+  }
+
+  .meihua-table td {
+    padding: 6px 7px;
+    font-size: 12px;
+  }
+
+  .meihua-table td.selectable {
+    height: 34px;
+    padding-inline: 3px;
+  }
+}
+
+@media only screen and (max-width: 420px) {
+  .form-row {
+    flex-wrap: wrap;
+  }
+
+  .form-title {
+    margin-block: 0.65em;
+  }
+
+  .tabs {
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .tab {
+    padding-inline: 1px;
+    font-size: 13px;
+  }
+
+  .chart-grid {
+    grid-template-columns: 31px repeat(5, 92px);
+    min-width: 541px;
+  }
+
+  .yao {
+    width: 92px;
+  }
+
+  .meihua-table {
+    padding: 4px;
+    font-size: 11px;
+  }
+
+  .meihua-table tr {
+    padding: 4px;
+    font-size: 11px;
+  }
+
+  .table-label-col {
+    width: 46px;
+  }
+
+  .meihua-table .ant-btn {
+    font-size: 12px;
+  }
+
+  .shensha-tag {
+    font-size: 11px;
+  }
+
+  .classic-selector {
+    grid-template-columns: repeat(5, 108px);
+  }
+
+  .record-field {
+    grid-template-columns: 1fr;
+  }
+
+  .record-field textarea {
+    min-height: 68px;
+  }
+
+  .gua-image-card dl {
+    grid-template-columns: 1fr;
+  }
+
+  .form-row > span {
+    width: 100%;
+    flex-basis: auto;
+  }
+
+  .ant-input {
+    width: 100%;
+  }
+
+  .ant-select {
+    width: 100%;
+  }
+
+  .process-heading h2 {
+    font-size: 18px;
+  }
+
+  .classic-heading h2 {
+    font-size: 18px;
+  }
+
+  .auxiliary-heading h2 {
+    font-size: 18px;
+  }
+
+  .classic-selector-item span {
+    font-size: 10px;
+  }
+
+  .classic-selector-item strong {
+    font-size: 11px;
+  }
+
+  .meihua-table .table-label-col {
+    width: 46px;
+  }
+
+  .meihua-table td {
+    padding: 5px;
+    font-size: 11px;
+  }
+}
