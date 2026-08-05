@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>三元三合综合罗盘 · SVG浏览器指南针</title>
+  <style>
+    :root {
+      --bg: #0e1012;
+      --panel: #171a1e;
+      --panel-2: #20242a;
+      --line: #c9a75f;
+      --line-soft: rgba(201, 167, 95, .35);
+      --text: #eee7d6;
+      --muted: #aaa28f;
+      --accent: #d64135;
+      --accent-2: #77a783;
+      --shadow: 0 22px 60px rgba(0,0,0,.34);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 20% 10%, rgba(201,167,95,.08), transparent 32%),
+        radial-gradient(circle at 80% 90%, rgba(214,65,53,.07), transparent 35%),
+        var(--bg);
+      font-family: "Noto Serif SC", "Songti SC", "STSong", "Microsoft YaHei", serif;
+      overflow: hidden;
+    }
+
+    .app {
+      height: 100%;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 350px;
+    }
+
+    .stage {
+      position: relative;
+      min-width: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      overflow: hidden;
+    }
+
+    .stage::before {
+      content: "";
+      position: absolute;
+      inset: 22px;
+      border: 1px solid rgba(201,167,95,.18);
+      pointer-events: none;
+    }
+
+    #luopanWrap {
+      width: min(88vh, calc(100vw - 410px));
+      aspect-ratio: 1;
+      max-width: 980px;
+      min-width: 540px;
+      filter: drop-shadow(0 22px 38px rgba(0,0,0,.45));
+      touch-action: none;
+      user-select: none;
+    }
+
+    #luopan {
+      width: 100%;
+      height: 100%;
+      display: block;
+      overflow: visible;
+    }
+
+    .panel {
+      height: 100%;
+      overflow: auto;
+      padding: 22px;
+      background: linear-gradient(180deg, rgba(31,35,40,.98), rgba(19,22,26,.98));
+      border-left: 1px solid rgba(201,167,95,.22);
+      box-shadow: -20px 0 60px rgba(0,0,0,.2);
+    }
+
+    h1 {
+      margin: 0 0 4px;
+      font-size: 23px;
+      letter-spacing: .12em;
+      font-weight: 700;
+    }
+    .subtitle {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .readout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .metric {
+      min-height: 68px;
+      padding: 11px 12px;
+      border: 1px solid rgba(201,167,95,.22);
+      background: rgba(0,0,0,.16);
+    }
+    .metric small { color: var(--muted); display: block; margin-bottom: 5px; }
+    .metric strong { font-size: 19px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+    .section {
+      margin: 14px 0;
+      padding-top: 14px;
+      border-top: 1px solid rgba(201,167,95,.17);
+    }
+    .section-title {
+      margin-bottom: 9px;
+      color: #d9c28c;
+      font-size: 13px;
+      letter-spacing: .12em;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    input[type="range"] { width: 100%; accent-color: var(--accent); }
+    input[type="number"], select {
+      width: 100%;
+      padding: 9px 10px;
+      color: var(--text);
+      background: #101317;
+      border: 1px solid rgba(201,167,95,.25);
+      outline: none;
+    }
+    input[type="number"]:focus, select:focus { border-color: var(--line); }
+
+    .button-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+    button {
+      padding: 9px 10px;
+      border: 1px solid rgba(201,167,95,.35);
+      background: #24282e;
+      color: var(--text);
+      cursor: pointer;
+      transition: .18s ease;
+      font-family: inherit;
+    }
+    button:hover { border-color: var(--line); transform: translateY(-1px); }
+    button.primary { background: #7a241f; border-color: #b3483f; }
+    button.active { background: #315e43; border-color: #6ca37b; }
+    button.warning { background: #665326; border-color: #aa8b43; }
+    button:disabled { opacity: .48; cursor: not-allowed; transform: none; }
+
+    .sensor-status {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 9px 10px;
+      margin-bottom: 10px;
+      border: 1px solid rgba(201,167,95,.2);
+      background: rgba(0,0,0,.15);
+      font-size: 12px;
+    }
+    .status-dot {
+      width: 9px;
+      height: 9px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: #8d8170;
+      box-shadow: 0 0 0 4px rgba(141,129,112,.12);
+    }
+    .status-dot.live { background: #61ae77; box-shadow: 0 0 0 4px rgba(97,174,119,.14); }
+    .status-dot.paused { background: #d2a447; box-shadow: 0 0 0 4px rgba(210,164,71,.14); }
+    .status-dot.error { background: #d55d52; box-shadow: 0 0 0 4px rgba(213,93,82,.14); }
+    .status-copy { flex: 1; color: #ddd3bf; }
+    .status-copy small { display: block; color: var(--muted); margin-top: 2px; }
+
+    .sensor-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .sensor-value {
+      padding: 10px;
+      border: 1px solid rgba(201,167,95,.18);
+      background: rgba(255,255,255,.018);
+    }
+    .sensor-value small { display:block; color:var(--muted); margin-bottom:4px; font-size:11px; }
+    .sensor-value strong { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:17px; }
+    .hint {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.65;
+    }
+
+    .rings {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+    }
+    .ring-check {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 8px;
+      margin: 0;
+      border: 1px solid rgba(201,167,95,.15);
+      background: rgba(255,255,255,.018);
+      color: #d7d0c0;
+      cursor: pointer;
+    }
+    .ring-check input { accent-color: var(--accent); }
+
+    .info-card {
+      min-height: 126px;
+      padding: 12px;
+      border: 1px solid rgba(201,167,95,.25);
+      background: rgba(0,0,0,.18);
+      line-height: 1.65;
+      font-size: 13px;
+    }
+    .info-card .name { font-size: 18px; color: #f1dca7; margin-bottom: 4px; }
+    .info-card .meta { color: var(--muted); font-size: 12px; }
+
+    .legend {
+      font-size: 11px;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
+    .seg { cursor: pointer; transition: opacity .15s ease, filter .15s ease; }
+    .seg:hover { filter: brightness(1.35); }
+    .seg.selected { filter: brightness(1.5) drop-shadow(0 0 4px rgba(255,216,137,.65)); }
+    .ring-label { pointer-events: none; dominant-baseline: middle; text-anchor: middle; }
+
+    .corner-mark { fill: none; stroke: rgba(201,167,95,.72); stroke-width: 1.4; }
+    .crosshair { stroke: rgba(214,65,53,.86); stroke-width: 1.8; }
+    .crosshair-soft { stroke: rgba(214,65,53,.28); stroke-width: 1; }
+    .needle-n { fill: #bd3c32; }
+    .needle-s { fill: #e7dfcb; }
+
+    @media (max-width: 980px) {
+      body { overflow: auto; }
+      .app { grid-template-columns: 1fr; height: auto; }
+      .stage { min-height: 720px; }
+      .panel { border-left: 0; border-top: 1px solid rgba(201,167,95,.22); }
+      #luopanWrap { width: min(94vw, 760px); min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="stage">
+      <div id="luopanWrap" aria-label="三元三合综合罗盘">
+        <svg id="luopan" viewBox="0 0 1000 1000" role="img">
+          <defs>
+            <radialGradient id="discBg" cx="50%" cy="45%" r="65%">
+              <stop offset="0%" stop-color="#ede1c3" />
+              <stop offset="72%" stop-color="#d7c293" />
+              <stop offset="100%" stop-color="#9f7d42" />
+            </radialGradient>
+            <linearGradient id="wood" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#4a2619" />
+              <stop offset=".5" stop-color="#7a4530" />
+              <stop offset="1" stop-color="#32170f" />
+            </linearGradient>
+            <filter id="innerShadow" x="-30%" y="-30%" width="160%" height="160%">
+              <feDropShadow dx="0" dy="8" stdDeviation="12" flood-opacity=".35" />
+            </filter>
+          </defs>
+
+          <rect x="28" y="28" width="944" height="944" rx="8" fill="url(#wood)" stroke="#c9a75f" stroke-width="3" />
+          <rect x="47" y="47" width="906" height="906" fill="#1b0e09" stroke="#dfbd72" stroke-width="1.5" />
+          <path class="corner-mark" d="M65 140V65H140 M860 65H935V140 M935 860V935H860 M140 935H65V860" />
+
+          <circle cx="500" cy="500" r="424" fill="#120b08" stroke="#e0bf78" stroke-width="3" filter="url(#innerShadow)" />
+          <circle cx="500" cy="500" r="414" fill="url(#discBg)" />
+
+          <g id="disc"></g>
+
+          <g id="fixedOverlay">
+            <line class="crosshair-soft" x1="62" y1="500" x2="938" y2="500" />
+            <line class="crosshair-soft" x1="500" y1="62" x2="500" y2="938" />
+            <line class="crosshair" x1="500" y1="53" x2="500" y2="947" />
+            <line class="crosshair" x1="53" y1="500" x2="947" y2="500" />
+            <circle cx="500" cy="500" r="77" fill="#efe3c5" stroke="#3b2118" stroke-width="2" />
+            <circle cx="500" cy="500" r="63" fill="none" stroke="#99743e" stroke-width="1.2" />
+            <path class="needle-n" d="M500 438 L487 507 L500 498 L513 507 Z" />
+            <path class="needle-s" d="M500 562 L487 493 L500 502 L513 493 Z" />
+            <circle cx="500" cy="500" r="7" fill="#2b1b14" stroke="#c9a75f" stroke-width="2" />
+            <text x="500" y="470" text-anchor="middle" font-size="15" fill="#9f2e27">北</text>
+            <text x="500" y="541" text-anchor="middle" font-size="15" fill="#49362b">南</text>
+            <path d="M483 456 H517 M483 544 H517" stroke="#4d3528" stroke-width="1" />
+          </g>
+        </svg>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <h1>三元三合综合罗盘</h1>
+      <p class="subtitle">JS + SVG 交互罗盘。支持手机方向传感器、真北/磁北校正、锁定与归零；也可拖动、缩放和点击格位。</p>
+
+      <div class="readout">
+        <div class="metric"><small>天心线读数</small><strong id="degreeReadout">0.0°</strong></div>
+        <div class="metric"><small>二十四山</small><strong id="mountainReadout">子</strong></div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">浏览器指南针</div>
+        <div class="sensor-status">
+          <span id="sensorDot" class="status-dot"></span>
+          <div id="sensorStatus" class="status-copy">尚未启动<small>手机需具备方向传感器，并通过 HTTPS 打开</small></div>
+        </div>
+        <div class="sensor-grid">
+          <div class="sensor-value"><small>传感器原始方位</small><strong id="rawHeadingReadout">--</strong></div>
+          <div class="sensor-value"><small>校正后方位</small><strong id="correctedHeadingReadout">--</strong></div>
+          <div class="sensor-value"><small>坐山 / 向首</small><strong id="sittingFacingReadout">子 / 午</strong></div>
+          <div class="sensor-value"><small>传感器状态</small><strong id="accuracyReadout">未连接</strong></div>
+        </div>
+        <div class="button-row">
+          <button class="primary" id="enableCompass">启动指南针</button>
+          <button id="pauseCompass" disabled>暂停跟随</button>
+          <button id="lockCompass" disabled>锁定读数</button>
+          <button id="zeroCompass" disabled>当前方向归零</button>
+          <button id="clearZero" disabled>清除归零</button>
+          <button id="locateCompass">定位并获取磁偏角</button>
+        </div>
+        <label for="northMode">方位基准</label>
+        <select id="northMode">
+          <option value="magnetic">磁北</option>
+          <option value="true">真北（应用磁偏角）</option>
+        </select>
+        <label for="declination">当地磁偏角（东偏为正，西偏为负，可手动覆盖）</label>
+        <input id="declination" type="number" min="-45" max="45" step="0.1" value="0" />
+        <label for="smoothing">方位平滑强度：<span id="smoothingValue">18%</span></label>
+        <input id="smoothing" type="range" min="0.04" max="0.55" step="0.01" value="0.18" />
+        <p id="locationInfo" class="hint">点击“定位并获取磁偏角”，将按当前位置、海拔和当前日期使用内置 WMM2025 自动计算；无需联网或 API 密钥。</p>
+      </div>
+
+      <div class="section">
+        <div class="section-title">盘面控制</div>
+        <label for="rotation">内盘旋转</label>
+        <input id="rotation" type="range" min="0" max="359.9" step="0.1" value="0" />
+        <label for="azimuth">直接设置天心线方位（度）</label>
+        <input id="azimuth" type="number" min="0" max="359.9" step="0.1" value="0" />
+        <label for="offsetMode">天地人三盘偏移约定</label>
+        <select id="offsetMode">
+          <option value="A">约定 A：天盘 +7.5° / 人盘 −7.5°</option>
+          <option value="B">约定 B：天盘 −7.5° / 人盘 +7.5°</option>
+        </select>
+        <div class="button-row">
+          <button class="primary" id="applyAzimuth">设置方位</button>
+          <button id="reset">归零复位</button>
+          <button id="rotateLeft">逆转 7.5°</button>
+          <button id="rotateRight">顺转 7.5°</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">圈层显示</div>
+        <div id="ringToggles" class="rings"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">格位信息</div>
+        <div id="info" class="info-card">
+          <div class="name">子山</div>
+          <div>点击盘面中的任意圈层格位，可查看名称、角度范围及所属层。</div>
+          <div class="meta">盘面数据均集中在 JavaScript 的 RINGS 配置中，可直接替换。</div>
+        </div>
+      </div>
+
+      <div class="section legend">
+        <div class="section-title">操作说明</div>
+        盘面拖动：旋转内盘<br />
+        鼠标滚轮：缩放盘面<br />
+        双击盘面：恢复缩放<br />
+        红色十字：固定天心十道<br />
+        手机指南针：点击启动并授权方向传感器<br />
+        手动拖盘：指南针运行时会自动暂停跟随<br />
+        真北校正：可定位自动计算磁偏角，也可手动覆盖<br />
+        盘层角度、名称、配色均可在配置数组中独立修改。
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    "use strict";
+
+
+    // WMM2025（2025—2030）客户端磁偏角计算。
+    // 算法与系数来源：NOAA World Magnetic Model；此处内嵌后无需联网或 API 密钥。
+    // Calculation code adapted from dpyeates/magvar (MIT License).
+    // Copyright (c) Darren Yeates and contributors.
+    // Permission is hereby granted, free of charge, to any person obtaining a copy
+    // of this software and associated documentation files (the "Software"), to deal
+    // in the Software without restriction, including without limitation the rights
+    // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    // copies of the Software, and to permit persons to whom the Software is
+    // furnished to do so, subject to the following conditions:
+    // The above copyright notice and this permission notice shall be included in all
+    // copies or substantial portions of the Software. THE SOFTWARE IS PROVIDED "AS IS",
+    // WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+    // WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+    const WMM2025 = (() => {
+      const gnmWmm = [
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [-29351.8, -1410.8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [-2556.6, 2951.1, 1649.3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [1361.0, -2404.1, 1243.8, 453.6, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [895.0, 799.5, 55.7, -281.1, 12.1, 0, 0, 0, 0, 0, 0, 0, 0],
+        [-233.2, 368.9, 187.2, -138.7, -142.0, 20.9, 0, 0, 0, 0, 0, 0, 0],
+        [64.4, 63.8, 76.9, -115.7, -40.9, 14.9, -60.7, 0, 0, 0, 0, 0, 0],
+        [79.5, -77.0, -8.8, 59.3, 15.8, 2.5, -11.1, 14.2, 0, 0, 0, 0, 0],
+        [23.2, 10.8, -17.5, 2.0, -21.7, 16.9, 15.0, -16.8, 0.9, 0, 0, 0, 0],
+        [4.6, 7.8, 3.0, -0.2, -2.5, -13.1, 2.4, 8.6, -8.7, -12.9, 0, 0, 0],
+        [-1.3, -6.4, 0.2, 2.0, -1.0, -0.6, -0.9, 1.5, 0.9, -2.7, -3.9, 0, 0],
+        [2.9, -1.5, -2.5, 2.4, -0.6, -0.1, -0.6, -0.1, 1.1, -1.0, -0.2, 2.6, 0],
+        [-2.0, -0.2, 0.3, 1.2, -1.3, 0.6, 0.6, 0.5, -0.1, -0.4, -0.2, -1.3, -0.7]
+      ];
+
+      const hnmWmm = [
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 4545.4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, -3133.6, -815.1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, -56.6, 237.5, -549.5, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 278.6, -133.9, 212.0, -375.6, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 45.4, 220.2, -122.9, 43.0, 106.1, 0, 0, 0, 0, 0, 0, 0],
+        [0, -18.4, 16.8, 48.8, -59.8, 10.9, 72.7, 0, 0, 0, 0, 0, 0],
+        [0, -48.9, -14.4, -1.0, 23.4, -7.4, -25.1, -2.3, 0, 0, 0, 0, 0],
+        [0, 7.1, -12.6, 11.4, -9.7, 12.7, 0.7, -5.2, 3.9, 0, 0, 0, 0],
+        [0, -24.8, 12.2, 8.3, -3.3, -5.2, 7.2, -0.6, 0.8, 10.0, 0, 0, 0],
+        [0, 3.3, 0.0, 2.4, 5.3, -9.1, 0.4, -4.2, -3.8, 0.9, -9.1, 0, 0],
+        [0, 0, 2.9, -0.6, 0.2, 0.5, -0.3, -1.2, -1.7, -2.9, -1.8, -2.3, 0],
+        [0, -1.3, 0.7, 1.0, -1.4, 0.0, 0.6, -0.1, 0.8, 0.1, -1.0, 0.1, 0.2]
+      ];
+
+      const gtnmWmm = [
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [12.0, 9.7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [-11.6, -5.2, -8.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [-1.3, -4.2, 0.4, -15.6, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [-1.6, -2.4, -6.0, 5.6, -7.0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0.6, 1.4, 0.0, 0.6, 2.2, 0.9, 0, 0, 0, 0, 0, 0, 0],
+        [-0.2, -0.4, 0.9, 1.2, -0.9, 0.3, 0.9, 0, 0, 0, 0, 0, 0],
+        [-0, -0.1, -0.1, 0.5, -0.1, -0.8, -0.8, 0.8, 0, 0, 0, 0, 0],
+        [-0.1, 0.2, 0.0, 0.5, -0.1, 0.3, 0.2, -0, 0.2, 0, 0, 0, 0],
+        [-0, -0.1, 0.1, 0.3, -0.3, 0, 0.3, -0.1, 0.1, -0.1, 0, 0, 0],
+        [0.1, 0.0, 0.1, 0.1, -0, -0.3, 0, -0.1, -0.1, -0, -0, 0, 0],
+        [0, -0, 0, 0, 0, -0.1, 0, -0, -0.1, -0.1, -0.1, -0.1, 0],
+        [0, 0, -0, -0, -0, -0, 0.1, -0, 0, 0, -0.1, -0, -0.1]
+      ];
+
+      const htnmWmm = [
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, -21.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, -27.7, -12.1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 4.0, -0.3, -4.1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, -1.1, 4.1, 1.6, -4.4, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, -0.5, 2.2, 0.4, 1.7, 1.9, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0.3, -1.6, -0.4, 0.9, 0.7, 0.9, 0, 0, 0, 0, 0, 0],
+        [0, 0.6, 0.5, -0.8, 0.0, -1.0, 0.6, -0.2, 0, 0, 0, 0, 0],
+        [0, -0.2, 0.5, -0.4, 0.4, -0.5, -0.6, 0.3, 0.2, 0, 0, 0, 0],
+        [0, -0.3, 0.3, -0.3, 0.3, 0.2, -0.1, -0.2, 0.4, 0.1, 0, 0, 0],
+        [0, 0, -0, -0.2, 0.1, -0.1, 0.1, 0.0, -0.1, 0.2, -0, 0, 0],
+        [0, -0, 0.1, -0, 0.1, -0, -0, 0.1, -0, 0, 0, 0, 0],
+        [0, -0, 0, -0.1, 0.1, -0, -0, -0, 0, -0, -0, 0, -0.1]
+      ];
+
+      const julianDaysCOF = 2460677;
+
+      const DEG_TO_RAD = Math.PI / 180;
+      const RAD_TO_DEG = 180 / Math.PI;
+      const globe = {
+        a: 6378.137,
+        b: 6356.7523142,
+        r0: 6371.2
+      };
+      const zeroArray2D = (rows, columns) => Array.from({ length: rows }, () => Array(columns).fill(0));
+      const P = zeroArray2D(13, 13);
+      const DP = zeroArray2D(13, 13);
+      const gnm = zeroArray2D(13, 13);
+      const hnm = zeroArray2D(13, 13);
+      const sm = new Float64Array(13);
+      const cm = new Float64Array(13);
+      const root = new Float64Array(13);
+      const roots = zeroArray2D(13, 13).map(row => row.map(() => new Float64Array(2)));
+
+      for (let n = 2; n <= 12; n++) {
+        root[n] = Math.sqrt((2 * n - 1) / (2 * n));
+      }
+      for (let m = 0; m <= 12; m++) {
+        const mm = m * m;
+        for (let n = Math.max(m + 1, 2); n <= 12; n++) {
+          roots[m][n][0] = Math.sqrt((n - 1) * (n - 1) - mm);
+          roots[m][n][1] = 1 / Math.sqrt(n * n - mm);
+        }
+      }
+
+      function julianDay(date = new Date()) {
+        return date.getTime() / 86400000 + 2440587.5;
+      }
+
+      function declination(latitude, longitude, altitudeKm = 0, date = new Date()) {
+        if (!Number.isFinite(latitude) || latitude < -90 || latitude > 90) {
+          throw new RangeError("纬度必须在 -90° 到 90° 之间");
+        }
+        if (!Number.isFinite(longitude) || longitude < -180 || longitude > 180) {
+          throw new RangeError("经度必须在 -180° 到 180° 之间");
+        }
+        if (!Number.isFinite(altitudeKm)) altitudeKm = 0;
+
+        const latRad = latitude * DEG_TO_RAD;
+        const lonRad = longitude * DEG_TO_RAD;
+        const sinLat = Math.sin(latRad);
+        const cosLat = Math.cos(latRad);
+        const sr = Math.sqrt(globe.a ** 2 * cosLat ** 2 + globe.b ** 2 * sinLat ** 2);
+        const theta = Math.atan2(
+          cosLat * (altitudeKm * sr + globe.a ** 2),
+          sinLat * (altitudeKm * sr + globe.b ** 2)
+        );
+        const r = Math.sqrt(
+          altitudeKm ** 2 +
+          2 * altitudeKm * sr +
+          (globe.a ** 4 - (globe.a ** 4 - globe.b ** 4) * sinLat ** 2) /
+          (globe.a ** 2 - (globe.a ** 2 - globe.b ** 2) * sinLat ** 2)
+        );
+        const c = Math.cos(theta);
+        const s = Math.sin(theta);
+        const invS = 1 / (s + (s === 0 ? 1e-8 : 0));
+
+        P[0][0] = 1;
+        P[1][1] = s;
+        DP[0][0] = 0;
+        DP[1][1] = c;
+        P[1][0] = c;
+        DP[1][0] = -s;
+
+        for (let n = 2; n <= 12; n++) {
+          P[n][n] = P[n - 1][n - 1] * s * root[n];
+          DP[n][n] = (DP[n - 1][n - 1] * s + P[n - 1][n - 1] * c) * root[n];
+        }
+        for (let m = 0; m <= 12; m++) {
+          for (let n = Math.max(m + 1, 2); n <= 12; n++) {
+            P[n][m] = (P[n - 1][m] * c * (2 * n - 1) - P[n - 2][m] * roots[m][n][0]) * roots[m][n][1];
+            DP[n][m] = (
+              (DP[n - 1][m] * c - P[n - 1][m] * s) * (2 * n - 1) -
+              DP[n - 2][m] * roots[m][n][0]
+            ) * roots[m][n][1];
+          }
+        }
+
+        const yearFrac = (julianDay(date) - julianDaysCOF) / 365.25;
+        for (let n = 1; n <= 12; n++) {
+          for (let m = 0; m <= 12; m++) {
+            gnm[n][m] = gnmWmm[n][m] + yearFrac * gtnmWmm[n][m];
+            hnm[n][m] = hnmWmm[n][m] + yearFrac * htnmWmm[n][m];
+          }
+        }
+
+        for (let m = 0; m <= 12; m++) {
+          sm[m] = Math.sin(m * lonRad);
+          cm[m] = Math.cos(m * lonRad);
+        }
+
+        let BR = 0;
+        let BTheta = 0;
+        let BPhi = 0;
+        const fn0 = globe.r0 / r;
+        let fn = fn0 ** 2;
+        for (let n = 1; n <= 12; n++) {
+          let c1n = 0;
+          let c2n = 0;
+          let c3n = 0;
+          for (let m = 0; m <= n; m++) {
+            const tmp = gnm[n][m] * cm[m] + hnm[n][m] * sm[m];
+            c1n += tmp * P[n][m];
+            c2n += tmp * DP[n][m];
+            c3n += m * (gnm[n][m] * sm[m] - hnm[n][m] * cm[m]) * P[n][m];
+          }
+          fn *= fn0;
+          BR += (n + 1) * c1n * fn;
+          BTheta -= c2n * fn;
+          BPhi += c3n * fn * invS;
+        }
+
+        const psi = theta - (Math.PI / 2 - latRad);
+        const X = -BTheta * Math.cos(psi) - BR * Math.sin(psi);
+        const Y = BPhi;
+        return X !== 0 || Y !== 0 ? Math.atan2(Y, X) * RAD_TO_DEG : 0;
+      }
+
+      return { declination, model: "WMM2025", validFrom: 2025, validUntil: 2030 };
+    })();
+
+    const SVG_NS = "http://www.w3.org/2000/svg";
+    const cx = 500, cy = 500;
+
+    const MOUNTAINS = [
+      "子","癸","丑","艮","寅","甲","卯","乙","辰","巽","巳","丙",
+      "午","丁","未","坤","申","庚","酉","辛","戌","乾","亥","壬"
+    ];
+
+    const MOUNTAIN_META = {
+      子:"坎宫 · 正北", 癸:"坎宫 · 北偏东", 丑:"艮宫 · 东北偏北", 艮:"艮宫 · 正东北",
+      寅:"艮宫 · 东北偏东", 甲:"震宫 · 东偏北", 卯:"震宫 · 正东", 乙:"震宫 · 东偏南",
+      辰:"巽宫 · 东南偏东", 巽:"巽宫 · 正东南", 巳:"巽宫 · 东南偏南", 丙:"离宫 · 南偏东",
+      午:"离宫 · 正南", 丁:"离宫 · 南偏西", 未:"坤宫 · 西南偏南", 坤:"坤宫 · 正西南",
+      申:"坤宫 · 西南偏西", 庚:"兑宫 · 西偏南", 酉:"兑宫 · 正西", 辛:"兑宫 · 西偏北",
+      戌:"乾宫 · 西北偏西", 乾:"乾宫 · 正西北", 亥:"乾宫 · 西北偏北", 壬:"坎宫 · 北偏西"
+    };
+
+    const TRIGRAMS = ["坎","艮","震","巽","离","坤","兑","乾"];
+    const TRIGRAM_META = ["水 · 北","山 · 东北","雷 · 东","风 · 东南","火 · 南","地 · 西南","泽 · 西","天 · 西北"];
+    const BRANCHES = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
+    const STEMS = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
+    const NINE_STARS = ["一白贪狼","二黑巨门","三碧禄存","四绿文曲","五黄廉贞","六白武曲","七赤破军","八白左辅","九紫右弼"];
+
+    const JIAZI = [
+      "甲子","乙丑","丙寅","丁卯","戊辰","己巳","庚午","辛未","壬申","癸酉",
+      "甲戌","乙亥","丙子","丁丑","戊寅","己卯","庚辰","辛巳","壬午","癸未",
+      "甲申","乙酉","丙戌","丁亥","戊子","己丑","庚寅","辛卯","壬辰","癸巳",
+      "甲午","乙未","丙申","丁酉","戊戌","己亥","庚子","辛丑","壬寅","癸卯",
+      "甲辰","乙巳","丙午","丁未","戊申","己酉","庚戌","辛亥","壬子","癸丑",
+      "甲寅","乙卯","丙辰","丁巳","戊午","己未","庚申","辛酉","壬戌","癸亥"
+    ];
+
+    const HEXAGRAMS = [
+      "乾","坤","屯","蒙","需","讼","师","比","小畜","履","泰","否","同人","大有","谦","豫",
+      "随","蛊","临","观","噬嗑","贲","剥","复","无妄","大畜","颐","大过","坎","离","咸","恒",
+      "遁","大壮","晋","明夷","家人","睽","蹇","解","损","益","夬","姤","萃","升","困","井",
+      "革","鼎","震","艮","渐","归妹","丰","旅","巽","兑","涣","节","中孚","小过","既济","未济"
+    ];
+
+    const COLORS = {
+      cream1: ["#eadcb8", "#dfca96"],
+      cream2: ["#d6bd83", "#eadbb5"],
+      red: ["#7b2924", "#96372f"],
+      dark: ["#27211b", "#373027"],
+      green: ["#47664f", "#5b7c61"],
+      black: ["#17191b", "#292c2f"],
+      gold: ["#a27d3e", "#c7a65e"]
+    };
+
+    // 每个圈层都可独立替换数据、半径、偏移和颜色。
+    const RINGS = [
+      { id:"degrees", name:"周天度数", inner:382, outer:414, labels:Array.from({length:72},(_,i)=>String(i*5)), offset:0, palette:"dark", fontSize:8, textColor:"#efe5cf", tickMode:true },
+      { id:"hexagrams", name:"六十四卦序", inner:344, outer:382, labels:HEXAGRAMS, offset:0, palette:"cream1", fontSize:10, textColor:"#2b2119" },
+      { id:"jiazi", name:"六十甲子", inner:306, outer:344, labels:JIAZI, offset:0, palette:"black", fontSize:9, textColor:"#eee2c7" },
+      { id:"dragons72", name:"穿山七十二龙序", inner:272, outer:306, labels:Array.from({length:72},(_,i)=>String(i+1)), offset:0, palette:"cream2", fontSize:8, textColor:"#392a1e", note:"本层使用1—72序号占位，便于替换为指定传承的七十二龙数据。" },
+      { id:"heaven", name:"天盘缝针", inner:234, outer:272, labels:MOUNTAINS, offset:7.5, palette:"red", fontSize:13, textColor:"#fff1d4" },
+      { id:"earth", name:"地盘正针", inner:194, outer:234, labels:MOUNTAINS, offset:0, palette:"cream1", fontSize:16, textColor:"#302016" },
+      { id:"human", name:"人盘中针", inner:156, outer:194, labels:MOUNTAINS, offset:-7.5, palette:"green", fontSize:13, textColor:"#f3ead6" },
+      { id:"branches", name:"十二地支", inner:128, outer:156, labels:BRANCHES, offset:0, palette:"cream2", fontSize:13, textColor:"#322318" },
+      { id:"trigrams", name:"后天八卦", inner:96, outer:128, labels:TRIGRAMS, meta:TRIGRAM_META, offset:0, palette:"dark", fontSize:17, textColor:"#f2e4c7" }
+    ];
+
+    function storageGet(key, fallback = null) {
+      try {
+        const value = localStorage.getItem(key);
+        return value == null ? fallback : value;
+      } catch (_) {
+        return fallback;
+      }
+    }
+
+    function storageSet(key, value) {
+      try { localStorage.setItem(key, String(value)); } catch (_) {}
+    }
+
+    function storageRemove(key) {
+      try { localStorage.removeItem(key); } catch (_) {}
+    }
+
+    function storedNumber(key, fallback, min, max) {
+      const value = Number(storageGet(key, fallback));
+      if (!Number.isFinite(value)) return fallback;
+      return Math.min(max, Math.max(min, value));
+    }
+
+    const state = {
+      rotation: 0,
+      scale: 1,
+      selected: null,
+      hidden: new Set(),
+      dragging: false,
+      dragStartAngle: 0,
+      dragStartRotation: 0,
+      offsetMode: "A",
+      compass: {
+        active: false,
+        paused: false,
+        locked: false,
+        rawHeading: null,
+        smoothedHeading: null,
+        correctedHeading: null,
+        zeroOffset: storedNumber("luopanZeroOffset", 0, 0, 359.999),
+        declination: storedNumber("luopanDeclination", 0, -45, 45),
+        northMode: storageGet("luopanNorthMode", "magnetic") === "true" ? "true" : "magnetic",
+        smoothing: storedNumber("luopanSmoothing", 0.18, 0.04, 0.55),
+        source: "",
+        accuracy: null,
+        lastEventTime: 0,
+        listening: false,
+        hasAbsoluteEvent: false,
+        declinationSource: storageGet("luopanDeclinationSource", "manual"),
+        latitude: storedNumber("luopanLatitude", NaN, -90, 90),
+        longitude: storedNumber("luopanLongitude", NaN, -180, 180),
+        altitudeKm: storedNumber("luopanAltitudeKm", 0, -1, 100),
+        locationAccuracy: storedNumber("luopanLocationAccuracy", NaN, 0, 100000)
+      }
+    };
+
+    const disc = document.getElementById("disc");
+    const wrap = document.getElementById("luopanWrap");
+    const rotationInput = document.getElementById("rotation");
+    const azimuthInput = document.getElementById("azimuth");
+    const degreeReadout = document.getElementById("degreeReadout");
+    const mountainReadout = document.getElementById("mountainReadout");
+    const info = document.getElementById("info");
+    const offsetMode = document.getElementById("offsetMode");
+    const sensorDot = document.getElementById("sensorDot");
+    const sensorStatus = document.getElementById("sensorStatus");
+    const rawHeadingReadout = document.getElementById("rawHeadingReadout");
+    const correctedHeadingReadout = document.getElementById("correctedHeadingReadout");
+    const sittingFacingReadout = document.getElementById("sittingFacingReadout");
+    const accuracyReadout = document.getElementById("accuracyReadout");
+    const enableCompassBtn = document.getElementById("enableCompass");
+    const pauseCompassBtn = document.getElementById("pauseCompass");
+    const lockCompassBtn = document.getElementById("lockCompass");
+    const zeroCompassBtn = document.getElementById("zeroCompass");
+    const clearZeroBtn = document.getElementById("clearZero");
+    const locateCompassBtn = document.getElementById("locateCompass");
+    const northModeInput = document.getElementById("northMode");
+    const declinationInput = document.getElementById("declination");
+    const smoothingInput = document.getElementById("smoothing");
+    const smoothingValue = document.getElementById("smoothingValue");
+    const locationInfo = document.getElementById("locationInfo");
+
+    function el(name, attrs = {}, text = "") {
+      const node = document.createElementNS(SVG_NS, name);
+      Object.entries(attrs).forEach(([k,v]) => node.setAttribute(k, v));
+      if (text !== "") node.textContent = text;
+      return node;
+    }
+
+    function polar(r, angleDeg) {
+      const a = (angleDeg - 90) * Math.PI / 180;
+      return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
+    }
+
+    function annularPath(inner, outer, startDeg, endDeg) {
+      const p1 = polar(outer, startDeg);
+      const p2 = polar(outer, endDeg);
+      const p3 = polar(inner, endDeg);
+      const p4 = polar(inner, startDeg);
+      const large = (endDeg - startDeg) > 180 ? 1 : 0;
+      return [
+        `M ${p1.x} ${p1.y}`,
+        `A ${outer} ${outer} 0 ${large} 1 ${p2.x} ${p2.y}`,
+        `L ${p3.x} ${p3.y}`,
+        `A ${inner} ${inner} 0 ${large} 0 ${p4.x} ${p4.y}`,
+        "Z"
+      ].join(" ");
+    }
+
+    function normalize(deg) {
+      return (deg % 360 + 360) % 360;
+    }
+
+    function shortestAngleDelta(from, to) {
+      return ((to - from + 540) % 360) - 180;
+    }
+
+    function mountainAt(azimuth) {
+      const index = Math.floor(normalize(azimuth + 7.5) / 15) % 24;
+      return { index, name: MOUNTAINS[index] };
+    }
+
+    function facingMountainAt(azimuth) {
+      return mountainAt(normalize(azimuth + 180));
+    }
+
+    function screenOrientationAngle() {
+      if (screen.orientation && Number.isFinite(screen.orientation.angle)) return screen.orientation.angle;
+      if (Number.isFinite(window.orientation)) return Number(window.orientation);
+      return 0;
+    }
+
+    function angleFromEvent(evt) {
+      const rect = wrap.getBoundingClientRect();
+      const x = evt.clientX - rect.left - rect.width / 2;
+      const y = evt.clientY - rect.top - rect.height / 2;
+      return Math.atan2(y, x) * 180 / Math.PI + 90;
+    }
+
+    function getOffset(ring) {
+      if (ring.id === "heaven") return state.offsetMode === "A" ? 7.5 : -7.5;
+      if (ring.id === "human") return state.offsetMode === "A" ? -7.5 : 7.5;
+      return ring.offset || 0;
+    }
+
+    function drawBaseDecorations() {
+      // 内盘底纹及同心线
+      disc.appendChild(el("circle", {cx,cy,r:414,fill:"none",stroke:"#2c1c14","stroke-width":"2"}));
+      for (const r of [96,128,156,194,234,272,306,344,382,414]) {
+        disc.appendChild(el("circle", {cx,cy,r,fill:"none",stroke:"rgba(58,39,25,.48)","stroke-width":"1"}));
+      }
+      // 24山放射辅助线
+      for (let i=0;i<24;i++) {
+        const a = i*15 - 7.5;
+        const p1 = polar(96,a), p2 = polar(414,a);
+        disc.appendChild(el("line", {x1:p1.x,y1:p1.y,x2:p2.x,y2:p2.y,stroke:"rgba(70,45,27,.15)","stroke-width":".8"}));
+      }
+    }
+
+    function drawRing(ring) {
+      const group = el("g", {"data-ring":ring.id});
+      const n = ring.labels.length;
+      const step = 360/n;
+      const offset = getOffset(ring);
+      const colors = COLORS[ring.palette] || COLORS.cream1;
+
+      ring.labels.forEach((label, i) => {
+        const centerAngle = i*step + offset;
+        const start = centerAngle - step/2;
+        const end = centerAngle + step/2;
+        const path = el("path", {
+          d: annularPath(ring.inner, ring.outer, start, end),
+          fill: colors[i % colors.length],
+          stroke: ring.palette === "black" || ring.palette === "dark" ? "#b99a5f" : "#5d4126",
+          "stroke-width": ring.tickMode ? .55 : .8,
+          class:"seg",
+          "data-ring":ring.id,
+          "data-index":i
+        });
+
+        path.addEventListener("click", (evt) => {
+          evt.stopPropagation();
+          selectSegment(ring, i, path, centerAngle, step);
+        });
+        group.appendChild(path);
+
+        const midR = (ring.inner + ring.outer)/2;
+        const p = polar(midR, centerAngle);
+        const rotation = centerAngle;
+        const text = el("text", {
+          x:p.x, y:p.y,
+          class:"ring-label",
+          fill:ring.textColor,
+          "font-size":ring.fontSize,
+          "font-weight": ring.id === "earth" ? 700 : 500,
+          transform:`rotate(${rotation} ${p.x} ${p.y})`
+        }, label);
+        group.appendChild(text);
+
+        if (ring.tickMode) {
+          const major = i % 2 === 0;
+          const pA = polar(ring.outer - (major ? 9 : 5), start);
+          const pB = polar(ring.outer, start);
+          group.appendChild(el("line", {x1:pA.x,y1:pA.y,x2:pB.x,y2:pB.y,stroke:"#f0dcae","stroke-width":major?1.15:.6}));
+        }
+      });
+
+      disc.appendChild(group);
+    }
+
+    function drawCenterDecorations() {
+      const g = el("g", {"data-ring":"centerDecor"});
+      // 八方短线与文字标识，位于天池外
+      const cardinal = [
+        {a:0,t:"北"},{a:45,t:"东北"},{a:90,t:"东"},{a:135,t:"东南"},
+        {a:180,t:"南"},{a:225,t:"西南"},{a:270,t:"西"},{a:315,t:"西北"}
+      ];
+      cardinal.forEach((d) => {
+        const p1=polar(78,d.a), p2=polar(92,d.a), pt=polar(86,d.a);
+        g.appendChild(el("line", {x1:p1.x,y1:p1.y,x2:p2.x,y2:p2.y,stroke:"#6e4b2d","stroke-width":"1"}));
+        if (d.a % 90 === 0) {
+          const p=polar(86,d.a);
+          g.appendChild(el("circle", {cx:p.x,cy:p.y,r:2.2,fill:"#8b2f28"}));
+        }
+      });
+      disc.appendChild(g);
+    }
+
+    function render() {
+      disc.innerHTML = "";
+      drawBaseDecorations();
+      RINGS.forEach(drawRing);
+      drawCenterDecorations();
+      applyTransform();
+      applyVisibility();
+    }
+
+    function applyTransform() {
+      disc.setAttribute("transform", `translate(${cx} ${cy}) scale(${state.scale}) rotate(${state.rotation}) translate(${-cx} ${-cy})`);
+      rotationInput.value = normalize(state.rotation).toFixed(1);
+      updateReadout();
+    }
+
+    function updateReadout() {
+      const azimuth = normalize(360 - state.rotation);
+      degreeReadout.textContent = `${azimuth.toFixed(1)}°`;
+      azimuthInput.value = azimuth.toFixed(1);
+      const sitting = mountainAt(azimuth);
+      const facing = facingMountainAt(azimuth);
+      mountainReadout.textContent = sitting.name;
+      sittingFacingReadout.textContent = `${sitting.name} / ${facing.name}`;
+    }
+
+    function setAzimuth(azimuth) {
+      state.rotation = normalize(360 - normalize(azimuth));
+      applyTransform();
+    }
+
+    function setSensorStatus(kind, title, detail = "") {
+      sensorDot.className = `status-dot${kind ? ` ${kind}` : ""}`;
+      sensorStatus.innerHTML = `${title}${detail ? `<small>${detail}</small>` : ""}`;
+    }
+
+    function updateCompassButtons() {
+      const c = state.compass;
+      pauseCompassBtn.disabled = !c.active;
+      lockCompassBtn.disabled = !c.active;
+      zeroCompassBtn.disabled = !c.active || c.correctedHeading == null;
+      clearZeroBtn.disabled = Math.abs(c.zeroOffset) < 0.0001;
+      pauseCompassBtn.textContent = c.paused ? "继续跟随" : "暂停跟随";
+      pauseCompassBtn.classList.toggle("warning", c.paused);
+      lockCompassBtn.textContent = c.locked ? "解除锁定" : "锁定读数";
+      lockCompassBtn.classList.toggle("active", c.locked);
+      enableCompassBtn.textContent = c.active ? "重新连接" : "启动指南针";
+    }
+
+    function updateCompassReadout() {
+      const c = state.compass;
+      rawHeadingReadout.textContent = c.rawHeading == null ? "--" : `${c.rawHeading.toFixed(1)}°`;
+      correctedHeadingReadout.textContent = c.correctedHeading == null ? "--" : `${c.correctedHeading.toFixed(1)}°`;
+      if (!c.active) {
+        accuracyReadout.textContent = "未连接";
+      } else if (c.locked) {
+        accuracyReadout.textContent = "读数锁定";
+      } else if (c.paused) {
+        accuracyReadout.textContent = "已暂停";
+      } else if (Number.isFinite(c.accuracy)) {
+        accuracyReadout.textContent = `±${Math.round(c.accuracy)}°`;
+      } else {
+        accuracyReadout.textContent = c.source || "已连接";
+      }
+      updateCompassButtons();
+    }
+
+    function applyCompassHeading(rawHeading, source, accuracy = null) {
+      const c = state.compass;
+      if (!c.active || c.paused || c.locked || !Number.isFinite(rawHeading)) return;
+
+      c.rawHeading = normalize(rawHeading);
+      c.source = source;
+      c.accuracy = Number.isFinite(accuracy) ? Math.abs(accuracy) : null;
+
+      if (c.smoothedHeading == null) {
+        c.smoothedHeading = c.rawHeading;
+      } else {
+        const delta = shortestAngleDelta(c.smoothedHeading, c.rawHeading);
+        c.smoothedHeading = normalize(c.smoothedHeading + delta * c.smoothing);
+      }
+
+      const trueCorrection = c.northMode === "true" ? c.declination : 0;
+      const baseHeading = normalize(c.smoothedHeading + trueCorrection);
+      c.correctedHeading = normalize(baseHeading - c.zeroOffset);
+      c.lastEventTime = performance.now();
+      setAzimuth(c.correctedHeading);
+      updateCompassReadout();
+      setSensorStatus("live", "指南针正在跟随", `${c.northMode === "true" ? "真北" : "磁北"} · ${source}`);
+    }
+
+    function extractHeading(evt) {
+      if (Number.isFinite(evt.webkitCompassHeading)) {
+        return {
+          heading: normalize(evt.webkitCompassHeading),
+          source: "iOS 磁方位",
+          accuracy: evt.webkitCompassAccuracy
+        };
+      }
+
+      if (!Number.isFinite(evt.alpha)) return null;
+      const heading = normalize(360 - evt.alpha + screenOrientationAngle());
+      return {
+        heading,
+        source: evt.absolute ? "绝对方位" : "相对方位",
+        accuracy: null
+      };
+    }
+
+    function onDeviceOrientation(evt) {
+      const result = extractHeading(evt);
+      if (!result) return;
+      if (evt.type === "deviceorientationabsolute") state.compass.hasAbsoluteEvent = true;
+      if (evt.type === "deviceorientation" && state.compass.hasAbsoluteEvent && !Number.isFinite(evt.webkitCompassHeading)) return;
+      applyCompassHeading(result.heading, result.source, result.accuracy);
+    }
+
+    function startOrientationListeners() {
+      if (state.compass.listening) return;
+      window.addEventListener("deviceorientationabsolute", onDeviceOrientation, true);
+      window.addEventListener("deviceorientation", onDeviceOrientation, true);
+      state.compass.listening = true;
+    }
+
+    async function enableCompass() {
+      if (!("DeviceOrientationEvent" in window)) {
+        setSensorStatus("error", "此设备不支持方向传感器", "请使用具备陀螺仪/磁力计的手机浏览器");
+        return;
+      }
+
+      if (!window.isSecureContext && location.hostname !== "localhost") {
+        setSensorStatus("error", "需要 HTTPS 安全环境", "请部署到 HTTPS 网站后再启动指南针");
+        return;
+      }
+
+      try {
+        if (typeof DeviceOrientationEvent.requestPermission === "function") {
+          const permission = await DeviceOrientationEvent.requestPermission();
+          if (permission !== "granted") throw new Error("方向传感器权限未授权");
+        }
+        startOrientationListeners();
+        state.compass.active = true;
+        state.compass.paused = false;
+        state.compass.locked = false;
+        state.compass.smoothedHeading = null;
+        state.compass.hasAbsoluteEvent = false;
+        setSensorStatus("paused", "等待传感器读数", "请平放手机并缓慢转动一圈完成磁力计校准");
+        updateCompassReadout();
+      } catch (error) {
+        setSensorStatus("error", "指南针启动失败", error && error.message ? error.message : "请检查浏览器权限");
+      }
+    }
+
+    function pauseCompassForManualControl() {
+      if (!state.compass.active || state.compass.paused) return;
+      state.compass.paused = true;
+      setSensorStatus("paused", "指南针已暂停", "正在使用手动盘面控制");
+      updateCompassReadout();
+    }
+
+    function selectSegment(ring, i, path, centerAngle, step) {
+      document.querySelectorAll(".seg.selected").forEach(n => n.classList.remove("selected"));
+      path.classList.add("selected");
+      state.selected = {ring:ring.id,index:i};
+      const label = ring.labels[i];
+      const start = normalize(centerAngle-step/2);
+      const end = normalize(centerAngle+step/2);
+      let extra = "";
+      if (ring.id === "earth" || ring.id === "heaven" || ring.id === "human") {
+        extra = MOUNTAIN_META[label] || "二十四山方位";
+      } else if (ring.meta) {
+        extra = ring.meta[i] || "";
+      } else if (ring.note) {
+        extra = ring.note;
+      } else if (ring.id === "jiazi") {
+        extra = `六十甲子第 ${i+1} 位`;
+      } else if (ring.id === "hexagrams") {
+        extra = `文王卦序第 ${i+1} 卦；本原型按序均分展示，方位排法可另行替换。`;
+      }
+      info.innerHTML = `
+        <div class="name">${label}</div>
+        <div>${extra || "该格位可在 RINGS 配置中扩展五行、阴阳、纳甲、分金等字段。"}</div>
+        <div class="meta">圈层：${ring.name} · 第 ${i+1}/${ring.labels.length} 格 · 中心角 ${normalize(centerAngle).toFixed(2)}° · 范围 ${start.toFixed(2)}°—${end.toFixed(2)}°</div>
+      `;
+    }
+
+    function applyVisibility() {
+      RINGS.forEach(ring => {
+        const g = disc.querySelector(`[data-ring="${ring.id}"]`);
+        if (g) g.style.display = state.hidden.has(ring.id) ? "none" : "";
+      });
+    }
+
+    function buildToggles() {
+      const box = document.getElementById("ringToggles");
+      box.innerHTML = "";
+      RINGS.forEach(ring => {
+        const label = document.createElement("label");
+        label.className = "ring-check";
+        const input = document.createElement("input");
+        input.type = "checkbox";
+        input.checked = true;
+        input.addEventListener("change", () => {
+          input.checked ? state.hidden.delete(ring.id) : state.hidden.add(ring.id);
+          applyVisibility();
+        });
+        label.append(input, document.createTextNode(ring.name));
+        box.appendChild(label);
+      });
+    }
+
+    // 拖动旋转
+    wrap.addEventListener("pointerdown", (evt) => {
+      pauseCompassForManualControl();
+      state.dragging = true;
+      state.dragStartAngle = angleFromEvent(evt);
+      state.dragStartRotation = state.rotation;
+      wrap.setPointerCapture(evt.pointerId);
+    });
+
+    wrap.addEventListener("pointermove", (evt) => {
+      if (!state.dragging) return;
+      const delta = angleFromEvent(evt) - state.dragStartAngle;
+      state.rotation = normalize(state.dragStartRotation + delta);
+      applyTransform();
+    });
+
+    wrap.addEventListener("pointerup", (evt) => {
+      state.dragging = false;
+      if (wrap.hasPointerCapture(evt.pointerId)) wrap.releasePointerCapture(evt.pointerId);
+    });
+    wrap.addEventListener("pointercancel", () => state.dragging = false);
+
+    // 滚轮缩放
+    wrap.addEventListener("wheel", (evt) => {
+      evt.preventDefault();
+      const factor = evt.deltaY > 0 ? .94 : 1.06;
+      state.scale = Math.min(1.25, Math.max(.76, state.scale * factor));
+      applyTransform();
+    }, {passive:false});
+
+    wrap.addEventListener("dblclick", () => {
+      state.scale = 1;
+      applyTransform();
+    });
+
+    rotationInput.addEventListener("input", () => {
+      pauseCompassForManualControl();
+      state.rotation = Number(rotationInput.value);
+      applyTransform();
+    });
+
+    document.getElementById("applyAzimuth").addEventListener("click", () => {
+      pauseCompassForManualControl();
+      const az = normalize(Number(azimuthInput.value) || 0);
+      setAzimuth(az);
+    });
+
+    document.getElementById("reset").addEventListener("click", () => {
+      pauseCompassForManualControl();
+      state.rotation = 0;
+      state.scale = 1;
+      applyTransform();
+    });
+    document.getElementById("rotateLeft").addEventListener("click", () => {
+      pauseCompassForManualControl();
+      state.rotation = normalize(state.rotation - 7.5);
+      applyTransform();
+    });
+    document.getElementById("rotateRight").addEventListener("click", () => {
+      pauseCompassForManualControl();
+      state.rotation = normalize(state.rotation + 7.5);
+      applyTransform();
+    });
+
+    enableCompassBtn.addEventListener("click", enableCompass);
+
+    pauseCompassBtn.addEventListener("click", () => {
+      const c = state.compass;
+      c.paused = !c.paused;
+      if (!c.paused) {
+        c.locked = false;
+        c.smoothedHeading = null;
+        setSensorStatus("paused", "等待新的方向读数", "指南针即将恢复跟随");
+      } else {
+        setSensorStatus("paused", "指南针已暂停", "当前盘面可手动旋转");
+      }
+      updateCompassReadout();
+    });
+
+    lockCompassBtn.addEventListener("click", () => {
+      const c = state.compass;
+      c.locked = !c.locked;
+      if (c.locked) {
+        setSensorStatus("paused", "当前读数已锁定", "解除锁定后恢复实时跟随");
+      } else {
+        c.smoothedHeading = null;
+        setSensorStatus("paused", "等待新的方向读数", "指南针即将恢复跟随");
+      }
+      updateCompassReadout();
+    });
+
+    zeroCompassBtn.addEventListener("click", () => {
+      const c = state.compass;
+      if (c.smoothedHeading == null) return;
+      const trueCorrection = c.northMode === "true" ? c.declination : 0;
+      c.zeroOffset = normalize(c.smoothedHeading + trueCorrection);
+      storageSet("luopanZeroOffset", c.zeroOffset);
+      c.correctedHeading = 0;
+      setAzimuth(0);
+      updateCompassReadout();
+      setSensorStatus("live", "当前方向已设为 0°", "清除归零可恢复绝对方位");
+    });
+
+    clearZeroBtn.addEventListener("click", () => {
+      const c = state.compass;
+      c.zeroOffset = 0;
+      storageRemove("luopanZeroOffset");
+      c.smoothedHeading = null;
+      setSensorStatus(c.active ? "paused" : "", c.active ? "归零校准已清除" : "归零校准已清除", c.active ? "等待新的方向读数" : "启动指南针后生效");
+      updateCompassReadout();
+    });
+
+    northModeInput.addEventListener("change", () => {
+      const c = state.compass;
+      c.northMode = northModeInput.value;
+      storageSet("luopanNorthMode", c.northMode);
+      c.smoothedHeading = null;
+      if (c.active) setSensorStatus("paused", "方位基准已切换", "等待新的方向读数");
+    });
+
+    function formatDeclination(value) {
+      const abs = Math.abs(value).toFixed(2);
+      if (Math.abs(value) < 0.005) return `${abs}°`;
+      return `${abs}°${value > 0 ? "E" : "W"}`;
+    }
+
+    function currentDateLabel(date = new Date()) {
+      return date.toLocaleDateString("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit" });
+    }
+
+    function applyDeclination(value, source = "manual", position = null) {
+      if (!Number.isFinite(value)) throw new TypeError("磁偏角计算结果无效");
+      const limited = Math.min(45, Math.max(-45, value));
+      const c = state.compass;
+      c.declination = limited;
+      c.declinationSource = source;
+      c.smoothedHeading = null;
+      declinationInput.value = limited.toFixed(2);
+      storageSet("luopanDeclination", limited);
+      storageSet("luopanDeclinationSource", source);
+
+      if (position) {
+        c.latitude = position.latitude;
+        c.longitude = position.longitude;
+        c.altitudeKm = position.altitudeKm;
+        c.locationAccuracy = position.accuracy;
+        storageSet("luopanLatitude", position.latitude);
+        storageSet("luopanLongitude", position.longitude);
+        storageSet("luopanAltitudeKm", position.altitudeKm);
+        storageSet("luopanLocationAccuracy", position.accuracy);
+        storageSet("luopanDeclinationDate", new Date().toISOString());
+      }
+
+      if (c.active) setSensorStatus("paused", "磁偏角已更新", "等待新的方向读数");
+      updateCompassReadout();
+    }
+
+    function calculateAndApplyLocalDeclination(latitude, longitude, altitudeKm = 0, accuracy = NaN, cached = false) {
+      const now = new Date();
+      const value = WMM2025.declination(latitude, longitude, altitudeKm, now);
+      applyDeclination(value, "auto-wmm2025", { latitude, longitude, altitudeKm, accuracy });
+
+      // 自动磁偏角的目的通常是真北校正，计算成功后直接切换到真北。
+      state.compass.northMode = "true";
+      northModeInput.value = "true";
+      storageSet("luopanNorthMode", "true");
+
+      const accuracyText = Number.isFinite(accuracy) ? `，定位约 ±${Math.round(accuracy)} 米` : "";
+      const altitudeText = Number.isFinite(altitudeKm) && Math.abs(altitudeKm) >= 0.001
+        ? `，海拔约 ${Math.round(altitudeKm * 1000)} 米`
+        : "";
+      locationInfo.textContent = `${cached ? "已按上次位置重新计算" : "自动计算完成"}：${latitude.toFixed(5)}, ${longitude.toFixed(5)}${accuracyText}${altitudeText}；磁偏角 ${formatDeclination(value)}（${WMM2025.model}，${currentDateLabel(now)}）。已切换到真北模式。`;
+      return value;
+    }
+
+    declinationInput.addEventListener("change", () => {
+      const value = Math.min(45, Math.max(-45, Number(declinationInput.value) || 0));
+      applyDeclination(value, "manual");
+      locationInfo.textContent = `已手动设置磁偏角 ${formatDeclination(value)}。再次点击“定位并获取磁偏角”可恢复自动计算。`;
+    });
+
+    smoothingInput.addEventListener("input", () => {
+      const value = Number(smoothingInput.value);
+      state.compass.smoothing = value;
+      smoothingValue.textContent = `${Math.round(value * 100)}%`;
+      storageSet("luopanSmoothing", value);
+    });
+
+    locateCompassBtn.addEventListener("click", () => {
+      if (!("geolocation" in navigator)) {
+        locationInfo.textContent = "此浏览器不支持定位服务，可继续手动填写磁偏角。";
+        return;
+      }
+      if (!window.isSecureContext && location.hostname !== "localhost") {
+        locationInfo.textContent = "自动定位通常需要 HTTPS 安全环境；当前仍可手动填写磁偏角。";
+        return;
+      }
+
+      locateCompassBtn.disabled = true;
+      locateCompassBtn.textContent = "正在定位……";
+      locationInfo.textContent = "正在读取当前位置并计算 WMM2025 磁偏角……";
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          try {
+            const { latitude, longitude, accuracy, altitude } = position.coords;
+            const altitudeKm = Number.isFinite(altitude) ? Math.min(100, Math.max(-1, altitude / 1000)) : 0;
+            calculateAndApplyLocalDeclination(latitude, longitude, altitudeKm, accuracy, false);
+          } catch (error) {
+            locationInfo.textContent = `磁偏角计算失败：${error && error.message ? error.message : "请改用手动输入"}`;
+          } finally {
+            locateCompassBtn.disabled = false;
+            locateCompassBtn.textContent = "重新定位并计算";
+          }
+        },
+        (error) => {
+          const messages = {
+            1: "定位权限被拒绝",
+            2: "暂时无法获得位置",
+            3: "定位请求超时"
+          };
+          locationInfo.textContent = `定位失败：${messages[error.code] || error.message || "请检查定位权限"}。可继续手动填写磁偏角。`;
+          locateCompassBtn.disabled = false;
+          locateCompassBtn.textContent = "重试自动获取";
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 300000 }
+      );
+    });
+
+    offsetMode.addEventListener("change", () => {
+      state.offsetMode = offsetMode.value;
+      render();
+    });
+
+    function initCompassControls() {
+      const c = state.compass;
+      northModeInput.value = c.northMode === "true" ? "true" : "magnetic";
+      declinationInput.value = Number.isFinite(c.declination) ? c.declination.toFixed(2) : "0.00";
+      smoothingInput.value = Number.isFinite(c.smoothing) ? c.smoothing : 0.18;
+      smoothingValue.textContent = `${Math.round(Number(smoothingInput.value) * 100)}%`;
+      clearZeroBtn.disabled = Math.abs(c.zeroOffset) < 0.0001;
+
+      // 若此前已授权并保存过位置，不再次弹出定位权限，直接按当前日期更新模型值。
+      if (c.declinationSource === "auto-wmm2025" && Number.isFinite(c.latitude) && Number.isFinite(c.longitude)) {
+        try {
+          calculateAndApplyLocalDeclination(c.latitude, c.longitude, c.altitudeKm || 0, c.locationAccuracy, true);
+        } catch (_) {
+          locationInfo.textContent = "上次位置的磁偏角更新失败，可重新定位或手动填写。";
+        }
+      } else if (c.declinationSource === "manual") {
+        locationInfo.textContent = `当前使用手动磁偏角 ${formatDeclination(c.declination)}。点击“定位并获取磁偏角”可自动计算。`;
+      }
+
+      if (!("DeviceOrientationEvent" in window)) {
+        setSensorStatus("error", "当前浏览器未检测到方向传感器", "桌面浏览器通常无法提供指南针数据");
+        enableCompassBtn.disabled = true;
+      } else if (!window.isSecureContext && location.hostname !== "localhost") {
+        setSensorStatus("error", "指南针需要 HTTPS", "本地文件可预览盘面，但传感器权限通常不会开放");
+      }
+      updateCompassReadout();
+    }
+
+    window.addEventListener("orientationchange", () => {
+      state.compass.smoothedHeading = null;
+    });
+    if (screen.orientation && typeof screen.orientation.addEventListener === "function") {
+      screen.orientation.addEventListener("change", () => {
+        state.compass.smoothedHeading = null;
+      });
+    }
+
+    buildToggles();
+    initCompassControls();
+    render();
+  </script>
+</body>
+</html>
