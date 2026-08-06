@@ -2,8 +2,8 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>三元三合综合罗盘 · SVG浏览器指南针</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
+  <title>三元三合综合罗盘</title>
   <style>
     :root {
       --bg: #0e1012;
@@ -127,7 +127,7 @@
       font-size: 12px;
     }
     input[type="range"] { width: 100%; accent-color: var(--accent); }
-    input[type="number"], select {
+    input[type="number"], input[type="text"], select {
       width: 100%;
       padding: 9px 10px;
       color: var(--text);
@@ -135,7 +135,7 @@
       border: 1px solid rgba(201,167,95,.25);
       outline: none;
     }
-    input[type="number"]:focus, select:focus { border-color: var(--line); }
+    input[type="number"]:focus, input[type="text"]:focus, select:focus { border-color: var(--line); }
 
     .button-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
     button {
@@ -241,16 +241,301 @@
     .corner-mark { fill: none; stroke: rgba(201,167,95,.72); stroke-width: 1.4; }
     .crosshair { stroke: rgba(214,65,53,.86); stroke-width: 1.8; }
     .crosshair-soft { stroke: rgba(214,65,53,.28); stroke-width: 1; }
-    .needle-n { fill: #bd3c32; }
-    .needle-s { fill: #e7dfcb; }
+    .needle-n { fill: #17191b; stroke:#b89a60; stroke-width:.6; }
+    .needle-s { fill: #bd3c32; }
+
+    .mobile-hud,
+    .mobile-toolbar,
+    .gesture-tip,
+    .panel-handle { display: none; }
+
+    .gesture-toast {
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      z-index: 100;
+      max-width: min(86vw, 420px);
+      padding: 9px 14px;
+      border: 1px solid rgba(201,167,95,.45);
+      border-radius: 999px;
+      background: rgba(15,17,20,.9);
+      color: #f3e6c8;
+      box-shadow: 0 12px 36px rgba(0,0,0,.35);
+      font-size: 12px;
+      letter-spacing: .04em;
+      opacity: 0;
+      transform: translate(-50%, 16px);
+      pointer-events: none;
+      transition: opacity .2s ease, transform .2s ease;
+      backdrop-filter: blur(12px);
+    }
+    .gesture-toast.show { opacity: 1; transform: translate(-50%, 0); }
 
     @media (max-width: 980px) {
-      body { overflow: auto; }
-      .app { grid-template-columns: 1fr; height: auto; }
-      .stage { min-height: 720px; }
-      .panel { border-left: 0; border-top: 1px solid rgba(201,167,95,.22); }
-      #luopanWrap { width: min(94vw, 760px); min-width: 0; }
+      html, body { width: 100%; height: 100%; overscroll-behavior: none; }
+      body {
+        overflow: hidden;
+        -webkit-tap-highlight-color: transparent;
+        background:
+          radial-gradient(circle at 50% 26%, rgba(201,167,95,.11), transparent 44%),
+          var(--bg);
+      }
+      .app { display: block; width: 100%; height: 100dvh; min-height: 100svh; }
+      .stage {
+        width: 100%;
+        height: 100dvh;
+        min-height: 100svh;
+        padding: max(8px, env(safe-area-inset-top)) 8px calc(86px + env(safe-area-inset-bottom));
+        place-items: center;
+      }
+      .stage::before { inset: max(6px, env(safe-area-inset-top)) 6px calc(76px + env(safe-area-inset-bottom)); border-radius: 16px; }
+      #luopanWrap {
+        width: min(97vw, calc(100dvh - 118px));
+        max-width: none;
+        min-width: 0;
+        will-change: transform;
+        filter: drop-shadow(0 15px 28px rgba(0,0,0,.48));
+      }
+      #luopan { overflow: hidden; }
+
+      .mobile-hud {
+        display: flex;
+        position: fixed;
+        top: max(10px, env(safe-area-inset-top));
+        left: 50%;
+        z-index: 30;
+        align-items: center;
+        gap: 10px;
+        min-width: 196px;
+        padding: 8px 13px;
+        border: 1px solid rgba(201,167,95,.38);
+        border-radius: 18px;
+        background: rgba(16,18,21,.78);
+        box-shadow: 0 10px 32px rgba(0,0,0,.28);
+        transform: translateX(-50%);
+        backdrop-filter: blur(14px);
+        pointer-events: none;
+      }
+      .mobile-hud strong { font: 700 20px/1 ui-monospace,SFMono-Regular,Menlo,monospace; color:#f2dfad; }
+      .mobile-hud span { font-size: 12px; color: var(--muted); }
+      .mobile-hud b { font-size: 16px; color: #f0e7d5; }
+      .mobile-hud .divider { width: 1px; align-self: stretch; background: rgba(201,167,95,.25); }
+
+      .gesture-tip {
+        display: block;
+        position: fixed;
+        left: 50%;
+        bottom: calc(72px + env(safe-area-inset-bottom));
+        z-index: 24;
+        padding: 5px 10px;
+        border-radius: 999px;
+        background: rgba(0,0,0,.42);
+        color: rgba(238,231,214,.7);
+        font-size: 10px;
+        transform: translateX(-50%);
+        pointer-events: none;
+        backdrop-filter: blur(8px);
+        transition: opacity .25s ease;
+      }
+      .gesture-tip.hidden { opacity: 0; }
+
+      .mobile-toolbar {
+        display: grid;
+        position: fixed;
+        left: max(10px, env(safe-area-inset-left));
+        right: max(10px, env(safe-area-inset-right));
+        bottom: max(10px, env(safe-area-inset-bottom));
+        z-index: 45;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 7px;
+        padding: 7px;
+        border: 1px solid rgba(201,167,95,.3);
+        border-radius: 17px;
+        background: rgba(19,22,26,.88);
+        box-shadow: 0 14px 42px rgba(0,0,0,.42);
+        backdrop-filter: blur(16px);
+      }
+      .mobile-toolbar button {
+        min-height: 44px;
+        padding: 6px 4px;
+        border-radius: 11px;
+        font-size: 11px;
+        line-height: 1.15;
+        touch-action: manipulation;
+      }
+      .mobile-toolbar button .icon { display:block; margin-bottom:3px; font-size:16px; line-height:1; }
+
+      .panel {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 60;
+        height: min(76dvh, 720px);
+        padding: 0 16px calc(18px + env(safe-area-inset-bottom));
+        border: 1px solid rgba(201,167,95,.28);
+        border-bottom: 0;
+        border-radius: 22px 22px 0 0;
+        background: linear-gradient(180deg, rgba(31,35,40,.985), rgba(17,20,24,.995));
+        box-shadow: 0 -20px 60px rgba(0,0,0,.48);
+        transform: translateY(100%);
+        transition: transform .28s cubic-bezier(.22,.78,.2,1);
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+      }
+      .panel.mobile-open { transform: translateY(0); }
+      .panel-handle {
+        display: flex;
+        position: sticky;
+        top: 0;
+        z-index: 4;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 62px;
+        margin: 0 -16px 12px;
+        padding: 10px 16px 8px;
+        border-bottom: 1px solid rgba(201,167,95,.16);
+        background: rgba(28,32,37,.96);
+        touch-action: none;
+        cursor: grab;
+      }
+      .panel-handle::before {
+        content: "";
+        position: absolute;
+        top: 7px;
+        left: 50%;
+        width: 42px;
+        height: 4px;
+        border-radius: 999px;
+        background: rgba(238,231,214,.3);
+        transform: translateX(-50%);
+      }
+      .panel-handle strong { margin-top:7px; font-size:14px; letter-spacing:.08em; }
+      .panel-handle span { color:var(--muted); font-size:11px; }
+      .panel-handle button { min-width: 70px; margin-top:6px; padding:7px 10px; border-radius:10px; }
+      .panel > h1, .panel > .subtitle { display: none; }
+      .readout { grid-template-columns: 1fr 1fr; }
+      .metric { min-height: 62px; }
+      .button-row { gap: 7px; }
+      button { min-height: 42px; }
+      input[type="number"], input[type="text"], select { min-height: 44px; font-size: 16px; }
+      input[type="range"] { min-height: 34px; }
+      .rings { grid-template-columns: 1fr 1fr; }
+      .ring-check { min-height: 40px; }
+      .gesture-toast { bottom: calc(82px + env(safe-area-inset-bottom)); }
     }
+
+    @media (max-width: 430px) {
+      #luopanWrap { width: min(99vw, calc(100dvh - 118px)); }
+      .stage { padding-left: 2px; padding-right: 2px; }
+      .mobile-toolbar { left: 7px; right: 7px; gap: 5px; }
+      .mobile-toolbar button { font-size: 10px; }
+      .panel { padding-left: 12px; padding-right: 12px; }
+      .panel-handle { margin-left: -12px; margin-right: -12px; padding-left: 12px; padding-right: 12px; }
+      .sensor-grid { gap: 6px; }
+      .sensor-value { padding: 8px; }
+      .sensor-value strong { font-size: 15px; }
+    }
+
+    @media (orientation: landscape) and (max-height: 600px) and (max-width: 980px) {
+      .stage { padding: 5px 82px 5px 8px; }
+      .stage::before { inset: 5px 74px 5px 5px; }
+      #luopanWrap { width: min(92vh, calc(100vw - 105px)); }
+      .mobile-hud { top: 8px; left: 12px; min-width: 0; transform: none; }
+      .mobile-toolbar {
+        top: 50%;
+        right: max(8px, env(safe-area-inset-right));
+        bottom: auto;
+        left: auto;
+        width: 62px;
+        grid-template-columns: 1fr;
+        transform: translateY(-50%);
+      }
+      .gesture-tip { bottom: 8px; }
+      .panel { height: 94dvh; }
+      .gesture-toast { bottom: 16px; }
+    }
+
+    .mode-switches {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .mode-switches button { padding: 10px 8px; font-size: 12px; }
+    .ring-tools {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin: 10px 0 12px;
+    }
+    .rings { grid-template-columns: 1fr; }
+    .ring-check {
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .ring-check .ring-main {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      flex: 1;
+    }
+    .ring-tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 40px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 10px;
+      line-height: 1;
+      border: 1px solid rgba(201,167,95,.22);
+      color: #e8d5af;
+      background: rgba(201,167,95,.08);
+    }
+    .ring-tag.sanhe { color: #f2d7c8; border-color: rgba(214,65,53,.35); background: rgba(214,65,53,.12); }
+    .ring-tag.sanyuan { color: #d8f1df; border-color: rgba(119,167,131,.35); background: rgba(119,167,131,.12); }
+    .ring-tag.common { color: #f5e5be; }
+    .ring-tag.custom { color: #d6e7ff; border-color: rgba(108,156,222,.35); background: rgba(108,156,222,.12); }
+    .ring-remove {
+      flex: 0 0 auto;
+      padding: 2px 7px;
+      min-height: 24px;
+      font-size: 11px;
+      background: #30252a;
+      border-color: rgba(214,93,82,.4);
+    }
+    .ring-name-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    textarea {
+      width: 100%;
+      min-height: 88px;
+      padding: 9px 10px;
+      color: var(--text);
+      background: #101317;
+      border: 1px solid rgba(201,167,95,.25);
+      outline: none;
+      resize: vertical;
+      font-family: inherit;
+    }
+    textarea:focus { border-color: var(--line); }
+    .tiny-note {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.6;
+    }
+    .summary-line {
+      margin-top: 8px;
+      padding: 8px 10px;
+      border: 1px solid rgba(201,167,95,.16);
+      background: rgba(255,255,255,.02);
+      color: #dfd5c1;
+      font-size: 11px;
+      line-height: 1.6;
+    }
+    .summary-line strong { color: #f1ddb2; }
+
   </style>
 </head>
 <body>
@@ -293,17 +578,38 @@
             <path class="needle-n" d="M500 438 L487 507 L500 498 L513 507 Z" />
             <path class="needle-s" d="M500 562 L487 493 L500 502 L513 493 Z" />
             <circle cx="500" cy="500" r="7" fill="#2b1b14" stroke="#c9a75f" stroke-width="2" />
-            <text x="500" y="470" text-anchor="middle" font-size="15" fill="#9f2e27">北</text>
-            <text x="500" y="541" text-anchor="middle" font-size="15" fill="#49362b">南</text>
+            <text x="500" y="470" text-anchor="middle" font-size="15" fill="#29231d">北</text>
+            <text x="500" y="541" text-anchor="middle" font-size="15" fill="#9f2e27">南</text>
+            <text x="500" y="520" text-anchor="middle" font-size="9" fill="#806838">五黄</text>
             <path d="M483 456 H517 M483 544 H517" stroke="#4d3528" stroke-width="1" />
           </g>
         </svg>
       </div>
+
+      <div class="mobile-hud" aria-live="polite">
+        <strong id="mobileDegreeReadout">0.0°</strong>
+        <span>二十四山</span>
+        <div class="divider"></div>
+        <b id="mobileMountainReadout">子</b>
+      </div>
+
+      <div id="gestureTip" class="gesture-tip">单指旋转 · 双指缩放/扭转 · 双击复位 · 长按锁定</div>
+
+      <nav class="mobile-toolbar" aria-label="移动端快捷控制">
+        <button id="mobileCompass" class="primary"><span class="icon">◎</span><span>指南针</span></button>
+        <button id="mobileReset"><span class="icon">↺</span><span>复位</span></button>
+        <button id="mobileFullscreen"><span class="icon">⛶</span><span>全屏</span></button>
+        <button id="mobilePanel"><span class="icon">☰</span><span>设置</span></button>
+      </nav>
     </section>
 
-    <aside class="panel">
-      <h1>三元三合综合罗盘</h1>
-      <p class="subtitle">JS + SVG 交互罗盘。支持手机方向传感器、真北/磁北校正、锁定与归零；也可拖动、缩放和点击格位。</p>
+    <aside id="controlPanel" class="panel">
+      <div id="panelHandle" class="panel-handle">
+        <div><strong>罗盘设置</strong><br><span>下滑收起 · 点击切换</span></div>
+        <button id="panelClose">收起</button>
+      </div>
+      <h1>三元三合综合罗盘 · 专业版</h1>
+      <p class="subtitle">依据二十层专业盘序重建。固定数据、动态推排和存在历元差异的数据分别处理；支持三合 / 三元 / 综合 / 自定义切换、手机指南针和手势操作。</p>
 
       <div class="readout">
         <div class="metric"><small>天心线读数</small><strong id="degreeReadout">0.0°</strong></div>
@@ -350,8 +656,8 @@
         <input id="azimuth" type="number" min="0" max="359.9" step="0.1" value="0" />
         <label for="offsetMode">天地人三盘偏移约定</label>
         <select id="offsetMode">
-          <option value="A">约定 A：天盘 +7.5° / 人盘 −7.5°</option>
-          <option value="B">约定 B：天盘 −7.5° / 人盘 +7.5°</option>
+          <option value="A">标准盘式：天盘顺旋 +7.5° / 人盘逆旋 −7.5°</option>
+          <option value="B">镜像校图：天盘 −7.5° / 人盘 +7.5°（非默认）</option>
         </select>
         <div class="button-row">
           <button class="primary" id="applyAzimuth">设置方位</button>
@@ -362,8 +668,89 @@
       </div>
 
       <div class="section">
-        <div class="section-title">圈层显示</div>
+        <div class="section-title">专业推排参数</div>
+        <label for="dimuSource">地母翻卦起宫</label>
+        <select id="dimuSource">
+          <option value="坤">坤宫起辅弼（固定地母盘）</option>
+          <option value="auto">跟随当前天心坐山</option>
+          <option value="乾">乾宫</option><option value="兑">兑宫</option><option value="离">离宫</option><option value="震">震宫</option>
+          <option value="巽">巽宫</option><option value="坎">坎宫</option><option value="艮">艮宫</option><option value="坤">坤宫</option>
+        </select>
+        <label for="currentPeriod">当前元运（用于九星、卦运旺衰提示）</label>
+        <select id="currentPeriod">
+          <option value="1">一运</option><option value="2">二运</option><option value="3">三运</option><option value="4">四运</option>
+          <option value="6">六运</option><option value="7">七运</option><option value="8">八运</option><option value="9">九运</option>
+        </select>
+        <label for="mansionScheme">二十八宿宿度方案</label>
+        <select id="mansionScheme">
+          <option value="luojingHan">虚宿中线子正 · 《汉书·律历志》宿度比例</option>
+          <option value="hanNiu">牛宿初度子正 · 《汉书·律历志》古度比例</option>
+          <option value="equal">二十八宿等分（仅供结构比对）</option>
+        </select>
+        <div id="professionalStatus" class="summary-line">
+          <strong>数据分级：</strong>固定盘层按明确表序绘制；地母翻卦与元运层实时推排；二十八宿因历元与罗经盘式不同，必须选定宿度方案后显示。
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">盘型与图层</div>
+        <div class="mode-switches">
+          <button id="modeSanhe">三合</button>
+          <button id="modeSanyuan">三元</button>
+          <button id="modeCombined" class="primary">综合</button>
+          <button id="modeCustom">自定义</button>
+        </div>
+        <div class="ring-tools">
+          <button id="showAllRings">全部显示</button>
+          <button id="saveCustomView">保存当前方案</button>
+          <button id="loadCustomView">载入已保存方案</button>
+          <button id="resetBuiltins">恢复预置</button>
+        </div>
+        <div id="ringSummary" class="summary-line">正在加载图层…</div>
         <div id="ringToggles" class="rings"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">自定义图层</div>
+        <label for="customLayerName">图层名称</label>
+        <input id="customLayerName" type="text" placeholder="例如：纳甲 / 神煞 / 自用注记" />
+        <label for="customLayerLabels">图层内容（用逗号或换行分隔）</label>
+        <textarea id="customLayerLabels" placeholder="例如：甲,乙,丙,丁 … 或 子甲, 子中, 子癸 …"></textarea>
+        <label for="customLayerPalette">配色风格</label>
+        <select id="customLayerPalette">
+          <option value="cream1">米金</option>
+          <option value="cream2">淡金</option>
+          <option value="red">朱砂</option>
+          <option value="green">青绿</option>
+          <option value="dark">深墨</option>
+          <option value="black">玄黑</option>
+          <option value="gold">鎏金</option>
+        </select>
+        <div class="button-row">
+          <div>
+            <label for="customLayerOffset">起始偏移（度）</label>
+            <input id="customLayerOffset" type="number" min="-180" max="180" step="0.1" value="0" />
+          </div>
+          <div>
+            <label for="customLayerThickness">图层厚度</label>
+            <input id="customLayerThickness" type="number" min="12" max="28" step="1" value="16" />
+          </div>
+        </div>
+        <div class="button-row">
+          <button class="primary" id="addCustomLayer">添加图层</button>
+          <button id="clearCustomLayers">清空自定义图层</button>
+        </div>
+        <div class="tiny-note">自定义图层会自动加入“自定义”模式并保存到本机浏览器。建议标签数量使用 8、12、24、28、60、64、72 或 120 等常见分度。</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">数据校核说明</div>
+        <div class="info-card" style="min-height:auto">
+          <div><strong>固定表序：</strong>先天卦爻、三元二十四山阴阳、穿山七十二龙、透地六十龙、百二分金、先天方圆六十四卦、卦气与卦运。</div>
+          <div style="margin-top:7px"><strong>规则计算：</strong>地母翻卦按纳甲归宫与上中下中上中下翻爻；384爻初上方向、吉度和六亲随每卦实时计算。</div>
+          <div style="margin-top:7px"><strong>方案数据：</strong>二十八宿并非等宽；默认采用《汉书·律历志》365¼古宿度比例归一到现代360°，并提供起点与等分校验切换。</div>
+          <div class="meta" style="margin-top:8px">本版本不把门派有分歧的宿度吉凶、历元距星和专派爻度表冒充通用定值；这些内容可继续通过自定义图层导入。</div>
+        </div>
       </div>
 
       <div class="section">
@@ -371,23 +758,26 @@
         <div id="info" class="info-card">
           <div class="name">子山</div>
           <div>点击盘面中的任意圈层格位，可查看名称、角度范围及所属层。</div>
-          <div class="meta">盘面数据均集中在 JavaScript 的 RINGS 配置中，可直接替换。</div>
+          <div class="meta">点击任意格位可查看其数据来源、推排规则、角度范围和是否属于动态计算层。</div>
         </div>
       </div>
 
       <div class="section legend">
         <div class="section-title">操作说明</div>
-        盘面拖动：旋转内盘<br />
-        鼠标滚轮：缩放盘面<br />
-        双击盘面：恢复缩放<br />
+        单指拖动：旋转内盘<br />
+        双指手势：捏合缩放并扭转盘面<br />
+        双击盘面：恢复缩放与居中<br />
+        长按盘面：锁定或解除手势；指南针运行时锁定读数<br />
+        鼠标滚轮：桌面端缩放盘面<br />
         红色十字：固定天心十道<br />
         手机指南针：点击启动并授权方向传感器<br />
         手动拖盘：指南针运行时会自动暂停跟随<br />
         真北校正：可定位自动计算磁偏角，也可手动覆盖<br />
-        盘层角度、名称、配色均可在配置数组中独立修改。
+        专业层序由内向外为天池、先天卦爻、洛书九星、地母翻卦、三元阴阳、七十二龙、人盘、六十龙、天盘、百二分金、内外六十四卦及爻度、二十八宿与周天度数。
       </div>
     </aside>
   </main>
+  <div id="gestureToast" class="gesture-toast" role="status" aria-live="polite"></div>
 
   <script>
     "use strict";
@@ -605,6 +995,23 @@
       "子","癸","丑","艮","寅","甲","卯","乙","辰","巽","巳","丙",
       "午","丁","未","坤","申","庚","酉","辛","戌","乾","亥","壬"
     ];
+    const BRANCHES = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
+    const STEMS = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
+    const JIAZI = [
+      "甲子","乙丑","丙寅","丁卯","戊辰","己巳","庚午","辛未","壬申","癸酉",
+      "甲戌","乙亥","丙子","丁丑","戊寅","己卯","庚辰","辛巳","壬午","癸未",
+      "甲申","乙酉","丙戌","丁亥","戊子","己丑","庚寅","辛卯","壬辰","癸巳",
+      "甲午","乙未","丙申","丁酉","戊戌","己亥","庚子","辛丑","壬寅","癸卯",
+      "甲辰","乙巳","丙午","丁未","戊申","己酉","庚戌","辛亥","壬子","癸丑",
+      "甲寅","乙卯","丙辰","丁巳","戊午","己未","庚申","辛酉","壬戌","癸亥"
+    ];
+
+    const COLORS = {
+      cream1: ["#eadcb8", "#dfca96"], cream2: ["#d6bd83", "#eadbb5"],
+      red: ["#7b2924", "#96372f"], dark: ["#27211b", "#373027"],
+      green: ["#47664f", "#5b7c61"], black: ["#17191b", "#292c2f"],
+      gold: ["#a27d3e", "#c7a65e"], blue: ["#2f4f65", "#42677f"]
+    };
 
     const MOUNTAIN_META = {
       子:"坎宫 · 正北", 癸:"坎宫 · 北偏东", 丑:"艮宫 · 东北偏北", 艮:"艮宫 · 正东北",
@@ -615,51 +1022,322 @@
       戌:"乾宫 · 西北偏西", 乾:"乾宫 · 正西北", 亥:"乾宫 · 西北偏北", 壬:"坎宫 · 北偏西"
     };
 
-    const TRIGRAMS = ["坎","艮","震","巽","离","坤","兑","乾"];
-    const TRIGRAM_META = ["水 · 北","山 · 东北","雷 · 东","风 · 东南","火 · 南","地 · 西南","泽 · 西","天 · 西北"];
-    const BRANCHES = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
-    const STEMS = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
-    const NINE_STARS = ["一白贪狼","二黑巨门","三碧禄存","四绿文曲","五黄廉贞","六白武曲","七赤破军","八白左辅","九紫右弼"];
+    const TRIGRAM_BITS = {乾:[1,1,1],兑:[1,1,0],离:[1,0,1],震:[1,0,0],巽:[0,1,1],坎:[0,1,0],艮:[0,0,1],坤:[0,0,0]}; // 下爻→上爻
+    const BITS_TRIGRAM = Object.fromEntries(Object.entries(TRIGRAM_BITS).map(([k,v]) => [v.join(""), k]));
+    const TRIGRAM_SYMBOL = {乾:"☰",兑:"☱",离:"☲",震:"☳",巽:"☴",坎:"☵",艮:"☶",坤:"☷"};
+    const TRIGRAM_NUM = {坤:1,巽:2,离:3,兑:4,艮:6,坎:7,震:8,乾:9};
+    const TRIGRAM_ELEMENT = {乾:"金",兑:"金",离:"火",震:"木",巽:"木",坎:"水",艮:"土",坤:"土"};
+    const ELEMENT_GENERATES = {木:"火",火:"土",土:"金",金:"水",水:"木"};
+    const ELEMENT_CONTROLS = {木:"土",土:"水",水:"火",火:"金",金:"木"};
 
-    const JIAZI = [
-      "甲子","乙丑","丙寅","丁卯","戊辰","己巳","庚午","辛未","壬申","癸酉",
-      "甲戌","乙亥","丙子","丁丑","戊寅","己卯","庚辰","辛巳","壬午","癸未",
-      "甲申","乙酉","丙戌","丁亥","戊子","己丑","庚寅","辛卯","壬辰","癸巳",
-      "甲午","乙未","丙申","丁酉","戊戌","己亥","庚子","辛丑","壬寅","癸卯",
-      "甲辰","乙巳","丙午","丁未","戊申","己酉","庚戌","辛亥","壬子","癸丑",
-      "甲寅","乙卯","丙辰","丁巳","戊午","己未","庚申","辛酉","壬戌","癸亥"
+    // 第二层：按后天八方安置先天卦爻。北起顺时针。
+    const PREHEAVEN_AT_LATER_POSITIONS = ["坤","震","离","兑","乾","巽","坎","艮"];
+    const LATER_POSITION_NAMES = ["坎位北","艮位东北","震位东","巽位东南","离位南","坤位西南","兑位西","乾位西北"];
+
+    // 第三层：洛书八方，五黄置天池中央。
+    const LUOSHU_RING = [
+      {n:1,label:"一白",star:"贪狼",dir:"北"},{n:8,label:"八白",star:"左辅",dir:"东北"},
+      {n:3,label:"三碧",star:"禄存",dir:"东"},{n:4,label:"四绿",star:"文曲",dir:"东南"},
+      {n:9,label:"九紫",star:"右弼",dir:"南"},{n:2,label:"二黑",star:"巨门",dir:"西南"},
+      {n:7,label:"七赤",star:"破军",dir:"西"},{n:6,label:"六白",star:"武曲",dir:"西北"}
     ];
+    const PERIOD_STAR = {1:"贪狼",2:"巨门",3:"禄存",4:"文曲",6:"武曲",7:"破军",8:"左辅",9:"右弼"};
 
-    const HEXAGRAMS = [
-      "乾","坤","屯","蒙","需","讼","师","比","小畜","履","泰","否","同人","大有","谦","豫",
-      "随","蛊","临","观","噬嗑","贲","剥","复","无妄","大畜","颐","大过","坎","离","咸","恒",
-      "遁","大壮","晋","明夷","家人","睽","蹇","解","损","益","夬","姤","萃","升","困","井",
-      "革","鼎","震","艮","渐","归妹","丰","旅","巽","兑","涣","节","中孚","小过","既济","未济"
-    ];
+    // 第五层：三元二十四山阴阳（非简单交替）。
+    const YANG_MOUNTAINS = new Set(["乾","巽","艮","坤","寅","申","巳","亥","甲","庚","丙","壬"]);
+    const MOUNTAIN_YINYANG = MOUNTAINS.map(m => YANG_MOUNTAINS.has(m) ? "阳" : "阴");
 
-    const COLORS = {
-      cream1: ["#eadcb8", "#dfca96"],
-      cream2: ["#d6bd83", "#eadbb5"],
-      red: ["#7b2924", "#96372f"],
-      dark: ["#27211b", "#373027"],
-      green: ["#47664f", "#5b7c61"],
-      black: ["#17191b", "#292c2f"],
-      gold: ["#a27d3e", "#c7a65e"]
+    // 八卦纳甲，供地母翻卦和二十四山归宫使用。
+    const NAJIA_TRIGRAM_MOUNTAINS = {
+      乾:["乾","甲"], 坤:["坤","乙"], 震:["庚","亥","卯","未"], 巽:["巽","辛"],
+      坎:["癸","申","子","辰"], 离:["壬","寅","午","戌"], 艮:["艮","丙"], 兑:["丁","巳","酉","丑"]
     };
+    const MOUNTAIN_TO_TRIGRAM = {};
+    Object.entries(NAJIA_TRIGRAM_MOUNTAINS).forEach(([g,ms]) => ms.forEach(m => MOUNTAIN_TO_TRIGRAM[m] = g));
+    const FLIP_STARS = ["辅","贪","巨","禄","文","廉","武","破"];
+    const FLIP_STAR_FULL = {辅:"辅弼",贪:"贪狼",巨:"巨门",禄:"禄存",文:"文曲",廉:"廉贞",武:"武曲",破:"破军"};
 
-    // 每个圈层都可独立替换数据、半径、偏移和颜色。
-    const RINGS = [
-      { id:"degrees", name:"周天度数", inner:382, outer:414, labels:Array.from({length:72},(_,i)=>String(i*5)), offset:0, palette:"dark", fontSize:8, textColor:"#efe5cf", tickMode:true },
-      { id:"hexagrams", name:"六十四卦序", inner:344, outer:382, labels:HEXAGRAMS, offset:0, palette:"cream1", fontSize:10, textColor:"#2b2119" },
-      { id:"jiazi", name:"六十甲子", inner:306, outer:344, labels:JIAZI, offset:0, palette:"black", fontSize:9, textColor:"#eee2c7" },
-      { id:"dragons72", name:"穿山七十二龙序", inner:272, outer:306, labels:Array.from({length:72},(_,i)=>String(i+1)), offset:0, palette:"cream2", fontSize:8, textColor:"#392a1e", note:"本层使用1—72序号占位，便于替换为指定传承的七十二龙数据。" },
-      { id:"heaven", name:"天盘缝针", inner:234, outer:272, labels:MOUNTAINS, offset:7.5, palette:"red", fontSize:13, textColor:"#fff1d4" },
-      { id:"earth", name:"地盘正针", inner:194, outer:234, labels:MOUNTAINS, offset:0, palette:"cream1", fontSize:16, textColor:"#302016" },
-      { id:"human", name:"人盘中针", inner:156, outer:194, labels:MOUNTAINS, offset:-7.5, palette:"green", fontSize:13, textColor:"#f3ead6" },
-      { id:"branches", name:"十二地支", inner:128, outer:156, labels:BRANCHES, offset:0, palette:"cream2", fontSize:13, textColor:"#322318" },
-      { id:"trigrams", name:"后天八卦", inner:96, outer:128, labels:TRIGRAMS, meta:TRIGRAM_META, offset:0, palette:"dark", fontSize:17, textColor:"#f2e4c7" }
+    function mountainAtAngle(angle) {
+      const index = Math.floor((normalize(angle) + 7.5) / 15) % 24;
+      return MOUNTAINS[index];
+    }
+
+    function resolveDimuStartTrigram() {
+      const source = state && state.prof ? state.prof.dimuSource : "坤";
+      if (source === "auto") return MOUNTAIN_TO_TRIGRAM[mountainAtAngle(normalize(360 - state.rotation))] || "坤";
+      return TRIGRAM_BITS[source] ? source : (MOUNTAIN_TO_TRIGRAM[source] || "坤");
+    }
+
+    function buildDimuStars() {
+      const start = resolveDimuStartTrigram();
+      let bits = [...TRIGRAM_BITS[start]];
+      const trigramStar = {[start]:"辅"};
+      [2,1,0,1,2,1,0].forEach((lineIndex, i) => {
+        bits[lineIndex] = bits[lineIndex] ? 0 : 1;
+        trigramStar[BITS_TRIGRAM[bits.join("")]] = FLIP_STARS[i+1];
+      });
+      return MOUNTAINS.map(m => {
+        const palace = MOUNTAIN_TO_TRIGRAM[m];
+        const star = trigramStar[palace];
+        return {label:star, meta:`${m}山纳入${palace}卦；以${start}卦起辅弼，翻得${FLIP_STAR_FULL[star]}。`, fill:["辅","贪","巨","武"].includes(star) ? "#a9833f" : "#49302b"};
+      });
+    }
+
+    // 第六层：穿山七十二龙。五子龙跨壬、子、癸，余支类推；每支后置一“正”位为空亡。
+    function buildChuanShan72() {
+      const cells = [];
+      BRANCHES.forEach((branch, bi) => {
+        const five = JIAZI.filter(v => v.endsWith(branch));
+        five.forEach((v) => cells.push({label:v, meta:`穿山${v}，每格5°。`}));
+        const branchMountainIndex = MOUNTAINS.indexOf(branch);
+        const emptyMountain = MOUNTAINS[(branchMountainIndex + 1) % 24];
+        cells.push({label:`正${emptyMountain}`, meta:`${emptyMountain}山正中“大空亡”位，不作六十甲子龙使用。`, fill:"#332629"});
+      });
+      return cells;
+    }
+
+    // 第八层：平分六十龙（透地六十龙），甲子起地盘壬初，平均每格6°。
+    const TOUDI60 = JIAZI.map((v,i) => ({label:v, meta:`平分六十龙第${i+1}位；甲子起地盘壬初，每格6°。`}));
+
+    // 第十层：每山五分金；支山及其后一干/维共用该支五子。丙丁庚辛干为可用48分金。
+    function branchForMountain(mountain) {
+      if (BRANCHES.includes(mountain)) return mountain;
+      let idx = MOUNTAINS.indexOf(mountain);
+      for (let k=1;k<=2;k++) {
+        const prev = MOUNTAINS[(idx-k+24)%24];
+        if (BRANCHES.includes(prev)) return prev;
+      }
+      return "子";
+    }
+    function buildFenjin120() {
+      const cells=[];
+      MOUNTAINS.forEach(m => {
+        const branch=branchForMountain(m);
+        JIAZI.filter(v => v.endsWith(branch)).forEach(v => {
+          const good = ["丙","丁","庚","辛"].includes(v[0]);
+          cells.push({label:v, meta:`${m}山五分金之一；${v[0]}干${good ? "属丙丁庚辛可用分金" : "不列入通行48吉分金"}。`, fill:good ? "#b33c31" : "#c9ab6b", textColor:good ? "#ffe8bd" : "#2b1a12"});
+        });
+      });
+      return cells;
+    }
+
+    // 六十四卦上下卦矩阵：每行固定下卦（内卦），列为上卦（外卦），列序乾兑离震巽坎艮坤。
+    const TRIGRAM_ORDER = ["乾","兑","离","震","巽","坎","艮","坤"];
+    const HEX_MATRIX = {
+      乾:["乾","夬","大有","大壮","小畜","需","大畜","泰"],
+      兑:["履","兑","睽","归妹","中孚","节","损","临"],
+      离:["同人","革","离","丰","家人","既济","贲","明夷"],
+      震:["无妄","随","噬嗑","震","益","屯","颐","复"],
+      巽:["姤","大过","鼎","恒","巽","井","蛊","升"],
+      坎:["讼","困","未济","解","涣","坎","蒙","师"],
+      艮:["遁","咸","旅","小过","渐","蹇","艮","谦"],
+      坤:["否","萃","晋","豫","观","比","剥","坤"]
+    };
+    const HEX_BY_NAME = {};
+    Object.entries(HEX_MATRIX).forEach(([lower,row]) => row.forEach((name,i) => {
+      HEX_BY_NAME[name] = {name, upper:TRIGRAM_ORDER[i], lower};
+    }));
+
+    const OUTER_HEX_NAMES = [
+      "复","颐","屯","益","震","噬嗑","随","无妄",
+      "明夷","贲","既济","家人","丰","离","革","同人",
+      "临","损","节","中孚","归妹","睽","兑","履",
+      "泰","大畜","需","小畜","大壮","大有","夬","乾",
+      "姤","大过","鼎","恒","巽","井","蛊","升",
+      "讼","困","未济","解","涣","坎","蒙","师",
+      "遁","咸","旅","小过","渐","蹇","艮","谦",
+      "否","萃","晋","豫","观","比","剥","坤"
     ];
+    const GUA_YUN_32 = [
+      8,3,4,9,1,6,7,2, 3,8,9,4,6,1,2,7,
+      4,9,8,3,7,2,1,6, 9,4,3,8,2,7,6,1
+    ];
+    const OUTER_HEX = OUTER_HEX_NAMES.map((name,i) => ({...HEX_BY_NAME[name], yun:GUA_YUN_32[i%32]}));
+    const YUN_BY_NAME = Object.fromEntries(OUTER_HEX.map(h => [h.name,h.yun]));
 
+    const INNER_HEX = [];
+    ["乾","兑","离","震"].forEach(lower => HEX_MATRIX[lower].forEach(name => INNER_HEX.push({...HEX_BY_NAME[name], yun:YUN_BY_NAME[name]})));
+    ["坤","艮","坎","巽"].forEach(lower => [...HEX_MATRIX[lower]].reverse().forEach(name => INNER_HEX.push({...HEX_BY_NAME[name], yun:YUN_BY_NAME[name]})));
+
+    const YUN_STAR = {1:"贪",2:"巨",3:"禄",4:"文",6:"武",7:"破",8:"辅",9:"弼"};
+    const YUN_STAR_FULL = {1:"贪狼",2:"巨门",3:"禄存",4:"文曲",6:"武曲",7:"破军",8:"左辅",9:"右弼"};
+    const GUAQI_ELEMENT = {1:"水",6:"水",2:"火",7:"火",3:"木",8:"木",4:"金",9:"金"};
+
+    function hexBitsBottom(hex) { return [...TRIGRAM_BITS[hex.lower], ...TRIGRAM_BITS[hex.upper]]; }
+    function lineOrderForHex(hex) {
+      const sameParity = TRIGRAM_NUM[hex.upper] % 2 === TRIGRAM_NUM[hex.lower] % 2;
+      return sameParity ? [6,5,4,3,2,1] : [1,2,3,4,5,6];
+    }
+    const GOOD_NUMBER_PAIRS = new Set(["1-6","2-7","3-8","4-9","1-9","2-8","3-7","4-6"]);
+    function isGoodYao(hex, lineNo) {
+      const bits = hexBitsBottom(hex);
+      bits[lineNo-1] = bits[lineNo-1] ? 0 : 1;
+      const lower = BITS_TRIGRAM[bits.slice(0,3).join("")];
+      const upper = BITS_TRIGRAM[bits.slice(3).join("")];
+      const a=TRIGRAM_NUM[upper], b=TRIGRAM_NUM[lower];
+      return GOOD_NUMBER_PAIRS.has(`${Math.min(a,b)}-${Math.max(a,b)}`);
+    }
+
+    // 京房纳甲与八宫归属，用于六亲爻度。
+    const NAJIA_BRANCHES = {
+      乾:["子","寅","辰","午","申","戌"], 兑:["巳","卯","丑","亥","酉","未"],
+      离:["卯","丑","亥","酉","未","巳"], 震:["子","寅","辰","午","申","戌"],
+      巽:["丑","亥","酉","未","巳","卯"], 坎:["寅","辰","午","申","戌","子"],
+      艮:["辰","午","申","戌","子","寅"], 坤:["未","巳","卯","丑","亥","酉"]
+    };
+    const BRANCH_ELEMENT = {亥:"水",子:"水",寅:"木",卯:"木",巳:"火",午:"火",申:"金",酉:"金",辰:"土",戌:"土",丑:"土",未:"土"};
+    function bitsInt(bits) { return bits.reduce((n,b,i) => n + (b<<i),0); }
+    const HEX_PALACE_BY_INT = {};
+    const PALACE_MASKS = [0,1,3,7,15,31,23,16];
+    TRIGRAM_ORDER.forEach(palace => {
+      const pure = [...TRIGRAM_BITS[palace], ...TRIGRAM_BITS[palace]];
+      const base = bitsInt(pure);
+      PALACE_MASKS.forEach(mask => HEX_PALACE_BY_INT[base ^ mask] = palace);
+    });
+    function sixRelation(hex,lineNo) {
+      const palace=HEX_PALACE_BY_INT[bitsInt(hexBitsBottom(hex))];
+      const trigram=lineNo<=3 ? hex.lower : hex.upper;
+      const branch=NAJIA_BRANCHES[trigram][lineNo-1];
+      const lineEl=BRANCH_ELEMENT[branch], selfEl=TRIGRAM_ELEMENT[palace];
+      let relation="兄弟";
+      if (lineEl === selfEl) relation="兄弟";
+      else if (ELEMENT_GENERATES[lineEl] === selfEl) relation="父母";
+      else if (ELEMENT_GENERATES[selfEl] === lineEl) relation="子孙";
+      else if (ELEMENT_CONTROLS[lineEl] === selfEl) relation="官鬼";
+      else if (ELEMENT_CONTROLS[selfEl] === lineEl) relation="妻财";
+      return {relation,branch,lineEl,palace,selfEl};
+    }
+
+    function buildYaoCells(kind) {
+      const cells=[];
+      OUTER_HEX.forEach((hex,hi) => {
+        const order=lineOrderForHex(hex);
+        order.forEach((lineNo,physicalIndex) => {
+          if (kind === "position") {
+            const label=lineNo===1 ? "刀" : lineNo===6 ? "上" : "";
+            cells.push({label, meta:`${hex.name}卦第${lineNo}爻；${order[0]===1 ? "顺排初至上" : "逆排上至初"}。`});
+          } else if (kind === "good") {
+            const good=isGoodYao(hex,lineNo);
+            cells.push({label:good ? "●" : "", meta:`${hex.name}卦第${lineNo}爻变后，外内卦数${good ? "合河图或洛书吉数" : "不合本层吉数条件"}。`, fill:good ? "#9d2f29" : "#d5bd89", textColor:"#ffe4b5"});
+          } else {
+            const rel=sixRelation(hex,lineNo);
+            const short={兄弟:"兄",父母:"父",子孙:"子",官鬼:"官",妻财:"财"}[rel.relation];
+            cells.push({label:short, meta:`${hex.name}卦第${lineNo}爻纳${rel.branch}${rel.lineEl}；${rel.palace}宫属${rel.selfEl}，六亲为${rel.relation}。`, fill:{兄弟:"#665238",父母:"#2f5467",子孙:"#527052",官鬼:"#653431",妻财:"#9c783c"}[rel.relation], textColor:"#fff1d2"});
+          }
+        });
+      });
+      return cells;
+    }
+
+    // 二十八宿：采用《汉书·律历志》古宿度（周天365¼度）后归一到现代360°。
+    const MANSION_HAN = [
+      ["角",12],["亢",9],["氐",15],["房",5],["心",5],["尾",18],["箕",11.25],
+      ["斗",26],["牛",8],["女",12],["虚",10],["危",17],["室",16],["壁",9],
+      ["奎",16],["娄",12],["胃",14],["昴",11],["毕",16],["觜",2],["参",9],
+      ["井",33],["鬼",4],["柳",15],["星",7],["张",18],["翼",18],["轸",17]
+    ];
+    const MANSION_QUADRANT = {角:"苍龙木",亢:"苍龙木",氐:"苍龙木",房:"苍龙木",心:"苍龙木",尾:"苍龙木",箕:"苍龙木",斗:"玄武水",牛:"玄武水",女:"玄武水",虚:"玄武水",危:"玄武水",室:"玄武水",壁:"玄武水",奎:"白虎金",娄:"白虎金",胃:"白虎金",昴:"白虎金",毕:"白虎金",觜:"白虎金",参:"白虎金",井:"朱雀火",鬼:"朱雀火",柳:"朱雀火",星:"朱雀火",张:"朱雀火",翼:"朱雀火",轸:"朱雀火"};
+
+    function buildMansionSegments() {
+      const scheme=state && state.prof ? state.prof.mansionScheme : "luojingHan";
+      if (scheme === "equal") {
+        const order=["虚","危","室","壁","奎","娄","胃","昴","毕","觜","参","井","鬼","柳","星","张","翼","轸","角","亢","氐","房","心","尾","箕","斗","牛","女"];
+        return order.map((name,i)=>({label:name,start:i*360/28,end:(i+1)*360/28,meta:`${name}宿 · ${MANSION_QUADRANT[name]}；本方案为28等分，仅供结构比对。`}));
+      }
+      const total=MANSION_HAN.reduce((s,x)=>s+x[1],0);
+      let ordered;
+      let startAngle;
+      if (scheme === "hanNiu") {
+        const startIndex=MANSION_HAN.findIndex(x=>x[0]==="牛");
+        ordered=[...MANSION_HAN.slice(startIndex),...MANSION_HAN.slice(0,startIndex)];
+        startAngle=0;
+      } else {
+        const startIndex=MANSION_HAN.findIndex(x=>x[0]==="虚");
+        ordered=[...MANSION_HAN.slice(startIndex),...MANSION_HAN.slice(0,startIndex)];
+        const virtualWidth=ordered[0][1]/total*360;
+        startAngle=-virtualWidth/2;
+      }
+      let cursor=startAngle;
+      return ordered.map(([name,du]) => {
+        const width=du/total*360;
+        const seg={label:name,start:cursor,end:cursor+width,meta:`${name}宿 · ${MANSION_QUADRANT[name]} · 《汉书·律历志》古宿度${du}度；已按365¼古度归一到现代360°。`};
+        cursor += width;
+        return seg;
+      });
+    }
+
+    function mansionAtAngle(angle,segments) {
+      const a=normalize(angle);
+      for (const s of segments) {
+        const start=normalize(s.start), width=s.end-s.start;
+        const delta=normalize(a-start);
+        if (delta < width || Math.abs(delta-width)<1e-8) return {...s,delta};
+      }
+      return {...segments[0],delta:0};
+    }
+    function buildMansionDegreeCells() {
+      const segments=buildMansionSegments();
+      return Array.from({length:360},(_,i)=>{
+        const m=mansionAtAngle(i+0.5,segments);
+        const hostWidth=m.end-m.start;
+        const degree=Math.floor(m.delta/hostWidth * (MANSION_HAN.find(x=>x[0]===m.label)?.[1] || hostWidth)) + 1;
+        return {label:(degree===1 || degree%5===0) ? String(degree) : "", meta:`周天${i}°—${i+1}°落${m.label}宿，约为宿内第${degree}度；本层显示宿内度序，不伪造门派专属吉凶点。`};
+      });
+    }
+
+    function professionalRingDefs() {
+      const dimu=buildDimuStars();
+      const chuan=buildChuanShan72();
+      const fenjin=buildFenjin120();
+      const mansions=buildMansionSegments();
+      const period=Number(state.prof.currentPeriod)||9;
+      const preCells=PREHEAVEN_AT_LATER_POSITIONS.map((g,i)=>({label:`${TRIGRAM_SYMBOL[g]}${g}`,meta:`${g}卦爻象居${LATER_POSITION_NAMES[i]}。`}));
+      const luoshu=LUOSHU_RING.map(x=>({label:x.label,meta:`洛书${x.n}数，${x.dir}方，九星${x.star}${x.n===period ? "；当前元运当旺" : ""}。`,fill:x.n===period ? "#a3312b" : undefined,textColor:x.n===period ? "#ffe5b7" : undefined}));
+      const yy=MOUNTAINS.map((m,i)=>({label:m,meta:`${m}山为三元${MOUNTAIN_YINYANG[i]}山；金底红字为阳，黑底金字为阴。`,fill:MOUNTAIN_YINYANG[i]==="阳" ? "#c4a15d" : "#2b2724",textColor:MOUNTAIN_YINYANG[i]==="阳" ? "#a32620" : "#e7cf93"}));
+      const innerStars=INNER_HEX.map(h=>({label:YUN_STAR[h.yun],meta:`内盘${h.name}卦，卦运${h.yun}，挨星${YUN_STAR_FULL[h.yun]}。`,fill:h.yun===period ? "#9a3029" : undefined,textColor:h.yun===period ? "#ffe4ae" : undefined}));
+      const innerNames=INNER_HEX.map(h=>({label:h.name,meta:`内盘方图卦：上${h.upper}下${h.lower}，卦运${h.yun}。`}));
+      const guaqi=OUTER_HEX.map(h=>{const n=TRIGRAM_NUM[h.upper];return {label:String(n),meta:`天盘${h.name}卦，上卦${h.upper}取卦气${n}，五行属${GUAQI_ELEMENT[n]}。`};});
+      const outerNames=OUTER_HEX.map(h=>({label:h.name,meta:`天盘先天圆图卦：上${h.upper}下${h.lower}。`}));
+      const guayun=OUTER_HEX.map(h=>({label:String(h.yun),meta:`天盘${h.name}卦之卦运为${h.yun}${h.yun===period ? "，与当前元运同旺" : ""}。`,fill:h.yun===period ? "#a3312b" : undefined,textColor:h.yun===period ? "#ffe4b0" : undefined}));
+      const degrees=Array.from({length:360},(_,i)=>({label:i%10===0?String(i):"",meta:`周天${i}°—${i+1}°。`}));
+      return [
+        {id:"degrees",layer:"20",name:"20 三百六十周天刻度",category:"common",cells:degrees,offset:.5,palette:"dark",fontSize:4.8,textColor:"#efe5cf",thickness:17,tickMode:"degree",status:"固定"},
+        {id:"mansionDegrees",layer:"19",name:"19 二十八宿宿内度序",category:"sanhe",cells:buildMansionDegreeCells(),offset:.5,palette:"cream1",fontSize:4.2,textColor:"#38271a",thickness:12,status:"方案"},
+        {id:"mansions",layer:"18",name:"18 二十八星宿",category:"sanhe",segments:mansions,palette:"cream2",fontSize:8.5,textColor:"#332219",thickness:18,status:"方案"},
+        {id:"sixRelations",layer:"17",name:"17 六十四卦六亲爻度",category:"sanyuan",cells:buildYaoCells("relation"),offset:360/768,palette:"dark",fontSize:4.3,textColor:"#fff0cf",thickness:13,status:"计算"},
+        {id:"goodYao",layer:"16",name:"16 三百八十四爻吉度",category:"sanyuan",cells:buildYaoCells("good"),offset:360/768,palette:"cream2",fontSize:4.7,textColor:"#fff0cf",thickness:11,status:"计算"},
+        {id:"yaoPosition",layer:"15B",name:"15B 六十四卦初上爻",category:"sanyuan",cells:buildYaoCells("position"),offset:360/768,palette:"black",fontSize:4.8,textColor:"#f5e4bd",thickness:11,status:"计算"},
+        {id:"guaYun",layer:"15",name:"15 六十四卦挨星卦运",category:"sanyuan",cells:guayun,offset:360/128,palette:"green",fontSize:6.7,textColor:"#eef4dc",thickness:13,status:"固定"},
+        {id:"outerHex",layer:"14",name:"14 天盘六十四卦名称",category:"sanyuan",cells:outerNames,offset:360/128,palette:"cream1",fontSize:6.2,textColor:"#2d1f16",thickness:17,status:"固定"},
+        {id:"guaQi",layer:"13",name:"13 六十四卦五行卦气",category:"sanyuan",cells:guaqi,offset:360/128,palette:"dark",fontSize:7,textColor:"#f1e2bd",thickness:12,status:"固定"},
+        {id:"innerHex",layer:"12",name:"12 内盘六十四卦名称",category:"sanyuan",cells:innerNames,offset:360/128,palette:"cream2",fontSize:6.2,textColor:"#312117",thickness:17,status:"固定"},
+        {id:"innerStars",layer:"11",name:"11 易盘六十四卦挨星星曜",category:"sanyuan",cells:innerStars,offset:360/128,palette:"black",fontSize:6.5,textColor:"#f0e1bc",thickness:13,status:"固定"},
+        {id:"fenjin120",layer:"10",name:"10 一百二十龙分金",category:"sanhe",cells:fenjin,offset:-7.5+1.5,palette:"gold",fontSize:4.9,textColor:"#28180f",thickness:14,status:"固定"},
+        {id:"heaven",layer:"9",name:"9 三合天盘缝针",category:"sanhe",cells:MOUNTAINS.map(m=>({label:m,meta:`${MOUNTAIN_META[m]}；天盘顺旋半宫，主要用于纳水放水。`})),offset:7.5,palette:"red",fontSize:9.4,textColor:"#ffe9c5",thickness:16,status:"固定"},
+        {id:"toudi60",layer:"8",name:"8 平分六十龙（透地龙）",category:"sanhe",cells:TOUDI60,offset:340.5,palette:"dark",fontSize:5.8,textColor:"#f0dfba",thickness:14,status:"固定"},
+        {id:"human",layer:"7",name:"7 三合人盘中针",category:"sanhe",cells:MOUNTAINS.map(m=>({label:m,meta:`${MOUNTAIN_META[m]}；人盘逆旋半宫，主要用于消砂。`})),offset:-7.5,palette:"green",fontSize:9.4,textColor:"#eef2dc",thickness:16,status:"固定"},
+        {id:"chuan72",layer:"6",name:"6 穿山七十二龙",category:"sanhe",cells:chuan,offset:350,palette:"cream2",fontSize:5.2,textColor:"#332117",thickness:14,status:"固定"},
+        {id:"mountainYinyang",layer:"5",name:"5 三元二十四山阴阳",category:"sanyuan",cells:yy,offset:0,palette:"dark",fontSize:7.5,textColor:"#f0ddb1",thickness:13,status:"固定"},
+        {id:"dimu",layer:"4",name:"4 地母翻卦九星",category:"sanyuan",cells:dimu,offset:0,palette:"dark",fontSize:7.4,textColor:"#f7e7c2",thickness:13,status:"动态"},
+        {id:"luoshu",layer:"3",name:"3 洛书九星",category:"sanyuan",cells:luoshu,offset:0,palette:"cream1",fontSize:8.2,textColor:"#302016",thickness:16,status:"动态"},
+        {id:"preYao",layer:"2",name:"2 先天卦爻",category:"sanyuan",cells:preCells,offset:0,palette:"black",fontSize:9,textColor:"#f2e5c8",thickness:18,status:"固定"}
+      ];
+    }
+
+    function parseCustomRingDefs(raw) {
+      if (!Array.isArray(raw)) return [];
+      return raw.map((r, idx) => {
+        const labels = Array.isArray(r.labels) ? r.labels.map(v => String(v).trim()).filter(Boolean) : [];
+        if (!r || !labels.length) return null;
+        return {id:typeof r.id === "string" && r.id ? r.id : `custom_${Date.now()}_${idx}`,name:String(r.name || `自定义图层 ${idx+1}`),category:"custom",cells:labels.map(label=>({label,meta:"自定义图层数据"})),offset:Number(r.offset)||0,palette:COLORS[r.palette]?r.palette:"gold",fontSize:Number(r.fontSize)||(labels.length>=60?5.4:labels.length>=24?7:9),textColor:r.textColor||"#24190f",thickness:Math.max(12,Math.min(28,Number(r.thickness)||16)),note:r.note||"自定义图层",status:"自定义"};
+      }).filter(Boolean);
+    }
+
+    function layoutRings(rings) {
+      let outer=414;
+      return rings.map(ring=>{const t=Number(ring.thickness)||14;const out=outer;const inn=out-t;outer=inn;return {...ring,outer:out,inner:inn};});
+    }
+    let RINGS=[];
     function storageGet(key, fallback = null) {
       try {
         const value = localStorage.getItem(key);
@@ -683,6 +1361,10 @@
       return Math.min(max, Math.max(min, value));
     }
 
+    function safeJsonParse(raw, fallback) {
+      try { return JSON.parse(raw); } catch (_) { return fallback; }
+    }
+
     const state = {
       rotation: 0,
       scale: 1,
@@ -692,6 +1374,31 @@
       dragStartAngle: 0,
       dragStartRotation: 0,
       offsetMode: "A",
+      displayMode: storageGet("luopanDisplayMode", "combined"),
+      customRings: parseCustomRingDefs(safeJsonParse(storageGet("luopanCustomRings", "[]") || "[]", [])),
+      prof: {
+        dimuSource: storageGet("luopanDimuSource", "坤"),
+        currentPeriod: storedNumber("luopanCurrentPeriod", 9, 1, 9),
+        mansionScheme: storageGet("luopanMansionScheme", "luojingHan")
+      },
+      gestureLocked: false,
+      pointers: new Map(),
+      gesture: {
+        mode: "idle",
+        startRotation: 0,
+        startScale: 1,
+        startAngle: 0,
+        startDistance: 0,
+        startX: 0,
+        startY: 0,
+        moved: false,
+        manualPaused: false,
+        longPressTimer: 0,
+        lastTapTime: 0,
+        lastTapX: 0,
+        lastTapY: 0,
+        suppressClickUntil: 0
+      },
       compass: {
         active: false,
         paused: false,
@@ -730,6 +1437,26 @@
     const correctedHeadingReadout = document.getElementById("correctedHeadingReadout");
     const sittingFacingReadout = document.getElementById("sittingFacingReadout");
     const accuracyReadout = document.getElementById("accuracyReadout");
+    const dimuSourceInput = document.getElementById("dimuSource");
+    const currentPeriodInput = document.getElementById("currentPeriod");
+    const mansionSchemeInput = document.getElementById("mansionScheme");
+    const professionalStatus = document.getElementById("professionalStatus");
+    const modeSanheBtn = document.getElementById("modeSanhe");
+    const modeSanyuanBtn = document.getElementById("modeSanyuan");
+    const modeCombinedBtn = document.getElementById("modeCombined");
+    const modeCustomBtn = document.getElementById("modeCustom");
+    const showAllRingsBtn = document.getElementById("showAllRings");
+    const saveCustomViewBtn = document.getElementById("saveCustomView");
+    const loadCustomViewBtn = document.getElementById("loadCustomView");
+    const resetBuiltinsBtn = document.getElementById("resetBuiltins");
+    const ringSummary = document.getElementById("ringSummary");
+    const customLayerNameInput = document.getElementById("customLayerName");
+    const customLayerLabelsInput = document.getElementById("customLayerLabels");
+    const customLayerPaletteInput = document.getElementById("customLayerPalette");
+    const customLayerOffsetInput = document.getElementById("customLayerOffset");
+    const customLayerThicknessInput = document.getElementById("customLayerThickness");
+    const addCustomLayerBtn = document.getElementById("addCustomLayer");
+    const clearCustomLayersBtn = document.getElementById("clearCustomLayers");
     const enableCompassBtn = document.getElementById("enableCompass");
     const pauseCompassBtn = document.getElementById("pauseCompass");
     const lockCompassBtn = document.getElementById("lockCompass");
@@ -741,6 +1468,17 @@
     const smoothingInput = document.getElementById("smoothing");
     const smoothingValue = document.getElementById("smoothingValue");
     const locationInfo = document.getElementById("locationInfo");
+    const mobileDegreeReadout = document.getElementById("mobileDegreeReadout");
+    const mobileMountainReadout = document.getElementById("mobileMountainReadout");
+    const mobileCompassBtn = document.getElementById("mobileCompass");
+    const mobileResetBtn = document.getElementById("mobileReset");
+    const mobileFullscreenBtn = document.getElementById("mobileFullscreen");
+    const mobilePanelBtn = document.getElementById("mobilePanel");
+    const controlPanel = document.getElementById("controlPanel");
+    const panelHandle = document.getElementById("panelHandle");
+    const panelCloseBtn = document.getElementById("panelClose");
+    const gestureTip = document.getElementById("gestureTip");
+    const gestureToast = document.getElementById("gestureToast");
 
     function el(name, attrs = {}, text = "") {
       const node = document.createElementNS(SVG_NS, name);
@@ -806,95 +1544,79 @@
     }
 
     function drawBaseDecorations() {
-      // 内盘底纹及同心线
-      disc.appendChild(el("circle", {cx,cy,r:414,fill:"none",stroke:"#2c1c14","stroke-width":"2"}));
-      for (const r of [96,128,156,194,234,272,306,344,382,414]) {
+      const outerMost = RINGS.length ? Math.max(...RINGS.map(r => r.outer)) : 414;
+      const innerMost = RINGS.length ? Math.min(...RINGS.map(r => r.inner)) : 96;
+      disc.appendChild(el("circle", {cx,cy,r:outerMost,fill:"none",stroke:"#2c1c14","stroke-width":"2"}));
+      const circles = [...new Set(RINGS.flatMap(r => [r.inner, r.outer]).sort((a,b)=>a-b))];
+      circles.forEach((r) => {
         disc.appendChild(el("circle", {cx,cy,r,fill:"none",stroke:"rgba(58,39,25,.48)","stroke-width":"1"}));
-      }
-      // 24山放射辅助线
+      });
       for (let i=0;i<24;i++) {
         const a = i*15 - 7.5;
-        const p1 = polar(96,a), p2 = polar(414,a);
+        const p1 = polar(innerMost,a), p2 = polar(outerMost,a);
         disc.appendChild(el("line", {x1:p1.x,y1:p1.y,x2:p2.x,y2:p2.y,stroke:"rgba(70,45,27,.15)","stroke-width":".8"}));
       }
     }
 
+    function ringItems(ring) {
+      if (Array.isArray(ring.segments)) return ring.segments.map((s,i)=>({...s,index:i,centerAngle:s.start+(s.end-s.start)/2}));
+      const cells=Array.isArray(ring.cells)?ring.cells:[];
+      const n=cells.length||1, step=360/n, offset=getOffset(ring);
+      return cells.map((cell,i)=>({...cell,index:i,start:i*step+offset-step/2,end:i*step+offset+step/2,centerAngle:i*step+offset}));
+    }
+
     function drawRing(ring) {
-      const group = el("g", {"data-ring":ring.id});
-      const n = ring.labels.length;
-      const step = 360/n;
-      const offset = getOffset(ring);
-      const colors = COLORS[ring.palette] || COLORS.cream1;
-
-      ring.labels.forEach((label, i) => {
-        const centerAngle = i*step + offset;
-        const start = centerAngle - step/2;
-        const end = centerAngle + step/2;
-        const path = el("path", {
-          d: annularPath(ring.inner, ring.outer, start, end),
-          fill: colors[i % colors.length],
-          stroke: ring.palette === "black" || ring.palette === "dark" ? "#b99a5f" : "#5d4126",
-          "stroke-width": ring.tickMode ? .55 : .8,
-          class:"seg",
-          "data-ring":ring.id,
-          "data-index":i
-        });
-
-        path.addEventListener("click", (evt) => {
-          evt.stopPropagation();
-          selectSegment(ring, i, path, centerAngle, step);
-        });
+      const group=el("g",{"data-ring":ring.id});
+      const colors=COLORS[ring.palette]||COLORS.cream1;
+      const items=ringItems(ring);
+      items.forEach((item,i)=>{
+        const fill=item.fill||colors[i%colors.length];
+        const path=el("path",{d:annularPath(ring.inner,ring.outer,item.start,item.end),fill,stroke:(ring.palette==="black"||ring.palette==="dark")?"#b99a5f":"#5d4126","stroke-width":ring.tickMode?0.4:0.65,class:"seg","data-ring":ring.id,"data-index":i});
+        path.addEventListener("click",evt=>{evt.stopPropagation();selectSegment(ring,item,path);});
         group.appendChild(path);
-
-        const midR = (ring.inner + ring.outer)/2;
-        const p = polar(midR, centerAngle);
-        const rotation = centerAngle;
-        const text = el("text", {
-          x:p.x, y:p.y,
-          class:"ring-label",
-          fill:ring.textColor,
-          "font-size":ring.fontSize,
-          "font-weight": ring.id === "earth" ? 700 : 500,
-          transform:`rotate(${rotation} ${p.x} ${p.y})`
-        }, label);
-        group.appendChild(text);
-
-        if (ring.tickMode) {
-          const major = i % 2 === 0;
-          const pA = polar(ring.outer - (major ? 9 : 5), start);
-          const pB = polar(ring.outer, start);
-          group.appendChild(el("line", {x1:pA.x,y1:pA.y,x2:pB.x,y2:pB.y,stroke:"#f0dcae","stroke-width":major?1.15:.6}));
+        const label=item.label==null?"":String(item.label);
+        if (label) {
+          const p=polar((ring.inner+ring.outer)/2,item.centerAngle);
+          const text=el("text",{x:p.x,y:p.y,class:"ring-label",fill:item.textColor||ring.textColor||"#2c2118","font-size":item.fontSize||ring.fontSize||7,"font-weight":ring.id==="earth"?700:500,transform:`rotate(${item.centerAngle} ${p.x} ${p.y})`},label);
+          group.appendChild(text);
+        }
+        if (ring.tickMode==="degree") {
+          const major=i%10===0, medium=i%5===0;
+          const pA=polar(ring.outer-(major?8:medium?5:3),item.start),pB=polar(ring.outer,item.start);
+          group.appendChild(el("line",{x1:pA.x,y1:pA.y,x2:pB.x,y2:pB.y,stroke:"#f0dcae","stroke-width":major?1:.45}));
         }
       });
-
       disc.appendChild(group);
     }
 
     function drawCenterDecorations() {
-      const g = el("g", {"data-ring":"centerDecor"});
-      // 八方短线与文字标识，位于天池外
-      const cardinal = [
-        {a:0,t:"北"},{a:45,t:"东北"},{a:90,t:"东"},{a:135,t:"东南"},
-        {a:180,t:"南"},{a:225,t:"西南"},{a:270,t:"西"},{a:315,t:"西北"}
-      ];
-      cardinal.forEach((d) => {
-        const p1=polar(78,d.a), p2=polar(92,d.a), pt=polar(86,d.a);
-        g.appendChild(el("line", {x1:p1.x,y1:p1.y,x2:p2.x,y2:p2.y,stroke:"#6e4b2d","stroke-width":"1"}));
-        if (d.a % 90 === 0) {
-          const p=polar(86,d.a);
-          g.appendChild(el("circle", {cx:p.x,cy:p.y,r:2.2,fill:"#8b2f28"}));
-        }
+      const innerMost=RINGS.length?Math.min(...RINGS.map(r=>r.inner)):96;
+      const g=el("g",{"data-ring":"centerDecor"});
+      [0,45,90,135,180,225,270,315].forEach(a=>{
+        const p1=polar(Math.max(78,innerMost-14),a),p2=polar(Math.max(84,innerMost-3),a);
+        g.appendChild(el("line",{x1:p1.x,y1:p1.y,x2:p2.x,y2:p2.y,stroke:"#6e4b2d","stroke-width":"1"}));
       });
       disc.appendChild(g);
     }
 
+    function rebuildRings() {
+      const builtins=professionalRingDefs();
+      const customs=state.customRings.map(r=>({...r,category:"custom"}));
+      RINGS=layoutRings([...builtins,...customs]);
+    }
+
     function render() {
-      disc.innerHTML = "";
+      rebuildRings();
+      disc.innerHTML="";
       drawBaseDecorations();
       RINGS.forEach(drawRing);
       drawCenterDecorations();
       applyTransform();
       applyVisibility();
+      buildToggles();
+      updateRingSummary();
+      updateModeButtons();
+      updateProfessionalStatus();
     }
 
     function applyTransform() {
@@ -910,7 +1632,16 @@
       const sitting = mountainAt(azimuth);
       const facing = facingMountainAt(azimuth);
       mountainReadout.textContent = sitting.name;
+      mobileDegreeReadout.textContent = `${azimuth.toFixed(1)}°`;
+      mobileMountainReadout.textContent = sitting.name;
       sittingFacingReadout.textContent = `${sitting.name} / ${facing.name}`;
+      if (state.prof && state.prof.dimuSource === "auto") {
+        const current = sitting.name;
+        if (state.prof.lastAutoMountain && state.prof.lastAutoMountain !== current) {
+          state.prof.lastAutoMountain = current;
+          requestAnimationFrame(() => render());
+        } else if (!state.prof.lastAutoMountain) state.prof.lastAutoMountain = current;
+      }
     }
 
     function setAzimuth(azimuth) {
@@ -934,6 +1665,12 @@
       lockCompassBtn.textContent = c.locked ? "解除锁定" : "锁定读数";
       lockCompassBtn.classList.toggle("active", c.locked);
       enableCompassBtn.textContent = c.active ? "重新连接" : "启动指南针";
+      if (mobileCompassBtn) {
+        const label = mobileCompassBtn.querySelector("span:last-child");
+        if (label) label.textContent = !c.active ? "指南针" : c.paused ? "继续" : "暂停";
+        mobileCompassBtn.classList.toggle("active", c.active && !c.paused);
+        mobileCompassBtn.classList.toggle("warning", c.active && c.paused);
+      }
     }
 
     function updateCompassReadout() {
@@ -1047,30 +1784,32 @@
       updateCompassReadout();
     }
 
-    function selectSegment(ring, i, path, centerAngle, step) {
-      document.querySelectorAll(".seg.selected").forEach(n => n.classList.remove("selected"));
+    function selectSegment(ring,item,path) {
+      document.querySelectorAll(".seg.selected").forEach(n=>n.classList.remove("selected"));
       path.classList.add("selected");
-      state.selected = {ring:ring.id,index:i};
-      const label = ring.labels[i];
-      const start = normalize(centerAngle-step/2);
-      const end = normalize(centerAngle+step/2);
-      let extra = "";
-      if (ring.id === "earth" || ring.id === "heaven" || ring.id === "human") {
-        extra = MOUNTAIN_META[label] || "二十四山方位";
-      } else if (ring.meta) {
-        extra = ring.meta[i] || "";
-      } else if (ring.note) {
-        extra = ring.note;
-      } else if (ring.id === "jiazi") {
-        extra = `六十甲子第 ${i+1} 位`;
-      } else if (ring.id === "hexagrams") {
-        extra = `文王卦序第 ${i+1} 卦；本原型按序均分展示，方位排法可另行替换。`;
-      }
-      info.innerHTML = `
+      state.selected={ring:ring.id,index:item.index};
+      const label=item.label || "（无盘面文字）";
+      const start=normalize(item.start),end=normalize(item.end);
+      const extra=item.meta || ring.note || "本层按已选专业方案绘制。";
+      info.innerHTML=`
         <div class="name">${label}</div>
-        <div>${extra || "该格位可在 RINGS 配置中扩展五行、阴阳、纳甲、分金等字段。"}</div>
-        <div class="meta">圈层：${ring.name} · 第 ${i+1}/${ring.labels.length} 格 · 中心角 ${normalize(centerAngle).toFixed(2)}° · 范围 ${start.toFixed(2)}°—${end.toFixed(2)}°</div>
-      `;
+        <div>${extra}</div>
+        <div class="meta">圈层：${ring.name} · 数据状态：${ring.status||"固定"} · 第 ${item.index+1}/${ringItems(ring).length} 格 · 中心角 ${normalize(item.centerAngle).toFixed(3)}° · 范围 ${start.toFixed(3)}°—${end.toFixed(3)}°</div>`;
+    }
+
+    function visibleRingIds() {
+      return RINGS.filter(r => !state.hidden.has(r.id)).map(r => r.id);
+    }
+
+    function saveHiddenSet() {
+      storageSet("luopanHiddenRings", JSON.stringify([...state.hidden]));
+    }
+
+    function updateRingSummary() {
+      const visible=RINGS.filter(r=>!state.hidden.has(r.id));
+      const hidden=RINGS.length-visible.length;
+      const dynamic=visible.filter(r=>["动态","计算","方案"].includes(r.status)).length;
+      ringSummary.innerHTML=`<strong>${visible.length}</strong> / ${RINGS.length} 层已显示；另有固定天池太极层；其中动态/计算/方案层 ${dynamic} 层${hidden?`，隐藏 ${hidden} 层`:""}。当前模式：<strong>${state.displayMode==="sanhe"?"三合":state.displayMode==="sanyuan"?"三元":state.displayMode==="custom"?"自定义":"综合"}</strong>`;
     }
 
     function applyVisibility() {
@@ -1078,6 +1817,54 @@
         const g = disc.querySelector(`[data-ring="${ring.id}"]`);
         if (g) g.style.display = state.hidden.has(ring.id) ? "none" : "";
       });
+      updateRingSummary();
+      saveHiddenSet();
+    }
+
+    function categoryLabel(category) {
+      if (category === "sanhe") return "三合";
+      if (category === "sanyuan") return "三元";
+      if (category === "custom") return "自定";
+      return "公共";
+    }
+
+    function updateModeButtons() {
+      const entries = [
+        [modeSanheBtn, "sanhe"],
+        [modeSanyuanBtn, "sanyuan"],
+        [modeCombinedBtn, "combined"],
+        [modeCustomBtn, "custom"]
+      ];
+      entries.forEach(([btn, mode]) => {
+        btn.classList.toggle("active", state.displayMode === mode);
+        btn.classList.toggle("primary", state.displayMode === mode && mode === "combined");
+      });
+    }
+
+    function setDisplayMode(mode, preserveCustom = false) {
+      state.displayMode = mode;
+      storageSet("luopanDisplayMode", mode);
+      const visibleCats = mode === "sanhe"
+        ? new Set(["common", "sanhe"])
+        : mode === "sanyuan"
+          ? new Set(["common", "sanyuan"])
+          : mode === "combined"
+            ? new Set(["common", "sanhe", "sanyuan", "custom"])
+            : null;
+      if (visibleCats) {
+        state.hidden = new Set(RINGS.filter(r => !visibleCats.has(r.category)).map(r => r.id));
+      } else if (!preserveCustom) {
+        state.hidden = new Set();
+      }
+      render();
+    }
+
+    function deleteCustomRing(id) {
+      state.customRings = state.customRings.filter(r => r.id !== id);
+      storageSet("luopanCustomRings", JSON.stringify(state.customRings));
+      state.hidden.delete(id);
+      render();
+      showGestureToast("已删除自定义图层");
     }
 
     function buildToggles() {
@@ -1086,51 +1873,312 @@
       RINGS.forEach(ring => {
         const label = document.createElement("label");
         label.className = "ring-check";
+
+        const main = document.createElement("div");
+        main.className = "ring-main";
+
         const input = document.createElement("input");
         input.type = "checkbox";
-        input.checked = true;
+        input.checked = !state.hidden.has(ring.id);
         input.addEventListener("change", () => {
           input.checked ? state.hidden.delete(ring.id) : state.hidden.add(ring.id);
+          state.displayMode = "custom";
+          storageSet("luopanDisplayMode", state.displayMode);
           applyVisibility();
+          updateModeButtons();
         });
-        label.append(input, document.createTextNode(ring.name));
+
+        const tag = document.createElement("span");
+        tag.className = `ring-tag ${ring.category || "common"}`;
+        tag.textContent = categoryLabel(ring.category);
+
+        const name = document.createElement("span");
+        name.className = "ring-name-text";
+        name.textContent = `${ring.name}${ring.status ? ` · ${ring.status}` : ""}`;
+
+        main.append(input, tag, name);
+        label.appendChild(main);
+
+        if (ring.category === "custom") {
+          const removeBtn = document.createElement("button");
+          removeBtn.type = "button";
+          removeBtn.className = "ring-remove";
+          removeBtn.textContent = "删除";
+          removeBtn.addEventListener("click", (evt) => {
+            evt.preventDefault();
+            evt.stopPropagation();
+            deleteCustomRing(ring.id);
+          });
+          label.appendChild(removeBtn);
+        }
         box.appendChild(label);
       });
     }
 
-    // 拖动旋转
-    wrap.addEventListener("pointerdown", (evt) => {
+    function restoreHiddenFromStorage() {
+      try {
+        const data = JSON.parse(storageGet("luopanHiddenRings", "[]") || "[]");
+        if (Array.isArray(data)) state.hidden = new Set(data.map(String));
+      } catch (_) {
+        state.hidden = new Set();
+      }
+    }
+
+    function addCustomLayerFromInputs() {
+      const name = (customLayerNameInput.value || "").trim() || `自定义图层 ${state.customRings.length + 1}`;
+      const labels = (customLayerLabelsInput.value || "")
+        .split(/[，,\n\r]+/)
+        .map(v => v.trim())
+        .filter(Boolean);
+      if (!labels.length) {
+        showGestureToast("请先填写图层内容");
+        customLayerLabelsInput.focus();
+        return;
+      }
+      const thickness = Math.max(12, Math.min(28, Number(customLayerThicknessInput.value) || 16));
+      const ring = {
+        id: `custom_${Date.now()}`,
+        name,
+        category: "custom",
+        cells: labels.map(label => ({label, meta:"自定义图层数据"})),
+        offset: Number(customLayerOffsetInput.value) || 0,
+        cells: labels.map(label => ({label, meta:"自定义图层数据"})),
+        palette: customLayerPaletteInput.value || "gold",
+        fontSize: labels.length >= 72 ? 5.6 : labels.length >= 24 ? 7.1 : 9,
+        textColor: "#24190f",
+        thickness,
+        note: `自定义图层，共 ${labels.length} 格。`
+      };
+      state.customRings.push(ring);
+      storageSet("luopanCustomRings", JSON.stringify(state.customRings));
+      customLayerNameInput.value = "";
+      customLayerLabelsInput.value = "";
+      customLayerOffsetInput.value = "0";
+      customLayerThicknessInput.value = "16";
+      state.displayMode = "custom";
+      storageSet("luopanDisplayMode", "custom");
+      render();
+      showGestureToast("已添加自定义图层");
+    }
+
+    // 移动端手势：单指旋转、双指缩放/扭转、双击复位、长按锁定。
+    function pointerPoint(evt) {
+      return { x: evt.clientX, y: evt.clientY };
+    }
+
+    function distanceBetween(a, b) {
+      return Math.hypot(b.x - a.x, b.y - a.y);
+    }
+
+    function angleBetween(a, b) {
+      return Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI;
+    }
+
+    function vibrate(pattern = 12) {
+      try { if (navigator.vibrate) navigator.vibrate(pattern); } catch (_) {}
+    }
+
+    let toastTimer = 0;
+    function showGestureToast(message, duration = 1300) {
+      gestureToast.textContent = message;
+      gestureToast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => gestureToast.classList.remove("show"), duration);
+    }
+
+    function hideGestureTip() {
+      gestureTip.classList.add("hidden");
+      storageSet("luopanGestureTipSeen", "1");
+    }
+
+    function cancelLongPress() {
+      if (state.gesture.longPressTimer) {
+        clearTimeout(state.gesture.longPressTimer);
+        state.gesture.longPressTimer = 0;
+      }
+    }
+
+    function toggleGestureOrCompassLock() {
+      if (state.compass.active) {
+        state.compass.locked = !state.compass.locked;
+        if (state.compass.locked) {
+          setSensorStatus("paused", "当前读数已锁定", "再次长按或点击按钮可解除锁定");
+          showGestureToast("指南针读数已锁定");
+        } else {
+          state.compass.smoothedHeading = null;
+          setSensorStatus("paused", "等待新的方向读数", "指南针即将恢复跟随");
+          showGestureToast("指南针读数已解锁");
+        }
+        updateCompassReadout();
+      } else {
+        state.gestureLocked = !state.gestureLocked;
+        wrap.setAttribute("aria-pressed", String(state.gestureLocked));
+        showGestureToast(state.gestureLocked ? "盘面手势已锁定" : "盘面手势已解锁");
+      }
+      vibrate([18, 35, 18]);
+    }
+
+    function resetView(resetRotation = false) {
+      state.scale = 1;
+      if (resetRotation) state.rotation = 0;
+      applyTransform();
+      showGestureToast(resetRotation ? "盘面已归零复位" : "缩放已复位");
+      vibrate(10);
+    }
+
+    function armLongPress(evt) {
+      cancelLongPress();
+      state.gesture.longPressTimer = setTimeout(() => {
+        if (state.pointers.size === 1 && !state.gesture.moved) {
+          state.gesture.suppressClickUntil = performance.now() + 450;
+          toggleGestureOrCompassLock();
+        }
+      }, 620);
+    }
+
+    function beginSingleGesture(evt) {
+      state.gesture.mode = "single";
+      state.gesture.startAngle = angleFromEvent(evt);
+      state.gesture.startRotation = state.rotation;
+      state.gesture.startX = evt.clientX;
+      state.gesture.startY = evt.clientY;
+      state.gesture.moved = false;
+      state.gesture.manualPaused = false;
+      armLongPress(evt);
+    }
+
+    function beginMultiGesture() {
+      const points = [...state.pointers.values()];
+      if (points.length < 2) return;
+      cancelLongPress();
+      state.gesture.mode = "multi";
+      state.gesture.startDistance = Math.max(1, distanceBetween(points[0], points[1]));
+      state.gesture.startAngle = angleBetween(points[0], points[1]);
+      state.gesture.startScale = state.scale;
+      state.gesture.startRotation = state.rotation;
+      state.gesture.moved = true;
+      state.gesture.manualPaused = false;
+      state.gesture.suppressClickUntil = performance.now() + 350;
+      hideGestureTip();
+    }
+
+    function ensureManualControlPaused() {
+      if (state.gesture.manualPaused) return;
       pauseCompassForManualControl();
-      state.dragging = true;
-      state.dragStartAngle = angleFromEvent(evt);
-      state.dragStartRotation = state.rotation;
-      wrap.setPointerCapture(evt.pointerId);
+      state.gesture.manualPaused = true;
+    }
+
+    wrap.addEventListener("contextmenu", (evt) => evt.preventDefault());
+
+    wrap.addEventListener("click", (evt) => {
+      if (performance.now() < state.gesture.suppressClickUntil) {
+        evt.preventDefault();
+        evt.stopImmediatePropagation();
+      }
+    }, true);
+
+    wrap.addEventListener("pointerdown", (evt) => {
+      if (evt.pointerType === "mouse" && evt.button !== 0) return;
+      state.pointers.set(evt.pointerId, pointerPoint(evt));
+      try { wrap.setPointerCapture(evt.pointerId); } catch (_) {}
+
+      if (state.pointers.size === 1) {
+        beginSingleGesture(evt);
+      } else if (state.pointers.size === 2) {
+        beginMultiGesture();
+      } else {
+        cancelLongPress();
+      }
     });
 
     wrap.addEventListener("pointermove", (evt) => {
-      if (!state.dragging) return;
-      const delta = angleFromEvent(evt) - state.dragStartAngle;
-      state.rotation = normalize(state.dragStartRotation + delta);
+      if (!state.pointers.has(evt.pointerId)) return;
+      state.pointers.set(evt.pointerId, pointerPoint(evt));
+
+      if (state.gestureLocked) return;
+
+      if (state.pointers.size >= 2) {
+        if (state.gesture.mode !== "multi") beginMultiGesture();
+        const points = [...state.pointers.values()];
+        const currentDistance = Math.max(1, distanceBetween(points[0], points[1]));
+        const currentAngle = angleBetween(points[0], points[1]);
+        const scaleFactor = currentDistance / state.gesture.startDistance;
+        const angleDelta = shortestAngleDelta(state.gesture.startAngle, currentAngle);
+        ensureManualControlPaused();
+        state.scale = Math.min(1.65, Math.max(.68, state.gesture.startScale * scaleFactor));
+        state.rotation = normalize(state.gesture.startRotation + angleDelta);
+        applyTransform();
+        state.gesture.suppressClickUntil = performance.now() + 250;
+        return;
+      }
+
+      if (state.gesture.mode !== "single") return;
+      const movedDistance = Math.hypot(evt.clientX - state.gesture.startX, evt.clientY - state.gesture.startY);
+      if (movedDistance < 5) return;
+      state.gesture.moved = true;
+      cancelLongPress();
+      hideGestureTip();
+      ensureManualControlPaused();
+      const delta = shortestAngleDelta(state.gesture.startAngle, angleFromEvent(evt));
+      state.rotation = normalize(state.gesture.startRotation + delta);
+      state.gesture.suppressClickUntil = performance.now() + 220;
       applyTransform();
     });
 
-    wrap.addEventListener("pointerup", (evt) => {
-      state.dragging = false;
-      if (wrap.hasPointerCapture(evt.pointerId)) wrap.releasePointerCapture(evt.pointerId);
-    });
-    wrap.addEventListener("pointercancel", () => state.dragging = false);
+    function finishPointer(evt) {
+      const wasSingleTap = state.pointers.size === 1 && state.gesture.mode === "single" && !state.gesture.moved;
+      const tapX = evt.clientX;
+      const tapY = evt.clientY;
+      cancelLongPress();
+      state.pointers.delete(evt.pointerId);
+      try { if (wrap.hasPointerCapture(evt.pointerId)) wrap.releasePointerCapture(evt.pointerId); } catch (_) {}
 
-    // 滚轮缩放
+      if (wasSingleTap && performance.now() >= state.gesture.suppressClickUntil) {
+        const now = performance.now();
+        const nearLastTap = Math.hypot(tapX - state.gesture.lastTapX, tapY - state.gesture.lastTapY) < 34;
+        if (now - state.gesture.lastTapTime < 330 && nearLastTap) {
+          state.gesture.suppressClickUntil = now + 360;
+          resetView(false);
+          state.gesture.lastTapTime = 0;
+        } else {
+          state.gesture.lastTapTime = now;
+          state.gesture.lastTapX = tapX;
+          state.gesture.lastTapY = tapY;
+        }
+      }
+
+      if (state.pointers.size === 1) {
+        const [pointerId, point] = state.pointers.entries().next().value;
+        beginSingleGesture({ pointerId, clientX: point.x, clientY: point.y });
+      } else if (state.pointers.size === 0) {
+        state.gesture.mode = "idle";
+        state.gesture.manualPaused = false;
+      }
+    }
+
+    wrap.addEventListener("pointerup", finishPointer);
+    wrap.addEventListener("pointercancel", finishPointer);
+    wrap.addEventListener("lostpointercapture", (evt) => {
+      state.pointers.delete(evt.pointerId);
+      if (!state.pointers.size) {
+        cancelLongPress();
+        state.gesture.mode = "idle";
+      }
+    });
+
+    // 桌面端滚轮缩放。
     wrap.addEventListener("wheel", (evt) => {
       evt.preventDefault();
+      if (state.gestureLocked) return;
+      pauseCompassForManualControl();
       const factor = evt.deltaY > 0 ? .94 : 1.06;
-      state.scale = Math.min(1.25, Math.max(.76, state.scale * factor));
+      state.scale = Math.min(1.65, Math.max(.68, state.scale * factor));
       applyTransform();
     }, {passive:false});
 
-    wrap.addEventListener("dblclick", () => {
-      state.scale = 1;
-      applyTransform();
+    wrap.addEventListener("dblclick", (evt) => {
+      evt.preventDefault();
+      resetView(false);
     });
 
     rotationInput.addEventListener("input", () => {
@@ -1326,10 +2374,158 @@
       );
     });
 
+    function setPanelOpen(open) {
+      controlPanel.classList.toggle("mobile-open", open);
+      mobilePanelBtn.classList.toggle("active", open);
+      panelCloseBtn.textContent = open ? "收起" : "展开";
+      mobilePanelBtn.querySelector("span:last-child").textContent = open ? "收起" : "设置";
+    }
+
+    mobilePanelBtn.addEventListener("click", () => setPanelOpen(!controlPanel.classList.contains("mobile-open")));
+    panelCloseBtn.addEventListener("click", () => setPanelOpen(false));
+
+    let panelDragStartY = 0;
+    let panelDragging = false;
+    panelHandle.addEventListener("pointerdown", (evt) => {
+      panelDragStartY = evt.clientY;
+      panelDragging = true;
+      try { panelHandle.setPointerCapture(evt.pointerId); } catch (_) {}
+    });
+    panelHandle.addEventListener("pointerup", (evt) => {
+      if (!panelDragging) return;
+      panelDragging = false;
+      const delta = evt.clientY - panelDragStartY;
+      if (delta < -22) setPanelOpen(true);
+      else if (delta > 22) setPanelOpen(false);
+      else setPanelOpen(!controlPanel.classList.contains("mobile-open"));
+      try { if (panelHandle.hasPointerCapture(evt.pointerId)) panelHandle.releasePointerCapture(evt.pointerId); } catch (_) {}
+    });
+    panelHandle.addEventListener("pointercancel", () => panelDragging = false);
+
+    mobileCompassBtn.addEventListener("click", async () => {
+      if (!state.compass.active) {
+        await enableCompass();
+      } else {
+        state.compass.paused = !state.compass.paused;
+        if (!state.compass.paused) {
+          state.compass.locked = false;
+          state.compass.smoothedHeading = null;
+          setSensorStatus("paused", "等待新的方向读数", "指南针即将恢复跟随");
+          showGestureToast("指南针恢复跟随");
+        } else {
+          setSensorStatus("paused", "指南针已暂停", "可用手势旋转盘面");
+          showGestureToast("指南针已暂停");
+        }
+        updateCompassReadout();
+      }
+    });
+
+    mobileResetBtn.addEventListener("click", () => {
+      pauseCompassForManualControl();
+      resetView(true);
+    });
+
+    mobileFullscreenBtn.addEventListener("click", async () => {
+      try {
+        if (!document.fullscreenElement) {
+          await document.documentElement.requestFullscreen();
+          showGestureToast("已进入全屏");
+        } else {
+          await document.exitFullscreen();
+        }
+      } catch (_) {
+        showGestureToast("当前浏览器不允许网页全屏");
+      }
+    });
+
+    document.addEventListener("fullscreenchange", () => {
+      const label = mobileFullscreenBtn.querySelector("span:last-child");
+      if (label) label.textContent = document.fullscreenElement ? "退出" : "全屏";
+    });
+
+    if (storageGet("luopanGestureTipSeen", "0") === "1") {
+      setTimeout(() => gestureTip.classList.add("hidden"), 1500);
+    } else {
+      setTimeout(() => gestureTip.classList.add("hidden"), 8500);
+    }
+
     offsetMode.addEventListener("change", () => {
       state.offsetMode = offsetMode.value;
       render();
     });
+
+    [
+      [modeSanheBtn, "sanhe"],
+      [modeSanyuanBtn, "sanyuan"],
+      [modeCombinedBtn, "combined"],
+      [modeCustomBtn, "custom"]
+    ].forEach(([btn, mode]) => {
+      btn.addEventListener("click", () => {
+        if (mode === "custom") {
+          state.displayMode = "custom";
+          storageSet("luopanDisplayMode", "custom");
+          render();
+        } else {
+          setDisplayMode(mode);
+        }
+      });
+    });
+
+    showAllRingsBtn.addEventListener("click", () => {
+      state.hidden = new Set();
+      state.displayMode = "custom";
+      storageSet("luopanDisplayMode", "custom");
+      render();
+    });
+
+    saveCustomViewBtn.addEventListener("click", () => {
+      storageSet("luopanSavedCustomHidden", JSON.stringify([...state.hidden]));
+      showGestureToast("已保存当前图层方案");
+    });
+
+    loadCustomViewBtn.addEventListener("click", () => {
+      try {
+        const arr = JSON.parse(storageGet("luopanSavedCustomHidden", "[]") || "[]");
+        state.hidden = new Set(Array.isArray(arr) ? arr.map(String) : []);
+        state.displayMode = "custom";
+        storageSet("luopanDisplayMode", "custom");
+        render();
+        showGestureToast("已载入保存的图层方案");
+      } catch (_) {
+        showGestureToast("没有可载入的图层方案");
+      }
+    });
+
+    resetBuiltinsBtn.addEventListener("click", () => {
+      state.customRings = parseCustomRingDefs([]);
+      storageSet("luopanCustomRings", "[]");
+      state.hidden = new Set();
+      setDisplayMode("combined");
+      showGestureToast("已恢复综合预置图层");
+    });
+
+    addCustomLayerBtn.addEventListener("click", addCustomLayerFromInputs);
+
+    clearCustomLayersBtn.addEventListener("click", () => {
+      state.customRings = [];
+      storageSet("luopanCustomRings", "[]");
+      state.hidden = new Set([...state.hidden].filter(id => !String(id).startsWith("custom_")));
+      render();
+      showGestureToast("已清空自定义图层");
+    });
+
+    function updateProfessionalStatus() {
+      const source=state.prof.dimuSource==="auto"?`跟随${mountainAtAngle(normalize(360-state.rotation))}山（${resolveDimuStartTrigram()}卦）`:`${state.prof.dimuSource}卦固定起辅`;
+      const mansionText=state.prof.mansionScheme==="equal"?"二十八宿等分校验":state.prof.mansionScheme==="hanNiu"?"牛宿初度子正的汉制古宿度":"虚宿中线子正的汉制古宿度";
+      professionalStatus.innerHTML=`<strong>当前推排：</strong>地母翻卦${source}；${state.prof.currentPeriod}运；${mansionText}。<br><strong>准确性边界：</strong>固定表序直接绘制；384爻吉度和六亲由卦爻实时计算；宿度因历元、距星和罗经制式不同，当前明确按所选方案归一显示。`;
+    }
+
+    dimuSourceInput.value=state.prof.dimuSource;
+    currentPeriodInput.value=String(state.prof.currentPeriod);
+    mansionSchemeInput.value=state.prof.mansionScheme;
+    dimuSourceInput.addEventListener("change",()=>{state.prof.dimuSource=dimuSourceInput.value;storageSet("luopanDimuSource",state.prof.dimuSource);render();});
+    currentPeriodInput.addEventListener("change",()=>{state.prof.currentPeriod=Number(currentPeriodInput.value)||9;storageSet("luopanCurrentPeriod",state.prof.currentPeriod);render();});
+    mansionSchemeInput.addEventListener("change",()=>{state.prof.mansionScheme=mansionSchemeInput.value;storageSet("luopanMansionScheme",state.prof.mansionScheme);render();});
 
     function initCompassControls() {
       const c = state.compass;
@@ -1368,9 +2564,15 @@
       });
     }
 
-    buildToggles();
+    restoreHiddenFromStorage();
     initCompassControls();
     render();
+    if (!["sanhe","sanyuan","combined","custom"].includes(state.displayMode)) state.displayMode = "combined";
+    if (state.displayMode === "sanhe" || state.displayMode === "sanyuan" || state.displayMode === "combined") {
+      setDisplayMode(state.displayMode, true);
+    } else {
+      render();
+    }
   </script>
 </body>
 </html>
