@@ -35,6 +35,7 @@
       height: 100%;
       display: grid;
       grid-template-columns: minmax(0, 1fr) 350px;
+      transition: grid-template-columns .28s cubic-bezier(.22,.78,.2,1);
     }
 
     .stage {
@@ -42,7 +43,7 @@
       min-width: 0;
       display: grid;
       place-items: center;
-      padding: 24px;
+      padding: 8px;
       overflow: hidden;
     }
 
@@ -55,13 +56,14 @@
     }
 
     #luopanWrap {
-      width: min(88vh, calc(100vw - 410px));
+      width: min(calc(100dvh - 16px), calc(100vw - 366px));
       aspect-ratio: 1;
-      max-width: 980px;
-      min-width: 540px;
-      filter: drop-shadow(0 22px 38px rgba(0,0,0,.45));
+      max-width: none;
+      min-width: min(540px, calc(100vw - 366px));
+      box-shadow: 0 18px 34px rgba(0,0,0,.34);
       touch-action: none;
       user-select: none;
+      contain: layout size;
     }
 
     #luopan {
@@ -70,6 +72,14 @@
       display: block;
       overflow: visible;
     }
+
+    #disc {
+      transform-box: view-box;
+      transform-origin: 50% 50%;
+      will-change: transform;
+    }
+
+    #luopanWrap.is-interacting .dense-label { visibility: hidden; }
 
     .panel {
       height: 100%;
@@ -244,6 +254,55 @@
     .needle-n { fill: #17191b; stroke:#b89a60; stroke-width:.6; }
     .needle-s { fill: #bd3c32; }
 
+    .desktop-panel-toggle {
+      display: none;
+    }
+
+    @media (min-width: 981px) {
+      .desktop-panel-toggle {
+        display: grid;
+        position: fixed;
+        top: 50%;
+        right: 350px;
+        z-index: 85;
+        width: 36px;
+        min-height: 76px;
+        padding: 0;
+        place-items: center;
+        border-right: 0;
+        border-radius: 12px 0 0 12px;
+        background: rgba(28,32,37,.94);
+        box-shadow: -8px 8px 26px rgba(0,0,0,.3);
+        font-size: 21px;
+        transform: translateY(-50%);
+        transition: right .28s cubic-bezier(.22,.78,.2,1), background .18s ease;
+        backdrop-filter: blur(12px);
+      }
+      .desktop-panel-toggle:hover { transform: translateY(-50%); background: rgba(49,55,62,.98); }
+      .app.desktop-panel-collapsed { grid-template-columns: minmax(0, 1fr) 0; }
+      .app.desktop-panel-collapsed .panel {
+        padding-left: 0;
+        padding-right: 0;
+        border-left-width: 0;
+        opacity: 0;
+        overflow: hidden;
+        pointer-events: none;
+        transform: translateX(100%);
+      }
+      .app.desktop-panel-collapsed .desktop-panel-toggle {
+        right: 8px;
+        border-right: 1px solid rgba(201,167,95,.35);
+        border-radius: 12px;
+      }
+      .app.desktop-panel-collapsed #luopanWrap {
+        width: min(calc(100dvh - 12px), calc(100vw - 12px));
+        min-width: 0;
+      }
+      .panel {
+        transition: transform .28s cubic-bezier(.22,.78,.2,1), opacity .22s ease, padding .28s ease;
+      }
+    }
+
     .mobile-hud,
     .mobile-toolbar,
     .gesture-tip,
@@ -285,18 +344,17 @@
         width: 100%;
         height: 100dvh;
         min-height: 100svh;
-        padding: max(8px, env(safe-area-inset-top)) 8px calc(86px + env(safe-area-inset-bottom));
+        padding: 0;
         place-items: center;
       }
-      .stage::before { inset: max(6px, env(safe-area-inset-top)) 6px calc(76px + env(safe-area-inset-bottom)); border-radius: 16px; }
+      .stage::before { inset: max(2px, env(safe-area-inset-top)) 2px max(2px, env(safe-area-inset-bottom)); border-radius: 16px; }
       #luopanWrap {
-        width: min(97vw, calc(100dvh - 118px));
+        width: min(100vw, 100dvh);
         max-width: none;
         min-width: 0;
-        will-change: transform;
-        filter: drop-shadow(0 15px 28px rgba(0,0,0,.48));
+        box-shadow: 0 12px 24px rgba(0,0,0,.30);
       }
-      #luopan { overflow: hidden; }
+      #luopan { overflow: visible; }
 
       .mobile-hud {
         display: flex;
@@ -426,8 +484,8 @@
     }
 
     @media (max-width: 430px) {
-      #luopanWrap { width: min(99vw, calc(100dvh - 118px)); }
-      .stage { padding-left: 2px; padding-right: 2px; }
+      #luopanWrap { width: min(100vw, 100dvh); }
+      .stage { padding: 0; }
       .mobile-toolbar { left: 7px; right: 7px; gap: 5px; }
       .mobile-toolbar button { font-size: 10px; }
       .panel { padding-left: 12px; padding-right: 12px; }
@@ -438,9 +496,9 @@
     }
 
     @media (orientation: landscape) and (max-height: 600px) and (max-width: 980px) {
-      .stage { padding: 5px 82px 5px 8px; }
-      .stage::before { inset: 5px 74px 5px 5px; }
-      #luopanWrap { width: min(92vh, calc(100vw - 105px)); }
+      .stage { padding: 0; }
+      .stage::before { inset: 2px; }
+      #luopanWrap { width: min(100dvh, 100vw); }
       .mobile-hud { top: 8px; left: 12px; min-width: 0; transform: none; }
       .mobile-toolbar {
         top: 50%;
@@ -602,6 +660,8 @@
         <button id="mobilePanel"><span class="icon">☰</span><span>设置</span></button>
       </nav>
     </section>
+
+    <button id="desktopPanelToggle" class="desktop-panel-toggle" type="button" aria-label="折叠侧边栏" aria-expanded="true" title="折叠侧边栏">›</button>
 
     <aside id="controlPanel" class="panel">
       <div id="panelHandle" class="panel-handle">
@@ -1334,8 +1394,26 @@
     }
 
     function layoutRings(rings) {
-      let outer=414;
-      return rings.map(ring=>{const t=Number(ring.thickness)||14;const out=outer;const inn=out-t;outer=inn;return {...ring,outer:out,inner:inn};});
+      const outerRadius = 414;
+      const innerTarget = 92;
+      const visible = rings.filter(ring => !state.hidden.has(ring.id));
+      const totalThickness = visible.reduce((sum, ring) => sum + (Number(ring.thickness) || 14), 0);
+      const shouldFillDisc = ["sanhe", "sanyuan", "combined"].includes(state.displayMode);
+      const stretch = shouldFillDisc && totalThickness > 0
+        ? (outerRadius - innerTarget) / totalThickness
+        : 1;
+      let outer = outerRadius;
+      return rings.map(ring => {
+        const baseThickness = Number(ring.thickness) || 14;
+        if (state.hidden.has(ring.id)) {
+          return {...ring, outer, inner: outer, layoutHidden: true};
+        }
+        const thickness = baseThickness * stretch;
+        const out = outer;
+        const inn = Math.max(innerTarget, out - thickness);
+        outer = inn;
+        return {...ring, outer: out, inner: inn, layoutHidden: false};
+      });
     }
     let RINGS=[];
     function storageGet(key, fallback = null) {
@@ -1474,7 +1552,9 @@
     const mobileResetBtn = document.getElementById("mobileReset");
     const mobileFullscreenBtn = document.getElementById("mobileFullscreen");
     const mobilePanelBtn = document.getElementById("mobilePanel");
+    const appRoot = document.querySelector(".app");
     const controlPanel = document.getElementById("controlPanel");
+    const desktopPanelToggle = document.getElementById("desktopPanelToggle");
     const panelHandle = document.getElementById("panelHandle");
     const panelCloseBtn = document.getElementById("panelClose");
     const gestureTip = document.getElementById("gestureTip");
@@ -1530,8 +1610,21 @@
       return 0;
     }
 
+    let interactionRect = null;
+    let cachedMaxViewScale = 2.2;
+
+    function refreshGeometryCache() {
+      const stageRect = wrap.parentElement.getBoundingClientRect();
+      const wrapRect = wrap.getBoundingClientRect();
+      interactionRect = wrapRect;
+      if (stageRect.width && stageRect.height && wrapRect.width && wrapRect.height) {
+        const fillScale = Math.max(stageRect.width / wrapRect.width, stageRect.height / wrapRect.height);
+        cachedMaxViewScale = Math.min(3.4, Math.max(1.85, fillScale * 1.08));
+      }
+    }
+
     function angleFromEvent(evt) {
-      const rect = wrap.getBoundingClientRect();
+      const rect = interactionRect || wrap.getBoundingClientRect();
       const x = evt.clientX - rect.left - rect.width / 2;
       const y = evt.clientY - rect.top - rect.height / 2;
       return Math.atan2(y, x) * 180 / Math.PI + 90;
@@ -1544,8 +1637,9 @@
     }
 
     function drawBaseDecorations() {
-      const outerMost = RINGS.length ? Math.max(...RINGS.map(r => r.outer)) : 414;
-      const innerMost = RINGS.length ? Math.min(...RINGS.map(r => r.inner)) : 96;
+      const visibleRings = RINGS.filter(r => !state.hidden.has(r.id));
+      const outerMost = visibleRings.length ? Math.max(...visibleRings.map(r => r.outer)) : 414;
+      const innerMost = visibleRings.length ? Math.min(...visibleRings.map(r => r.inner)) : 96;
       disc.appendChild(el("circle", {cx,cy,r:outerMost,fill:"none",stroke:"#2c1c14","stroke-width":"2"}));
       const circles = [...new Set(RINGS.flatMap(r => [r.inner, r.outer]).sort((a,b)=>a-b))];
       circles.forEach((r) => {
@@ -1572,12 +1666,11 @@
       items.forEach((item,i)=>{
         const fill=item.fill||colors[i%colors.length];
         const path=el("path",{d:annularPath(ring.inner,ring.outer,item.start,item.end),fill,stroke:(ring.palette==="black"||ring.palette==="dark")?"#b99a5f":"#5d4126","stroke-width":ring.tickMode?0.4:0.65,class:"seg","data-ring":ring.id,"data-index":i});
-        path.addEventListener("click",evt=>{evt.stopPropagation();selectSegment(ring,item,path);});
         group.appendChild(path);
         const label=item.label==null?"":String(item.label);
         if (label) {
           const p=polar((ring.inner+ring.outer)/2,item.centerAngle);
-          const text=el("text",{x:p.x,y:p.y,class:"ring-label",fill:item.textColor||ring.textColor||"#2c2118","font-size":item.fontSize||ring.fontSize||7,"font-weight":ring.id==="earth"?700:500,transform:`rotate(${item.centerAngle} ${p.x} ${p.y})`},label);
+          const text=el("text",{x:p.x,y:p.y,class:`ring-label${items.length > 120 ? " dense-label" : ""}`,fill:item.textColor||ring.textColor||"#2c2118","font-size":item.fontSize||ring.fontSize||7,"font-weight":ring.id==="earth"?700:500,transform:`rotate(${item.centerAngle} ${p.x} ${p.y})`},label);
           group.appendChild(text);
         }
         if (ring.tickMode==="degree") {
@@ -1590,7 +1683,8 @@
     }
 
     function drawCenterDecorations() {
-      const innerMost=RINGS.length?Math.min(...RINGS.map(r=>r.inner)):96;
+      const visibleRings=RINGS.filter(r=>!state.hidden.has(r.id));
+      const innerMost=visibleRings.length?Math.min(...visibleRings.map(r=>r.inner)):96;
       const g=el("g",{"data-ring":"centerDecor"});
       [0,45,90,135,180,225,270,315].forEach(a=>{
         const p1=polar(Math.max(78,innerMost-14),a),p2=polar(Math.max(84,innerMost-3),a);
@@ -1607,22 +1701,42 @@
 
     function render() {
       rebuildRings();
-      disc.innerHTML="";
+      disc.replaceChildren();
       drawBaseDecorations();
-      RINGS.forEach(drawRing);
+      RINGS.filter(ring => !state.hidden.has(ring.id)).forEach(drawRing);
       drawCenterDecorations();
-      applyTransform();
-      applyVisibility();
       buildToggles();
       updateRingSummary();
       updateModeButtons();
       updateProfessionalStatus();
+      saveHiddenSet();
+      applyTransform(true);
     }
 
-    function applyTransform() {
-      disc.setAttribute("transform", `translate(${cx} ${cy}) scale(${state.scale}) rotate(${state.rotation}) translate(${-cx} ${-cy})`);
+    function maxViewScale() {
+      return cachedMaxViewScale;
+    }
+
+    function clampViewScale(value) {
+      return Math.min(maxViewScale(), Math.max(.68, value));
+    }
+
+    let transformFrame = 0;
+    let forceReadoutOnFrame = false;
+
+    function commitTransform() {
+      transformFrame = 0;
+      state.scale = clampViewScale(state.scale);
+      disc.style.transform = `rotate(${state.rotation}deg) scale(${state.scale})`;
       rotationInput.value = normalize(state.rotation).toFixed(1);
       updateReadout();
+      forceReadoutOnFrame = false;
+    }
+
+    function applyTransform(force = false) {
+      forceReadoutOnFrame = forceReadoutOnFrame || force;
+      if (transformFrame) return;
+      transformFrame = requestAnimationFrame(commitTransform);
     }
 
     function updateReadout() {
@@ -1733,12 +1847,22 @@
       };
     }
 
+    let orientationFrame = 0;
+    let pendingOrientation = null;
+
     function onDeviceOrientation(evt) {
       const result = extractHeading(evt);
       if (!result) return;
       if (evt.type === "deviceorientationabsolute") state.compass.hasAbsoluteEvent = true;
       if (evt.type === "deviceorientation" && state.compass.hasAbsoluteEvent && !Number.isFinite(evt.webkitCompassHeading)) return;
-      applyCompassHeading(result.heading, result.source, result.accuracy);
+      pendingOrientation = result;
+      if (orientationFrame) return;
+      orientationFrame = requestAnimationFrame(() => {
+        orientationFrame = 0;
+        const latest = pendingOrientation;
+        pendingOrientation = null;
+        if (latest) applyCompassHeading(latest.heading, latest.source, latest.accuracy);
+      });
     }
 
     function startOrientationListeners() {
@@ -1783,6 +1907,17 @@
       setSensorStatus("paused", "指南针已暂停", "正在使用手动盘面控制");
       updateCompassReadout();
     }
+
+    disc.addEventListener("click", (evt) => {
+      const path = evt.target.closest ? evt.target.closest(".seg") : null;
+      if (!path || !disc.contains(path)) return;
+      evt.stopPropagation();
+      const ring = RINGS.find(r => r.id === path.dataset.ring);
+      if (!ring) return;
+      const items = ringItems(ring);
+      const item = items[Number(path.dataset.index)];
+      if (item) selectSegment(ring, item, path);
+    });
 
     function selectSegment(ring,item,path) {
       document.querySelectorAll(".seg.selected").forEach(n=>n.classList.remove("selected"));
@@ -1884,8 +2019,7 @@
           input.checked ? state.hidden.delete(ring.id) : state.hidden.add(ring.id);
           state.displayMode = "custom";
           storageSet("luopanDisplayMode", state.displayMode);
-          applyVisibility();
-          updateModeButtons();
+          render();
         });
 
         const tag = document.createElement("span");
@@ -2079,6 +2213,8 @@
 
     wrap.addEventListener("pointerdown", (evt) => {
       if (evt.pointerType === "mouse" && evt.button !== 0) return;
+      refreshGeometryCache();
+      wrap.classList.add("is-interacting");
       state.pointers.set(evt.pointerId, pointerPoint(evt));
       try { wrap.setPointerCapture(evt.pointerId); } catch (_) {}
 
@@ -2105,7 +2241,7 @@
         const scaleFactor = currentDistance / state.gesture.startDistance;
         const angleDelta = shortestAngleDelta(state.gesture.startAngle, currentAngle);
         ensureManualControlPaused();
-        state.scale = Math.min(1.65, Math.max(.68, state.gesture.startScale * scaleFactor));
+        state.scale = clampViewScale(state.gesture.startScale * scaleFactor);
         state.rotation = normalize(state.gesture.startRotation + angleDelta);
         applyTransform();
         state.gesture.suppressClickUntil = performance.now() + 250;
@@ -2153,6 +2289,8 @@
       } else if (state.pointers.size === 0) {
         state.gesture.mode = "idle";
         state.gesture.manualPaused = false;
+        wrap.classList.remove("is-interacting");
+        applyTransform(true);
       }
     }
 
@@ -2163,16 +2301,24 @@
       if (!state.pointers.size) {
         cancelLongPress();
         state.gesture.mode = "idle";
+        wrap.classList.remove("is-interacting");
       }
     });
 
     // 桌面端滚轮缩放。
+    let wheelIdleTimer = 0;
     wrap.addEventListener("wheel", (evt) => {
       evt.preventDefault();
       if (state.gestureLocked) return;
       pauseCompassForManualControl();
+      wrap.classList.add("is-interacting");
+      clearTimeout(wheelIdleTimer);
+      wheelIdleTimer = setTimeout(() => {
+        wrap.classList.remove("is-interacting");
+        applyTransform(true);
+      }, 120);
       const factor = evt.deltaY > 0 ? .94 : 1.06;
-      state.scale = Math.min(1.65, Math.max(.68, state.scale * factor));
+      state.scale = clampViewScale(state.scale * factor);
       applyTransform();
     }, {passive:false});
 
@@ -2374,6 +2520,23 @@
       );
     });
 
+    function setDesktopPanelCollapsed(collapsed, persist = true) {
+      appRoot.classList.toggle("desktop-panel-collapsed", collapsed);
+      desktopPanelToggle.textContent = collapsed ? "‹" : "›";
+      desktopPanelToggle.setAttribute("aria-expanded", String(!collapsed));
+      desktopPanelToggle.setAttribute("aria-label", collapsed ? "展开侧边栏" : "折叠侧边栏");
+      desktopPanelToggle.title = collapsed ? "展开侧边栏" : "折叠侧边栏";
+      if (persist) storageSet("luopanDesktopPanelCollapsed", collapsed ? "1" : "0");
+      requestAnimationFrame(() => { refreshGeometryCache(); applyTransform(true); });
+      setTimeout(() => { refreshGeometryCache(); applyTransform(true); }, 320);
+    }
+
+    desktopPanelToggle.addEventListener("click", () => {
+      setDesktopPanelCollapsed(!appRoot.classList.contains("desktop-panel-collapsed"));
+    });
+
+    setDesktopPanelCollapsed(storageGet("luopanDesktopPanelCollapsed", "0") === "1", false);
+
     function setPanelOpen(open) {
       controlPanel.classList.toggle("mobile-open", open);
       mobilePanelBtn.classList.toggle("active", open);
@@ -2555,8 +2718,21 @@
       updateCompassReadout();
     }
 
+    let resizeFrame = 0;
+    window.addEventListener("resize", () => {
+      cancelAnimationFrame(resizeFrame);
+      resizeFrame = requestAnimationFrame(() => {
+        refreshGeometryCache();
+        applyTransform(true);
+      });
+    });
+
     window.addEventListener("orientationchange", () => {
       state.compass.smoothedHeading = null;
+      requestAnimationFrame(() => {
+        refreshGeometryCache();
+        applyTransform(true);
+      });
     });
     if (screen.orientation && typeof screen.orientation.addEventListener === "function") {
       screen.orientation.addEventListener("change", () => {
@@ -2566,6 +2742,7 @@
 
     restoreHiddenFromStorage();
     initCompassControls();
+    refreshGeometryCache();
     render();
     if (!["sanhe","sanyuan","combined","custom"].includes(state.displayMode)) state.displayMode = "combined";
     if (state.displayMode === "sanhe" || state.displayMode === "sanyuan" || state.displayMode === "combined") {
