@@ -90,6 +90,7 @@
 
     .stage {
       position: relative;
+      touch-action: none;
       min-width: 0;
       display: grid;
       place-items: center;
@@ -123,10 +124,38 @@
       overflow: visible;
     }
 
-    #disc {
+    /* 混合渲染：静止时显示矢量盘保证无限清晰；手势过程中临时切换位图保证流畅。 */
+    #disc,
+    #discRaster,
+    #selectionOverlay {
       transform-box: view-box;
       transform-origin: 50% 50%;
-      will-change: transform;
+      pointer-events: none;
+    }
+    #discRaster,
+    #selectionOverlay { will-change: transform; }
+    #disc {
+      opacity: 1;
+      visibility: visible;
+    }
+    #discRaster {
+      opacity: 0;
+      visibility: hidden;
+      image-rendering: auto;
+    }
+    #luopanWrap.raster-mode #disc {
+      opacity: 0;
+      visibility: hidden;
+    }
+    #luopanWrap.raster-mode #discRaster {
+      opacity: 1;
+      visibility: visible;
+    }
+    .selection-highlight {
+      fill: rgba(var(--line-rgb), .23);
+      stroke: var(--line);
+      stroke-width: 1.6;
+      vector-effect: non-scaling-stroke;
     }
 
     #luopanWrap.is-interacting .dense-label { visibility: hidden; }
@@ -835,7 +864,9 @@
           <circle cx="500" cy="500" r="424" fill="var(--disc-rim)" stroke="var(--frame-line-strong)" stroke-width="3" filter="url(#innerShadow)" />
           <circle cx="500" cy="500" r="414" fill="url(#discBg)" />
 
-          <g id="disc"></g>
+          <image id="discRaster" x="0" y="0" width="1000" height="1000" preserveAspectRatio="xMidYMid meet" />
+          <g id="selectionOverlay"></g>
+          <g id="disc" aria-hidden="true"></g>
 
           <g id="fixedOverlay">
             <g id="directionOverlay">
@@ -890,8 +921,8 @@
         <div><strong>罗盘设置</strong><br><span>下滑收起 · 点击切换</span></div>
         <button id="panelClose">收起</button>
       </div>
-      <h1>三元三合综合罗盘 · 专业版</h1>
-      <p class="subtitle">依据中心半径系统与分层缓存架构重建。支持综合、三合杨公、三元玄空、天星和手动预设，并提供六十龙纳卦、分金注记、中宫水平仪及分块设置。</p>
+      <h1>三元三合综合罗盘 · 专业性能版</h1>
+      <p class="subtitle">采用矢量生成＋单图交互渲染架构重建。支持综合、三合杨公、三元玄空、天星和手动预设，并提供六十龙纳卦、分金注记、中宫水平仪及分块设置。</p>
 
       <div class="readout">
         <div class="metric"><small>天心线读数</small><strong id="degreeReadout">0.0°</strong></div>
@@ -2212,9 +2243,14 @@
     };
 
     const disc = document.getElementById("disc");
+    const discRaster = document.getElementById("discRaster");
+    const selectionOverlay = document.getElementById("selectionOverlay");
+    const luopanSvg = document.getElementById("luopan");
     const directionOverlay = document.getElementById("directionOverlay");
     const centerOverlay = document.getElementById("centerOverlay");
     const wrap = document.getElementById("luopanWrap");
+    const stage = wrap.parentElement;
+    const gestureSurface = stage;
     const rotationInput = document.getElementById("rotation");
     const azimuthInput = document.getElementById("azimuth");
     const degreeReadout = document.getElementById("degreeReadout");
@@ -2437,10 +2473,8 @@
       return ring.offset || 0;
     }
 
+    // 仅缓存轻量数据。禁止缓存完整 SVG 克隆，否则图层切换会积累数万脱离文档的节点。
     const renderCaches = {
-      base: new Map(),
-      rings: new Map(),
-      center: new Map(),
       items: new Map(),
       builtins: new Map()
     };
@@ -2458,8 +2492,6 @@
       const visibleRings = RINGS.filter(r => !state.hidden.has(r.id));
       const outerMost = visibleRings.length ? Math.max(...visibleRings.map(r => r.outer)) : 414;
       const innerMost = visibleRings.length ? Math.min(...visibleRings.map(r => r.inner)) : 96;
-      const key = JSON.stringify([outerMost, innerMost, visibleRings.map(r => [r.id, r.inner, r.outer])]);
-      if (renderCaches.base.has(key)) return renderCaches.base.get(key).cloneNode(true);
       const group = el("g",{"data-ring":"baseDecor"});
       group.appendChild(el("circle", {cx,cy,r:outerMost,fill:"none",stroke:"var(--disc-grid-strong)","stroke-width":"2"}));
       const circles = [...new Set(RINGS.flatMap(r => [r.inner, r.outer]).sort((a,b)=>a-b))];
@@ -2471,43 +2503,25 @@
         const p1 = polar(innerMost,a), p2 = polar(outerMost,a);
         group.appendChild(el("line", {x1:p1.x,y1:p1.y,x2:p2.x,y2:p2.y,stroke:"var(--disc-grid)","stroke-width":".8"}));
       }
-      cacheSetLimited(renderCaches.base, key, group.cloneNode(true), 18);
       return group;
     }
 
     function ringItems(ring) {
-      const cacheKey = JSON.stringify({
-        id: ring.id,
-        offset: getOffset(ring),
-        cells: Array.isArray(ring.cells) ? ring.cells.map(c => [c.label || "", c.fill || "", c.textColor || "", c.fontSize || ""]) : null,
-        segments: Array.isArray(ring.segments) ? ring.segments.map(s => [s.label || "", s.start, s.end]) : null
-      });
-      if (renderCaches.items.has(cacheKey)) {
-        return renderCaches.items.get(cacheKey).map(item => ({...item}));
-      }
+      const source = Array.isArray(ring.segments) ? ring.segments : (Array.isArray(ring.cells) ? ring.cells : []);
+      const offset = getOffset(ring);
+      const cached = renderCaches.items.get(ring.id);
+      if (cached && cached.source === source && cached.offset === offset) return cached.items;
+
       let items;
       if (Array.isArray(ring.segments)) {
-        items = ring.segments.map((s,i)=>({...s,index:i,centerAngle:s.start+(s.end-s.start)/2}));
+        items = source.map((item, i) => ({...item, index:i, centerAngle:item.start+(item.end-item.start)/2}));
       } else {
-        const cells=Array.isArray(ring.cells)?ring.cells:[];
-        const n=cells.length||1, step=360/n, offset=getOffset(ring);
-        items = cells.map((cell,i)=>({...cell,index:i,start:i*step+offset-step/2,end:i*step+offset+step/2,centerAngle:i*step+offset}));
+        const n = source.length || 1;
+        const step = 360 / n;
+        items = source.map((item, i) => ({...item, index:i, start:i*step+offset-step/2, end:i*step+offset+step/2, centerAngle:i*step+offset}));
       }
-      cacheSetLimited(renderCaches.items, cacheKey, items.map(item => ({...item})), 160);
+      renderCaches.items.set(ring.id, {source, offset, items});
       return items;
-    }
-
-    function ringSignature(ring, items) {
-      return JSON.stringify({
-        id: ring.id,
-        inner: ring.inner,
-        outer: ring.outer,
-        palette: ring.palette,
-        fontSize: ring.fontSize,
-        textColor: ring.textColor,
-        tickMode: ring.tickMode || "",
-        items: items.map(item => [item.label || "", item.start, item.end, item.fill || "", item.textColor || "", item.fontSize || "", item.centerAngle])
-      });
     }
 
     function buildRingGroup(ring) {
@@ -2534,25 +2548,17 @@
     }
 
     function getRingGroup(ring) {
-      const items = ringItems(ring);
-      const key = ringSignature(ring, items);
-      if (renderCaches.rings.has(key)) return renderCaches.rings.get(key).cloneNode(true);
-      const built = buildRingGroup(ring).group;
-      cacheSetLimited(renderCaches.rings, key, built.cloneNode(true), 180);
-      return built;
+      return buildRingGroup(ring).group;
     }
 
     function drawCenterDecorations() {
       const visibleRings=RINGS.filter(r=>!state.hidden.has(r.id));
       const innerMost=visibleRings.length?Math.min(...visibleRings.map(r=>r.inner)):96;
-      const key = JSON.stringify([innerMost]);
-      if (renderCaches.center.has(key)) return renderCaches.center.get(key).cloneNode(true);
       const g=el("g",{"data-ring":"centerDecor"});
       [0,45,90,135,180,225,270,315].forEach(a=>{
         const p1=polar(Math.max(78,innerMost-14),a),p2=polar(Math.max(84,innerMost-3),a);
         g.appendChild(el("line",{x1:p1.x,y1:p1.y,x2:p2.x,y2:p2.y,stroke:"var(--center-decor)","stroke-width":"1"}));
       });
-      cacheSetLimited(renderCaches.center, key, g.cloneNode(true), 18);
       return g;
     }
 
@@ -2561,10 +2567,137 @@
       let builtins = renderCaches.builtins.get(builtinsKey);
       if (!builtins) {
         builtins = professionalRingDefs();
-        cacheSetLimited(renderCaches.builtins, builtinsKey, builtins, 32);
+        cacheSetLimited(renderCaches.builtins, builtinsKey, builtins, 4);
       }
       const customs=state.customRings.map(r=>({...r,category:"custom"}));
       RINGS=layoutRings([...builtins,...customs]);
+    }
+
+    let rasterObjectUrl = "";
+    let rasterVersion = 0;
+    let rasterReady = false;
+
+    function rasterThemeStyle() {
+      return Object.entries(activeTheme().vars)
+        .map(([name, value]) => `${name}:${String(value).replace(/[;&]/g, "")}`)
+        .join(";");
+    }
+
+    function loadRasterSource(url) {
+      return new Promise((resolve, reject) => {
+        const image = new Image();
+        image.decoding = "async";
+        image.onload = () => resolve(image);
+        image.onerror = () => reject(new Error("盘面位图源加载失败"));
+        image.src = url;
+      });
+    }
+
+    function canvasToPngBlob(canvas) {
+      return new Promise((resolve, reject) => {
+        canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error("盘面 PNG 生成失败")), "image/png");
+      });
+    }
+
+    async function updateDiscRaster(markup) {
+      const version = ++rasterVersion;
+      rasterReady = false;
+      wrap.classList.remove("raster-mode");
+      // 位图只在拖动/缩放过程中出现。提高临时纹理分辨率可减少交互中的模糊，
+      // 松手后立即恢复矢量盘，因此静止画面始终保持清晰。
+      const baseWidth = wrap.clientWidth || 800;
+      const dpr = Math.min(2.5, window.devicePixelRatio || 1);
+      const qualityScale = Math.min(2.25, Math.max(1.35, maxViewScale()));
+      const pixelSize = Math.min(3072, Math.max(1600, Math.round(baseWidth * dpr * qualityScale)));
+      const svgText = `<svg xmlns="${SVG_NS}" width="${pixelSize}" height="${pixelSize}" viewBox="0 0 1000 1000" style="${rasterThemeStyle()}">
+        <style>
+          text{font-family:"Noto Serif SC","Songti SC","STSong","Microsoft YaHei",serif}
+          .ring-label{dominant-baseline:middle;text-anchor:middle}
+        </style>
+        ${markup}
+      </svg>`;
+      const sourceUrl = URL.createObjectURL(new Blob([svgText], {type:"image/svg+xml;charset=utf-8"}));
+
+      try {
+        const sourceImage = await loadRasterSource(sourceUrl);
+        if (version !== rasterVersion) return;
+
+        const canvas = document.createElement("canvas");
+        canvas.width = pixelSize;
+        canvas.height = pixelSize;
+        const ctx = canvas.getContext("2d", {alpha:true, desynchronized:true});
+        if (!ctx) throw new Error("浏览器无法创建盘面画布");
+        ctx.clearRect(0, 0, pixelSize, pixelSize);
+        ctx.drawImage(sourceImage, 0, 0, pixelSize, pixelSize);
+
+        const pngBlob = await canvasToPngBlob(canvas);
+        if (version !== rasterVersion) return;
+
+        const nextUrl = URL.createObjectURL(pngBlob);
+        const previousUrl = rasterObjectUrl;
+        discRaster.addEventListener("load", () => {
+          if (version !== rasterVersion) {
+            URL.revokeObjectURL(nextUrl);
+            return;
+          }
+          rasterObjectUrl = nextUrl;
+          rasterReady = true;
+          if (previousUrl && previousUrl !== nextUrl) URL.revokeObjectURL(previousUrl);
+        }, {once:true});
+        discRaster.setAttribute("href", nextUrl);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        URL.revokeObjectURL(sourceUrl);
+      }
+    }
+
+    function angleInsideItem(angle, item) {
+      const width = item.end - item.start;
+      const delta = normalize(angle - item.start);
+      return delta <= width + 1e-7;
+    }
+
+    function pointFromClient(evt) {
+      const ctm = luopanSvg.getScreenCTM();
+      if (!ctm) return null;
+      const point = luopanSvg.createSVGPoint();
+      point.x = evt.clientX;
+      point.y = evt.clientY;
+      const visiblePoint = point.matrixTransform(ctm.inverse());
+      const scale = state.scale || 1;
+      const x = (visiblePoint.x - cx) / scale;
+      const y = (visiblePoint.y - cy) / scale;
+      const radians = -state.rotation * Math.PI / 180;
+      return {
+        x: cx + x * Math.cos(radians) - y * Math.sin(radians),
+        y: cy + x * Math.sin(radians) + y * Math.cos(radians)
+      };
+    }
+
+    function hitTestDisc(evt) {
+      const point = pointFromClient(evt);
+      if (!point) return null;
+      const dx = point.x - cx, dy = point.y - cy;
+      const radius = Math.hypot(dx, dy);
+      const angle = normalize(Math.atan2(dy, dx) * 180 / Math.PI + 90);
+      const ring = RINGS.find(r => !state.hidden.has(r.id) && radius >= r.inner && radius <= r.outer);
+      if (!ring) return null;
+      const item = ringItems(ring).find(candidate => angleInsideItem(angle, candidate));
+      return item ? {ring, item} : null;
+    }
+
+    function updateSelectionHighlight() {
+      selectionOverlay.replaceChildren();
+      if (!state.selected) return;
+      const ring = RINGS.find(r => r.id === state.selected.ring && !state.hidden.has(r.id));
+      if (!ring) return;
+      const item = ringItems(ring)[state.selected.index];
+      if (!item) return;
+      selectionOverlay.appendChild(el("path", {
+        d: annularPath(ring.inner, ring.outer, item.start, item.end),
+        class: "selection-highlight"
+      }));
     }
 
     let renderFrame = 0;
@@ -2579,13 +2712,17 @@
         custom:state.customRings.map(r => [r.id, r.labels, r.offset, r.palette, r.thickness])
       });
       if (signature !== lastDiscSignature) {
-        const fragment = document.createDocumentFragment();
-        fragment.appendChild(drawBaseDecorations());
-        RINGS.filter(ring => !state.hidden.has(ring.id)).forEach(ring => fragment.appendChild(getRingGroup(ring)));
-        fragment.appendChild(drawCenterDecorations());
-        disc.replaceChildren(fragment);
+        // 仅保留一份活动矢量节点。静止时显示它保证清晰；同时异步生成交互位图。
+        const vectorScene = el("g");
+        vectorScene.appendChild(drawBaseDecorations());
+        RINGS.filter(ring => !state.hidden.has(ring.id)).forEach(ring => vectorScene.appendChild(getRingGroup(ring)));
+        vectorScene.appendChild(drawCenterDecorations());
+        const rasterMarkup = vectorScene.innerHTML;
+        disc.replaceChildren(...Array.from(vectorScene.childNodes));
+        updateDiscRaster(rasterMarkup);
         lastDiscSignature = signature;
       }
+      updateSelectionHighlight();
       buildToggles();
       updateRingSummary();
       updateModeButtons();
@@ -2613,16 +2750,25 @@
 
     let transformFrame = 0;
     let forceReadoutOnFrame = false;
+    let lastReadoutPaint = 0;
 
-    function commitTransform() {
+    function commitTransform(timestamp = performance.now()) {
       transformFrame = 0;
       state.scale = clampViewScale(state.scale);
-      disc.style.transform = `rotate(${state.rotation}deg) scale(${state.scale})`;
+      const transform = `rotate(${state.rotation}deg) scale(${state.scale})`;
+      disc.style.transform = transform;
+      discRaster.style.transform = transform;
+      selectionOverlay.style.transform = transform;
       directionOverlay.style.transform = `scale(${state.scale})`;
       const centerScale = 1 + (state.scale - 1) * RADIUS_SYSTEM.centerScaleDamping;
       centerOverlay.style.transform = `scale(${centerScale})`;
-      rotationInput.value = normalize(state.rotation).toFixed(1);
-      updateReadout();
+
+      const shouldPaintReadout = forceReadoutOnFrame || timestamp - lastReadoutPaint >= 80;
+      if (shouldPaintReadout) {
+        rotationInput.value = normalize(state.rotation).toFixed(1);
+        updateReadout();
+        lastReadoutPaint = timestamp;
+      }
       forceReadoutOnFrame = false;
     }
 
@@ -2656,11 +2802,16 @@
       applyTransform();
     }
 
+    let lastSensorStatusKey = "";
     function setSensorStatus(kind, title, detail = "") {
+      const key = `${kind}|${title}|${detail}`;
+      if (key === lastSensorStatusKey) return;
+      lastSensorStatusKey = key;
       sensorDot.className = `status-dot${kind ? ` ${kind}` : ""}`;
       sensorStatus.innerHTML = `${title}${detail ? `<small>${detail}</small>` : ""}`;
     }
 
+    const mobileCompassLabel = mobileCompassBtn ? mobileCompassBtn.querySelector("span:last-child") : null;
     function updateCompassButtons() {
       const c = state.compass;
       pauseCompassBtn.disabled = !c.active;
@@ -2673,8 +2824,7 @@
       lockCompassBtn.classList.toggle("active", c.locked);
       enableCompassBtn.textContent = c.active ? "重新连接" : "启动指南针";
       if (mobileCompassBtn) {
-        const label = mobileCompassBtn.querySelector("span:last-child");
-        if (label) label.textContent = !c.active ? "指南针" : c.paused ? "继续" : "暂停";
+        if (mobileCompassLabel) mobileCompassLabel.textContent = !c.active ? "指南针" : c.paused ? "继续" : "暂停";
         mobileCompassBtn.classList.toggle("active", c.active && !c.paused);
         mobileCompassBtn.classList.toggle("warning", c.active && c.paused);
       }
@@ -2718,8 +2868,11 @@
       c.correctedHeading = normalize(baseHeading - c.zeroOffset);
       c.lastEventTime = performance.now();
       setAzimuth(c.correctedHeading);
-      updateCompassReadout();
-      setSensorStatus("live", "指南针正在跟随", `${c.northMode === "true" ? "真北" : "磁北"} · ${source}`);
+      if (!applyCompassHeading.lastUiPaint || c.lastEventTime - applyCompassHeading.lastUiPaint >= 100) {
+        updateCompassReadout();
+        setSensorStatus("live", "指南针正在跟随", `${c.northMode === "true" ? "真北" : "磁北"} · ${source}`);
+        applyCompassHeading.lastUiPaint = c.lastEventTime;
+      }
     }
 
     const LEVEL_CENTER_X = 500;
@@ -2795,7 +2948,11 @@
           state.level.active = true;
           state.level.pitch = latest.level.pitch;
           state.level.roll = latest.level.roll;
-          updateLevelIndicator();
+          const now = performance.now();
+          if (!onDeviceOrientation.lastLevelPaint || now - onDeviceOrientation.lastLevelPaint >= 80) {
+            updateLevelIndicator();
+            onDeviceOrientation.lastLevelPaint = now;
+          }
         }
         if (latest.heading) applyCompassHeading(latest.heading.heading, latest.heading.source, latest.heading.accuracy);
       });
@@ -2844,21 +3001,21 @@
       updateCompassReadout();
     }
 
-    disc.addEventListener("click", (evt) => {
-      const path = evt.target.closest ? evt.target.closest(".seg") : null;
-      if (!path || !disc.contains(path)) return;
+    gestureSurface.addEventListener("click", (evt) => {
+      if (isInteractiveControlTarget(evt.target) || !isWithinGestureRegion(evt)) return;
+      const hit = hitTestDisc(evt);
+      if (!hit) return;
       evt.stopPropagation();
-      const ring = RINGS.find(r => r.id === path.dataset.ring);
-      if (!ring) return;
-      const items = ringItems(ring);
-      const item = items[Number(path.dataset.index)];
-      if (item) selectSegment(ring, item, path);
+      selectSegment(hit.ring, hit.item, null);
     });
 
     function selectSegment(ring,item,path) {
-      document.querySelectorAll(".seg.selected").forEach(n=>n.classList.remove("selected"));
-      path.classList.add("selected");
+      if (path) {
+        document.querySelectorAll(".seg.selected").forEach(n=>n.classList.remove("selected"));
+        path.classList.add("selected");
+      }
       state.selected={ring:ring.id,index:item.index};
+      updateSelectionHighlight();
       const label=item.label || "（无盘面文字）";
       const start=normalize(item.start),end=normalize(item.end);
       const extra=item.meta || ring.note || "本层按已选专业方案绘制。";
@@ -2926,12 +3083,7 @@
     }
 
     function applyVisibility() {
-      RINGS.forEach(ring => {
-        const g = disc.querySelector(`[data-ring="${ring.id}"]`);
-        if (g) g.style.display = state.hidden.has(ring.id) ? "none" : "";
-      });
-      updateRingSummary();
-      saveHiddenSet();
+      render();
     }
 
     function categoryLabel(category) {
@@ -3124,7 +3276,6 @@
         category: "custom",
         cells: labels.map(label => ({label, meta:"自定义图层数据"})),
         offset: Number(customLayerOffsetInput.value) || 0,
-        cells: labels.map(label => ({label, meta:"自定义图层数据"})),
         palette: customLayerPaletteInput.value || "gold",
         fontSize: labels.length >= 72 ? 5.6 : labels.length >= 24 ? 7.1 : 9,
         textColor: "#24190f",
@@ -3250,21 +3401,55 @@
       state.gesture.manualPaused = true;
     }
 
-    wrap.addEventListener("contextmenu", (evt) => evt.preventDefault());
+    function enterFastInteraction() {
+      wrap.classList.add("is-interacting");
+      if (rasterReady) wrap.classList.add("raster-mode");
+    }
 
-    wrap.addEventListener("click", (evt) => {
+    function leaveFastInteraction() {
+      // 先把矢量盘同步到最终变换，再在下一帧恢复显示，避免松手时闪跳。
+      applyTransform(true);
+      requestAnimationFrame(() => {
+        wrap.classList.remove("is-interacting", "raster-mode");
+      });
+    }
+
+    function isInteractiveControlTarget(target) {
+      return target instanceof Element && Boolean(target.closest(
+        "button,input,select,textarea,label,a,[contenteditable='true'],.panel,.mobile-toolbar,.desktop-panel-toggle,.modal-overlay"
+      ));
+    }
+
+    function isWithinGestureRegion(evt) {
+      const rect = interactionRect || wrap.getBoundingClientRect();
+      const x = evt.clientX - rect.left - rect.width / 2;
+      const y = evt.clientY - rect.top - rect.height / 2;
+      const insideOriginalWrap = Math.abs(x) <= rect.width / 2 && Math.abs(y) <= rect.height / 2;
+      // 放大后仅额外接收真正可见的圆盘区域，避免整页空白处误触旋转。
+      const scaledDiscRadius = Math.min(rect.width, rect.height) * .43 * state.scale + 12;
+      const insideScaledDisc = Math.hypot(x, y) <= scaledDiscRadius;
+      return insideOriginalWrap || insideScaledDisc;
+    }
+
+    gestureSurface.addEventListener("contextmenu", (evt) => {
+      if (isWithinGestureRegion(evt)) evt.preventDefault();
+    });
+
+    gestureSurface.addEventListener("click", (evt) => {
       if (performance.now() < state.gesture.suppressClickUntil) {
         evt.preventDefault();
         evt.stopImmediatePropagation();
       }
     }, true);
 
-    wrap.addEventListener("pointerdown", (evt) => {
+    gestureSurface.addEventListener("pointerdown", (evt) => {
       if (evt.pointerType === "mouse" && evt.button !== 0) return;
+      if (isInteractiveControlTarget(evt.target) || !isWithinGestureRegion(evt)) return;
+      evt.preventDefault();
       refreshGeometryCache();
-      wrap.classList.add("is-interacting");
+      enterFastInteraction();
       state.pointers.set(evt.pointerId, pointerPoint(evt));
-      try { wrap.setPointerCapture(evt.pointerId); } catch (_) {}
+      try { gestureSurface.setPointerCapture(evt.pointerId); } catch (_) {}
 
       if (state.pointers.size === 1) {
         beginSingleGesture(evt);
@@ -3275,7 +3460,7 @@
       }
     });
 
-    wrap.addEventListener("pointermove", (evt) => {
+    gestureSurface.addEventListener("pointermove", (evt) => {
       if (!state.pointers.has(evt.pointerId)) return;
       state.pointers.set(evt.pointerId, pointerPoint(evt));
 
@@ -3315,7 +3500,7 @@
       const tapY = evt.clientY;
       cancelLongPress();
       state.pointers.delete(evt.pointerId);
-      try { if (wrap.hasPointerCapture(evt.pointerId)) wrap.releasePointerCapture(evt.pointerId); } catch (_) {}
+      try { if (gestureSurface.hasPointerCapture(evt.pointerId)) gestureSurface.releasePointerCapture(evt.pointerId); } catch (_) {}
 
       if (wasSingleTap && performance.now() >= state.gesture.suppressClickUntil) {
         const now = performance.now();
@@ -3337,40 +3522,40 @@
       } else if (state.pointers.size === 0) {
         state.gesture.mode = "idle";
         state.gesture.manualPaused = false;
-        wrap.classList.remove("is-interacting");
-        applyTransform(true);
+        leaveFastInteraction();
       }
     }
 
-    wrap.addEventListener("pointerup", finishPointer);
-    wrap.addEventListener("pointercancel", finishPointer);
-    wrap.addEventListener("lostpointercapture", (evt) => {
+    gestureSurface.addEventListener("pointerup", finishPointer);
+    gestureSurface.addEventListener("pointercancel", finishPointer);
+    gestureSurface.addEventListener("lostpointercapture", (evt) => {
       state.pointers.delete(evt.pointerId);
       if (!state.pointers.size) {
         cancelLongPress();
         state.gesture.mode = "idle";
-        wrap.classList.remove("is-interacting");
+        leaveFastInteraction();
       }
     });
 
     // 桌面端滚轮缩放。
     let wheelIdleTimer = 0;
-    wrap.addEventListener("wheel", (evt) => {
+    gestureSurface.addEventListener("wheel", (evt) => {
+      if (isInteractiveControlTarget(evt.target) || !isWithinGestureRegion(evt)) return;
       evt.preventDefault();
       if (state.gestureLocked) return;
       pauseCompassForManualControl();
-      wrap.classList.add("is-interacting");
+      enterFastInteraction();
       clearTimeout(wheelIdleTimer);
       wheelIdleTimer = setTimeout(() => {
-        wrap.classList.remove("is-interacting");
-        applyTransform(true);
-      }, 120);
+        leaveFastInteraction();
+      }, 140);
       const factor = evt.deltaY > 0 ? .94 : 1.06;
       state.scale = clampViewScale(state.scale * factor);
       applyTransform();
     }, {passive:false});
 
-    wrap.addEventListener("dblclick", (evt) => {
+    gestureSurface.addEventListener("dblclick", (evt) => {
+      if (isInteractiveControlTarget(evt.target) || !isWithinGestureRegion(evt)) return;
       evt.preventDefault();
       resetView(false);
     });
