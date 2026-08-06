@@ -339,9 +339,9 @@
       color: var(--muted);
     }
 
-    .seg { cursor: pointer; transition: opacity .15s ease, filter .15s ease; }
+    /* .seg { cursor: pointer; transition: opacity .15s ease, filter .15s ease; }
     .seg:hover { filter: brightness(1.35); }
-    .seg.selected { filter: brightness(1.5) drop-shadow(0 0 4px rgba(var(--line-rgb),.65)); }
+    .seg.selected { filter: brightness(1.5) drop-shadow(0 0 4px rgba(var(--line-rgb),.65)); } */
     .ring-label { pointer-events: none; dominant-baseline: middle; text-anchor: middle; }
 
     .corner-mark { fill: none; stroke: rgba(var(--line-rgb),.72); stroke-width: 1.4; }
@@ -355,14 +355,14 @@
     .crosshair-soft { stroke: var(--crosshair-soft); stroke-width: 1; stroke-linecap: round; vector-effect: non-scaling-stroke; }
     .needle-n { fill: var(--needle-n); stroke:var(--needle-n-stroke); stroke-width:.6; }
     .needle-s { fill: var(--needle-s); }
-    .level-panel { fill: color-mix(in srgb, var(--center-fill) 88%, transparent); stroke: rgba(126, 113, 64, .72); stroke-width: 1; }
-    .level-ring { fill: none; stroke: rgba(126, 113, 64, .85); stroke-width: 1.1; }
-    .level-axis { stroke: rgba(126, 113, 64, .45); stroke-width: .9; }
+    .level-panel { fill: color-mix(in srgb, var(--center-fill) 80%, transparent); stroke: rgba(126, 113, 64, .62); stroke-width: 1; }
+    .level-ring { fill: none; stroke: rgba(126, 113, 64, .82); stroke-width: 1.15; }
+    .level-axis { stroke: rgba(126, 113, 64, .40); stroke-width: .95; }
     .level-bubble {
       fill: rgba(223, 184, 80, .92);
       stroke: rgba(255, 247, 219, .92);
-      stroke-width: 1;
-      filter: drop-shadow(0 0 3px rgba(223,184,80,.30));
+      stroke-width: 1.1;
+      filter: drop-shadow(0 0 4px rgba(223,184,80,.34));
       transition: fill .18s ease, filter .18s ease, transform .18s ease;
     }
     .level-bubble.is-level {
@@ -570,7 +570,7 @@
         right: max(10px, env(safe-area-inset-right));
         bottom: max(10px, env(safe-area-inset-bottom));
         z-index: 45;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(3, 1fr);
         gap: 7px;
         padding: 7px;
         border: 1px solid rgba(var(--line-rgb),.3);
@@ -578,6 +578,7 @@
         background: color-mix(in srgb, var(--panel) 90%, transparent);
         box-shadow: 0 14px 42px rgba(0,0,0,.42);
         backdrop-filter: blur(16px);
+        transition: opacity .2s ease, transform .2s ease;
       }
       .mobile-toolbar button {
         min-height: 44px;
@@ -588,6 +589,7 @@
         touch-action: manipulation;
       }
       .mobile-toolbar button .icon { display:block; margin-bottom:3px; font-size:16px; line-height:1; }
+      #mobileFullscreen { display: none !important; }
 
       .panel {
         position: fixed;
@@ -654,6 +656,7 @@
       .stage { padding: 0; }
       .mobile-toolbar { left: 7px; right: 7px; gap: 5px; }
       .mobile-toolbar button { font-size: 10px; }
+      #mobileFullscreen { display: none !important; }
       .panel { padding-left: 12px; padding-right: 12px; }
       .panel-handle { margin-left: -12px; margin-right: -12px; padding-left: 12px; padding-right: 12px; }
       .sensor-grid { gap: 6px; }
@@ -844,19 +847,20 @@
             <g id="centerOverlay">
               <circle cx="500" cy="500" r="77" fill="var(--center-fill)" stroke="var(--center-stroke)" stroke-width="2" />
               <circle cx="500" cy="500" r="63" fill="none" stroke="var(--center-ring)" stroke-width="1.2" />
+              <g id="levelOverlay">
+                <circle class="level-panel" cx="500" cy="500" r="34" />
+                <circle class="level-ring" cx="500" cy="500" r="26" />
+                <circle class="level-ring" cx="500" cy="500" r="12" opacity=".65" />
+                <path class="level-axis" d="M468 500 H532 M500 468 V532" />
+              </g>
               <path class="needle-n" d="M500 438 L487 507 L500 498 L513 507 Z" />
               <path class="needle-s" d="M500 562 L487 493 L500 502 L513 493 Z" />
               <circle cx="500" cy="500" r="7" fill="var(--center-stroke)" stroke="var(--frame-line)" stroke-width="2" />
-              <text x="500" y="470" text-anchor="middle" font-size="15" fill="var(--center-text)">北</text>
-              <text x="500" y="541" text-anchor="middle" font-size="15" fill="var(--center-south-text)">南</text>
+              <text x="500" y="435" text-anchor="middle" font-size="12" fill="var(--center-text)">北</text>
+              <text x="500" y="575" text-anchor="middle" font-size="12" fill="var(--center-south-text)">南</text>
               <text x="500" y="520" text-anchor="middle" font-size="9" fill="var(--center-muted-text)">五黄</text>
               <path d="M483 456 H517 M483 544 H517" stroke="var(--center-stroke)" stroke-width="1" />
-              <g id="levelOverlay">
-                <circle class="level-panel" cx="532" cy="500" r="17" />
-                <circle class="level-ring" cx="532" cy="500" r="13" />
-                <path class="level-axis" d="M519 500 H545 M532 487 V513" />
-                <circle id="levelBubble" class="level-bubble" cx="532" cy="500" r="4.4" />
-              </g>
+              <circle id="levelBubble" class="level-bubble" cx="500" cy="500" r="6.2" />
             </g>
           </g>
         </svg>
@@ -2278,6 +2282,7 @@
     const mobileResetBtn = document.getElementById("mobileReset");
     const mobileFullscreenBtn = document.getElementById("mobileFullscreen");
     const mobilePanelBtn = document.getElementById("mobilePanel");
+    const mobileToolbar = document.querySelector(".mobile-toolbar");
     const appRoot = document.querySelector(".app");
     const controlPanel = document.getElementById("controlPanel");
     const desktopPanelToggle = document.getElementById("desktopPanelToggle");
@@ -2289,6 +2294,7 @@
     const ringModalTitle = document.getElementById("ringModalTitle");
     const ringModalBody = document.getElementById("ringModalBody");
     const ringModalClose = document.getElementById("ringModalClose");
+
 
     function initializeSectionBlocks() {
       const collapsed = safeJsonParse(storageGet("luopanSectionCollapsed", "[]") || "[]", []);
@@ -2716,7 +2722,7 @@
       setSensorStatus("live", "指南针正在跟随", `${c.northMode === "true" ? "真北" : "磁北"} · ${source}`);
     }
 
-    const LEVEL_CENTER_X = 532;
+    const LEVEL_CENTER_X = 500;
     const LEVEL_CENTER_Y = 500;
 
     function updateLevelIndicator() {
@@ -2729,7 +2735,7 @@
         levelBubble.setAttribute("cy", String(LEVEL_CENTER_Y));
         return;
       }
-      const maxMove = 8.5;
+      const maxMove = 24;
       const x = Math.max(-1, Math.min(1, roll / 35)) * maxMove;
       const y = Math.max(-1, Math.min(1, pitch / 35)) * maxMove;
       const tilt = Math.hypot(pitch, roll);
