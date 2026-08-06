@@ -339,9 +339,9 @@
       color: var(--muted);
     }
 
-    /* .seg { cursor: pointer; transition: opacity .15s ease, filter .15s ease; }
+    .seg { cursor: pointer; transition: opacity .15s ease, filter .15s ease; }
     .seg:hover { filter: brightness(1.35); }
-    .seg.selected { filter: brightness(1.5) drop-shadow(0 0 4px rgba(var(--line-rgb),.65)); } */
+    .seg.selected { filter: brightness(1.5) drop-shadow(0 0 4px rgba(var(--line-rgb),.65)); }
     .ring-label { pointer-events: none; dominant-baseline: middle; text-anchor: middle; }
 
     .corner-mark { fill: none; stroke: rgba(var(--line-rgb),.72); stroke-width: 1.4; }
@@ -355,6 +355,7 @@
     .crosshair-soft { stroke: var(--crosshair-soft); stroke-width: 1; stroke-linecap: round; vector-effect: non-scaling-stroke; }
     .needle-n { fill: var(--needle-n); stroke:var(--needle-n-stroke); stroke-width:.6; }
     .needle-s { fill: var(--needle-s); }
+    .level-panel { fill: color-mix(in srgb, var(--center-fill) 88%, transparent); stroke: rgba(126, 113, 64, .72); stroke-width: 1; }
     .level-ring { fill: none; stroke: rgba(126, 113, 64, .85); stroke-width: 1.1; }
     .level-axis { stroke: rgba(126, 113, 64, .45); stroke-width: .9; }
     .level-bubble {
@@ -845,16 +846,17 @@
               <circle cx="500" cy="500" r="63" fill="none" stroke="var(--center-ring)" stroke-width="1.2" />
               <path class="needle-n" d="M500 438 L487 507 L500 498 L513 507 Z" />
               <path class="needle-s" d="M500 562 L487 493 L500 502 L513 493 Z" />
-              <g id="levelOverlay">
-                <circle class="level-ring" cx="500" cy="500" r="18" />
-                <path class="level-axis" d="M482 500 H518 M500 482 V518" />
-                <circle id="levelBubble" class="level-bubble" cx="500" cy="500" r="4.8" />
-              </g>
               <circle cx="500" cy="500" r="7" fill="var(--center-stroke)" stroke="var(--frame-line)" stroke-width="2" />
               <text x="500" y="470" text-anchor="middle" font-size="15" fill="var(--center-text)">北</text>
               <text x="500" y="541" text-anchor="middle" font-size="15" fill="var(--center-south-text)">南</text>
               <text x="500" y="520" text-anchor="middle" font-size="9" fill="var(--center-muted-text)">五黄</text>
               <path d="M483 456 H517 M483 544 H517" stroke="var(--center-stroke)" stroke-width="1" />
+              <g id="levelOverlay">
+                <circle class="level-panel" cx="532" cy="500" r="17" />
+                <circle class="level-ring" cx="532" cy="500" r="13" />
+                <path class="level-axis" d="M519 500 H545 M532 487 V513" />
+                <circle id="levelBubble" class="level-bubble" cx="532" cy="500" r="4.4" />
+              </g>
             </g>
           </g>
         </svg>
@@ -2714,22 +2716,25 @@
       setSensorStatus("live", "指南针正在跟随", `${c.northMode === "true" ? "真北" : "磁北"} · ${source}`);
     }
 
+    const LEVEL_CENTER_X = 532;
+    const LEVEL_CENTER_Y = 500;
+
     function updateLevelIndicator() {
       const pitch = state.level.pitch;
       const roll = state.level.roll;
       levelBubble.classList.remove("is-level", "is-alert");
       if (!Number.isFinite(pitch) || !Number.isFinite(roll)) {
         levelReadout.textContent = state.level.active ? "校准中" : "待机";
-        levelBubble.setAttribute("cx", "500");
-        levelBubble.setAttribute("cy", "500");
+        levelBubble.setAttribute("cx", String(LEVEL_CENTER_X));
+        levelBubble.setAttribute("cy", String(LEVEL_CENTER_Y));
         return;
       }
-      const maxMove = 12;
+      const maxMove = 8.5;
       const x = Math.max(-1, Math.min(1, roll / 35)) * maxMove;
       const y = Math.max(-1, Math.min(1, pitch / 35)) * maxMove;
       const tilt = Math.hypot(pitch, roll);
-      levelBubble.setAttribute("cx", String(500 + x));
-      levelBubble.setAttribute("cy", String(500 + y));
+      levelBubble.setAttribute("cx", String(LEVEL_CENTER_X + x));
+      levelBubble.setAttribute("cy", String(LEVEL_CENTER_Y + y));
       if (tilt <= 1.5) {
         levelBubble.classList.add("is-level");
         levelReadout.textContent = `已水平｜横${roll >= 0 ? "+" : ""}${roll.toFixed(1)}° / 俯${pitch >= 0 ? "+" : ""}${pitch.toFixed(1)}°`;
