@@ -449,7 +449,7 @@
 
     .summary-breakdown {
       position: relative; z-index: 1;
-      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+      display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px;
       margin: -4px 0 14px;
     }
     .summary-pill {
@@ -467,6 +467,7 @@
     .category-badge { display:inline-flex; align-items:center; gap:5px; margin-bottom:7px; padding:5px 9px; border-radius:999px; background:#fff7fb; color:var(--primary-dark); border:1px solid #f2e2ec; font-size:12px; }
     .status-badge { display:inline-flex; align-items:center; gap:5px; padding:5px 9px; border-radius:999px; font-size:12px; white-space:nowrap; }
     .status-badge.active { background:var(--mint-soft); color:#527765; }
+    .status-badge.reached { background:#fff1dc; color:#9a6a2d; }
     .status-badge.ended { background:#f3eef1; color:#786b74; }
     .item-head-tags { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:7px; }
     .ended-card { opacity:.88; }
@@ -523,6 +524,7 @@
       </div>
       <div class="summary-breakdown">
         <div class="summary-pill"><strong id="activeAmount">¥0.00</strong> 使用中 · <span id="activeCount">0件</span></div>
+        <div class="summary-pill"><strong id="reachedAmount">¥0.00</strong> 已达目标 · <span id="reachedCount">0件</span></div>
         <div class="summary-pill"><strong id="endedAmount">¥0.00</strong> 已结束 · <span id="endedCount">0件</span></div>
       </div>
       <div class="summary-grid">
@@ -545,6 +547,7 @@
     <div class="status-row" id="statusFilters">
       <button class="chip active" data-status="all">全部状态</button>
       <button class="chip" data-status="active">使用中</button>
+      <button class="chip" data-status="reached">✨ 已达目标</button>
       <button class="chip" data-status="ended">已结束</button>
     </div>
 
@@ -723,7 +726,7 @@
     const $$ = s => [...document.querySelectorAll(s)];
     const els = {
       grid:$('#itemsGrid'), totalAmount:$('#totalAmount'), itemCount:$('#itemCount'),
-      activeAmount:$('#activeAmount'), activeCount:$('#activeCount'), endedAmount:$('#endedAmount'), endedCount:$('#endedCount'),
+      activeAmount:$('#activeAmount'), activeCount:$('#activeCount'), reachedAmount:$('#reachedAmount'), reachedCount:$('#reachedCount'), endedAmount:$('#endedAmount'), endedCount:$('#endedCount'),
       todayTotal:$('#todayTotal'), tomorrowTotal:$('#tomorrowTotal'), targetTotal:$('#targetTotal'),
       search:$('#searchInput'), sort:$('#sortSelect'), add:$('#addBtn'), settings:$('#settingsBtn'),
       categoryFilters:$('#categoryFilters'), statusFilters:$('#statusFilters'),
@@ -773,20 +776,33 @@
       return null;
     }
     function currentDaily(item,date=new Date()){ return Number(item.amount)/usedDays(item,date); }
+    function itemState(item, date=new Date()) {
+      if (item.status === 'ended') return 'ended';
+      const targetDays = getTargetDays(item);
+      if (targetDays && usedDays(item, date) >= targetDays) return 'reached';
+      return 'active';
+    }
     function money(n){ return Number.isFinite(n)?new Intl.NumberFormat('zh-CN',{style:'currency',currency:'CNY',minimumFractionDigits:2}).format(n):'¥0.00'; }
     function formatDate(s){ if(!s)return '—'; const [y,m,d]=s.split('-'); return `${y}.${m}.${d}`; }
     function escapeHTML(str){ return String(str).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
     function catById(id){ return categories.find(c=>c.id===id) || {id:'other',name:'其他',emoji:'✨'}; }
 
     function renderSummary(){
-      const active=items.filter(i=>i.status!=='ended'), ended=items.filter(i=>i.status==='ended');
+      const active=items.filter(i=>itemState(i)==='active');
+      const reached=items.filter(i=>itemState(i)==='reached');
+      const ended=items.filter(i=>itemState(i)==='ended');
+      const current=[...active,...reached];
       const total=items.reduce((s,i)=>s+Number(i.amount||0),0);
-      const activeAmt=active.reduce((s,i)=>s+Number(i.amount||0),0), endedAmt=ended.reduce((s,i)=>s+Number(i.amount||0),0);
-      const today=active.reduce((s,i)=>s+currentDaily(i),0), tomorrow=active.reduce((s,i)=>s+currentDaily(i,tomorrowDate()),0);
-      const targeted=active.filter(i=>getTargetDays(i));
+      const activeAmt=active.reduce((s,i)=>s+Number(i.amount||0),0);
+      const reachedAmt=reached.reduce((s,i)=>s+Number(i.amount||0),0);
+      const endedAmt=ended.reduce((s,i)=>s+Number(i.amount||0),0);
+      const today=current.reduce((s,i)=>s+currentDaily(i),0);
+      const tomorrow=current.reduce((s,i)=>s+currentDaily(i,tomorrowDate()),0);
+      const targeted=current.filter(i=>getTargetDays(i));
       const target=targeted.reduce((s,i)=>s+Number(i.amount)/getTargetDays(i),0);
       els.totalAmount.textContent=money(total); els.itemCount.textContent=`${items.length} 件物品`;
       els.activeAmount.textContent=money(activeAmt); els.activeCount.textContent=`${active.length}件`;
+      els.reachedAmount.textContent=money(reachedAmt); els.reachedCount.textContent=`${reached.length}件`;
       els.endedAmount.textContent=money(endedAmt); els.endedCount.textContent=`${ended.length}件`;
       els.todayTotal.textContent=`${money(today)} / 天`; els.tomorrowTotal.textContent=`${money(tomorrow)} / 天`;
       els.targetTotal.textContent=targeted.length?`${money(target)} / 天`:'—';
@@ -806,7 +822,7 @@
         const cat=catById(i.categoryId);
         return (!q || String(i.name).toLowerCase().includes(q) || cat.name.toLowerCase().includes(q)) &&
           (selectedCategory==='all'||i.categoryId===selectedCategory) &&
-          (selectedStatus==='all'||(i.status||'active')===selectedStatus);
+          (selectedStatus==='all'||itemState(i)===selectedStatus);
       });
       const sort=els.sort.value;
       arr.sort((a,b)=>{
@@ -825,15 +841,16 @@
       const list=getVisibleItems();
       if(!list.length){ els.grid.innerHTML=`<div class="empty"><span class="emoji">🌷</span>${items.length?'没有找到匹配的物品':'还没有物品，点击右下角添加第一件吧'}</div>`; return; }
       els.grid.innerHTML=list.map(item=>{
-        const ended=item.status==='ended', used=usedDays(item), daily=currentDaily(item), tomorrow=currentDaily(item,tomorrowDate());
+        const state=itemState(item), ended=state==='ended', reached=state==='reached';
+        const used=usedDays(item), daily=currentDaily(item), tomorrow=currentDaily(item,tomorrowDate());
         const targetDays=getTargetDays(item), cat=catById(item.categoryId);
         let targetHtml=`<div class="goal-note">未设置使用目标</div>`;
         if(targetDays){
           const progress=Math.min(100,used/targetDays*100), targetDaily=Number(item.amount)/targetDays, done=used>=targetDays;
-          targetHtml=`<div class="target-top"><span>目标 ${targetDays} 天 · ${money(targetDaily)}/天</span><span>${Math.min(progress,999).toFixed(progress<10?1:0)}%</span></div><div class="progress"><i style="width:${progress}%"></i></div><div class="goal-note ${done?'goal-done':''}">${done?`✓ 已达到目标${used>targetDays?`，超过 ${used-targetDays} 天`:''}`:`还需使用 ${targetDays-used} 天`}</div>`;
+          targetHtml=`<div class="target-top"><span>目标 ${targetDays} 天 · ${money(targetDaily)}/天</span><span>${Math.min(progress,999).toFixed(progress<10?1:0)}%</span></div><div class="progress"><i style="width:${progress}%"></i></div><div class="goal-note ${done?'goal-done':''}">${done?`${ended?'✓ 使用期间已达到目标':'✨ 已达目标，继续使用更划算'}${used>targetDays?` · 超额 ${used-targetDays} 天`:''}`:`还需使用 ${targetDays-used} 天`}</div>`;
         }
         return `<article class="item-card ${ended?'ended-card':''}" data-id="${item.id}">
-          <div class="item-head-tags"><span class="category-badge">${escapeHTML(cat.emoji)} ${escapeHTML(cat.name)}</span><span class="status-badge ${ended?'ended':'active'}">${ended?'✓ 已结束':'● 使用中'}</span></div>
+          <div class="item-head-tags"><span class="category-badge">${escapeHTML(cat.emoji)} ${escapeHTML(cat.name)}</span><span class="status-badge ${state}">${ended?'✓ 已结束':reached?'✨ 已达目标 · 继续使用':'● 使用中'}</span></div>
           <div class="item-head"><div><div class="item-name">${escapeHTML(item.name)}</div><div class="item-price">${money(Number(item.amount))}</div></div><button class="more-btn" data-more="${item.id}" aria-label="更多">•••</button></div>
           <div class="stats"><div class="stat-box"><span>${ended?'实际使用':'已使用'}</span><strong>${used} 天</strong></div><div class="stat-box"><span>${ended?'最终成本':'当前成本'}</span><strong>${money(daily)}/天</strong></div></div>
           <div class="tomorrow-line"><span>${ended?'实际结束日期':'明天会降到'}</span><strong>${ended?formatDate(item.actualEndDate):`${money(tomorrow)}/天`}</strong></div>
