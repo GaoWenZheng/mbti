@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f8eef6" />
+  <title>物品使用成本</title>
+  <style>
+    :root {
+      --bg: #fbf7fb;
+      --bg-2: #fffaf7;
+      --card: rgba(255,255,255,.84);
+      --card-solid: #ffffff;
+      --text: #342d35;
+      --muted: #8c7d89;
+      --line: #eadfe7;
+      --primary: #b86b98;
+      --primary-dark: #925477;
+      --primary-soft: #f5e6ef;
+      --lavender: #8d7ac8;
+      --lavender-soft: #eee9fb;
+      --peach: #d88f77;
+      --peach-soft: #fbe9e2;
+      --mint: #6f9e8b;
+      --mint-soft: #e7f3ee;
+      --danger: #bf6572;
+      --shadow: 0 14px 38px rgba(86, 54, 75, .10);
+      --shadow-soft: 0 8px 24px rgba(86, 54, 75, .07);
+      --radius-xl: 26px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+    }
+
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background:
+        radial-gradient(circle at 12% 0%, rgba(244, 220, 237, .72), transparent 30%),
+        radial-gradient(circle at 95% 8%, rgba(237, 230, 251, .85), transparent 28%),
+        linear-gradient(180deg, var(--bg), var(--bg-2));
+    }
+
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+
+    .app {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+      padding: max(20px, env(safe-area-inset-top)) 16px calc(110px + env(safe-area-inset-bottom));
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: clamp(24px, 5vw, 34px);
+      letter-spacing: -.03em;
+      font-weight: 800;
+    }
+
+    .brand p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .icon-btn {
+      width: 44px;
+      height: 44px;
+      border: 1px solid rgba(184, 107, 152, .14);
+      border-radius: 16px;
+      background: rgba(255,255,255,.75);
+      box-shadow: var(--shadow-soft);
+      color: var(--primary-dark);
+      display: grid;
+      place-items: center;
+      transition: .2s ease;
+    }
+    .icon-btn:active { transform: scale(.96); }
+
+    .summary {
+      position: relative;
+      overflow: hidden;
+      border-radius: 30px;
+      padding: 22px;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.90), rgba(252,244,249,.92)),
+        linear-gradient(135deg, #f3dce9, #eee8fb);
+      border: 1px solid rgba(184, 107, 152, .12);
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+    }
+
+    .summary::after {
+      content: "";
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      right: -78px;
+      top: -84px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(184,107,152,.16), rgba(141,122,200,.12));
+    }
+
+    .summary-main {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .summary-label { color: var(--muted); font-size: 13px; margin-bottom: 5px; }
+    .summary-total { font-size: clamp(30px, 8vw, 46px); font-weight: 850; letter-spacing: -.04em; }
+    .summary-count { color: var(--muted); font-size: 13px; white-space: nowrap; }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .metric {
+      border-radius: 18px;
+      padding: 14px 12px;
+      background: rgba(255,255,255,.70);
+      border: 1px solid rgba(255,255,255,.9);
+    }
+    .metric span { display:block; color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+    .metric strong { font-size: clamp(14px, 3.8vw, 18px); }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .search-wrap {
+      position: relative;
+    }
+    .search-wrap::before {
+      content: "⌕";
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 22px;
+      pointer-events: none;
+    }
+
+    .field, .toolbar input, .toolbar select {
+      width: 100%;
+      min-height: 46px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: rgba(255,255,255,.85);
+      color: var(--text);
+      outline: none;
+      padding: 11px 13px;
+      box-shadow: 0 3px 12px rgba(80, 55, 71, .03);
+      transition: .2s ease;
+    }
+    .toolbar input { padding-left: 42px; }
+    .field:focus, .toolbar input:focus, .toolbar select:focus {
+      border-color: rgba(184,107,152,.45);
+      box-shadow: 0 0 0 4px rgba(184,107,152,.09);
+    }
+
+    .toolbar select { width: 140px; }
+
+    .items-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 14px;
+    }
+
+    .item-card {
+      background: var(--card);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(233, 220, 229, .9);
+      border-radius: var(--radius-xl);
+      padding: 18px;
+      box-shadow: var(--shadow-soft);
+      transition: .22s ease;
+    }
+    .item-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+
+    .item-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .item-name { font-size: 18px; font-weight: 760; line-height: 1.3; word-break: break-word; }
+    .item-price { margin-top: 5px; color: var(--primary-dark); font-size: 17px; font-weight: 760; }
+
+    .more-btn {
+      flex: 0 0 auto;
+      width: 36px;
+      height: 36px;
+      border: 0;
+      border-radius: 12px;
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .stat-box {
+      border-radius: 17px;
+      padding: 12px;
+      background: #fff;
+      border: 1px solid #f0e7ed;
+    }
+    .stat-box span { display: block; color: var(--muted); font-size: 12px; margin-bottom: 5px; }
+    .stat-box strong { font-size: 17px; }
+
+    .tomorrow-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 11px 12px;
+      border-radius: 15px;
+      background: var(--lavender-soft);
+      color: #675b8d;
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+    .tomorrow-line strong { color: #55477f; }
+
+    .target {
+      border-top: 1px dashed var(--line);
+      padding-top: 12px;
+    }
+    .target-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .progress {
+      height: 8px;
+      border-radius: 99px;
+      overflow: hidden;
+      background: #f0e8ee;
+    }
+    .progress > i {
+      display:block;
+      height:100%;
+      width:0;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--primary), var(--lavender));
+    }
+    .goal-note { margin-top: 8px; font-size: 12px; color: var(--muted); }
+    .goal-done { color: var(--mint); font-weight: 700; }
+
+    .empty {
+      grid-column: 1 / -1;
+      text-align:center;
+      padding: 52px 20px;
+      color: var(--muted);
+      background: rgba(255,255,255,.55);
+      border: 1px dashed #dfd2dc;
+      border-radius: 24px;
+    }
+    .empty .emoji { font-size: 38px; display:block; margin-bottom:10px; }
+
+    .fab {
+      position: fixed;
+      right: max(18px, calc((100vw - 1120px) / 2 + 18px));
+      bottom: calc(20px + env(safe-area-inset-bottom));
+      height: 56px;
+      padding: 0 20px;
+      border: 0;
+      border-radius: 20px;
+      color: white;
+      font-weight: 750;
+      background: linear-gradient(135deg, var(--primary), #a968a7);
+      box-shadow: 0 12px 28px rgba(154, 80, 126, .28);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 20;
+    }
+    .fab b { font-size: 25px; line-height: 1; font-weight: 400; }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      background: rgba(42, 31, 39, .28);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      z-index: 50;
+    }
+    .modal-backdrop.show { display: flex; }
+
+    .modal {
+      width: min(620px, 100%);
+      max-height: min(88vh, 820px);
+      overflow: auto;
+      background: #fffdfd;
+      border-radius: 28px 28px 0 0;
+      padding: 18px 18px calc(20px + env(safe-area-inset-bottom));
+      box-shadow: 0 -16px 50px rgba(58, 38, 51, .16);
+      animation: slideUp .2s ease;
+    }
+    @keyframes slideUp { from { transform: translateY(24px); opacity:.6; } }
+
+    .modal-handle { width: 48px; height: 5px; border-radius: 99px; background: #e8dde5; margin: 0 auto 14px; }
+    .modal-head { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:16px; }
+    .modal-head h2 { margin:0; font-size:21px; }
+    .close-btn { border:0; width:36px; height:36px; border-radius:12px; background:#f6eff4; color:var(--muted); }
+
+    .form-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-group { margin-bottom: 13px; }
+    .form-group.full { grid-column:1/-1; }
+    label { display:block; font-size:13px; color:#665a64; margin:0 0 7px 2px; font-weight:650; }
+    .hint { font-size:11px; color:var(--muted); margin-top:6px; }
+
+    .segmented {
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      padding: 5px;
+      background: #f7f1f5;
+      border-radius: 16px;
+      margin-bottom: 12px;
+    }
+    .segmented button {
+      min-height: 40px;
+      border:0;
+      border-radius:12px;
+      background:transparent;
+      color:var(--muted);
+      font-size:13px;
+      font-weight:650;
+    }
+    .segmented button.active {
+      background:#fff;
+      color:var(--primary-dark);
+      box-shadow:0 4px 12px rgba(80,55,71,.07);
+    }
+
+    .modal-actions { display:flex; gap:10px; margin-top:16px; }
+    .btn {
+      flex:1;
+      min-height:48px;
+      border-radius:16px;
+      border:0;
+      font-weight:750;
+    }
+    .btn-primary { color:#fff; background:linear-gradient(135deg,var(--primary),#a768a5); }
+    .btn-light { color:var(--primary-dark); background:var(--primary-soft); }
+    .btn-danger { color:#a84d5c; background:#fdecef; }
+
+    .settings-list { display:grid; gap:10px; }
+    .settings-card {
+      padding:15px;
+      border-radius:18px;
+      border:1px solid var(--line);
+      background:#fff;
+    }
+    .settings-card h3 { margin:0 0 6px; font-size:15px; }
+    .settings-card p { margin:0 0 12px; font-size:12px; color:var(--muted); line-height:1.6; }
+    .settings-row { display:flex; gap:8px; flex-wrap:wrap; }
+    .small-btn { border:0; border-radius:12px; min-height:38px; padding:0 13px; background:var(--primary-soft); color:var(--primary-dark); font-weight:650; }
+    .small-btn.danger { background:#fdecef; color:#a84d5c; }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(88px + env(safe-area-inset-bottom));
+      transform: translateX(-50%) translateY(18px);
+      background: rgba(54,45,52,.92);
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      opacity:0;
+      pointer-events:none;
+      transition:.2s ease;
+      z-index:100;
+      white-space:nowrap;
+    }
+    .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+    .menu {
+      position: fixed;
+      min-width: 132px;
+      padding: 6px;
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: var(--shadow);
+      border:1px solid var(--line);
+      z-index:90;
+      display:none;
+    }
+    .menu.show { display:block; }
+    .menu button { width:100%; border:0; background:transparent; text-align:left; padding:10px 11px; border-radius:10px; color:var(--text); }
+    .menu button:hover { background:#f8f2f6; }
+    .menu .danger { color:var(--danger); }
+
+    @media (max-width: 640px) {
+      .app { padding-left: 13px; padding-right:13px; }
+      .summary { padding:18px; border-radius:24px; }
+      .summary-main { align-items:flex-start; flex-direction:column; gap:8px; }
+      .summary-grid { grid-template-columns: 1fr 1fr; }
+      .summary-grid .metric:last-child { grid-column:1/-1; }
+      .toolbar { grid-template-columns: 1fr; }
+      .toolbar select { width:100%; }
+      .items-grid { grid-template-columns:1fr; }
+      .form-grid { grid-template-columns:1fr; }
+      .fab { right:16px; }
+    }
+
+    @media (min-width: 721px) {
+      .modal-backdrop { align-items:center; padding:20px; }
+      .modal { border-radius:28px; padding-bottom:20px; }
+      .modal-handle { display:none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <h1>物品使用成本</h1>
+        <p>买下的东西，用得越久，平均每天越划算。</p>
+      </div>
+      <button class="icon-btn" id="settingsBtn" aria-label="设置">⚙</button>
+    </header>
+
+    <section class="summary">
+      <div class="summary-main">
+        <div>
+          <div class="summary-label">总购买金额</div>
+          <div class="summary-total" id="totalAmount">¥0.00</div>
+        </div>
+        <div class="summary-count" id="itemCount">0 件物品</div>
+      </div>
+      <div class="summary-grid">
+        <div class="metric">
+          <span>今日合计成本</span>
+          <strong id="todayTotal">¥0.00 / 天</strong>
+        </div>
+        <div class="metric">
+          <span>明日合计成本</span>
+          <strong id="tomorrowTotal">¥0.00 / 天</strong>
+        </div>
+        <div class="metric">
+          <span>目标合计成本</span>
+          <strong id="targetTotal">—</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="toolbar">
+      <div class="search-wrap"><input id="searchInput" placeholder="搜索物品名称…" /></div>
+      <select id="sortSelect" aria-label="排序">
+        <option value="newest">最近购买</option>
+        <option value="oldest">最早购买</option>
+        <option value="amountDesc">金额最高</option>
+        <option value="amountAsc">金额最低</option>
+        <option value="dailyDesc">日均最高</option>
+        <option value="dailyAsc">日均最低</option>
+        <option value="usedDesc">使用最久</option>
+      </select>
+    </section>
+
+    <section class="items-grid" id="itemsGrid"></section>
+  </main>
+
+  <button class="fab" id="addBtn"><b>＋</b> 添加物品</button>
+
+  <div class="modal-backdrop" id="itemModalBackdrop">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="itemModalTitle">
+      <div class="modal-handle"></div>
+      <div class="modal-head">
+        <h2 id="itemModalTitle">添加物品</h2>
+        <button class="close-btn" data-close="item">✕</button>
+      </div>
+      <form id="itemForm">
+        <input type="hidden" id="editId" />
+        <div class="form-grid">
+          <div class="form-group full">
+            <label for="nameInput">物品名称 *</label>
+            <input class="field" id="nameInput" maxlength="60" required placeholder="例如：AirPods Pro" />
+          </div>
+          <div class="form-group">
+            <label for="amountInput">购买金额 *</label>
+            <input class="field" id="amountInput" type="number" min="0" step="0.01" inputmode="decimal" required placeholder="1899" />
+          </div>
+          <div class="form-group">
+            <label for="purchaseDateInput">购买日期 *</label>
+            <input class="field" id="purchaseDateInput" type="date" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>使用目标（可选）</label>
+          <div class="segmented" id="targetSegment">
+            <button type="button" data-target="none" class="active">不设置</button>
+            <button type="button" data-target="days">使用天数</button>
+            <button type="button" data-target="date">结束日期</button>
+          </div>
+          <div id="targetDaysWrap" style="display:none;">
+            <input class="field" id="targetDaysInput" type="number" min="1" step="1" inputmode="numeric" placeholder="例如：1095" />
+            <div class="hint">例如 1095 天 ≈ 3 年。</div>
+          </div>
+          <div id="targetDateWrap" style="display:none;">
+            <input class="field" id="targetDateInput" type="date" />
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-light" data-close="item">取消</button>
+          <button type="submit" class="btn btn-primary">保存</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="settingsBackdrop">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <div class="modal-handle"></div>
+      <div class="modal-head">
+        <h2 id="settingsTitle">数据与设置</h2>
+        <button class="close-btn" data-close="settings">✕</button>
+      </div>
+      <div class="settings-list">
+        <div class="settings-card">
+          <h3>数据备份</h3>
+          <p>数据默认只保存在当前浏览器中。建议偶尔导出 JSON 备份，换手机时也可以再导入。</p>
+          <div class="settings-row">
+            <button class="small-btn" id="exportBtn">导出备份</button>
+            <button class="small-btn" id="importBtn">导入备份</button>
+            <input id="importFile" type="file" accept="application/json,.json" hidden />
+          </div>
+        </div>
+        <div class="settings-card">
+          <h3>计算规则</h3>
+          <p>使用天数按自然日计算，并包含购买当天。例如今天购买，今天就是第 1 天；明天就是第 2 天。</p>
+        </div>
+        <div class="settings-card">
+          <h3>危险操作</h3>
+          <p>删除后无法恢复，除非你此前导出过备份。</p>
+          <button class="small-btn danger" id="clearBtn">删除全部数据</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="menu" id="itemMenu">
+    <button id="menuEdit">编辑</button>
+    <button id="menuDelete" class="danger">删除</button>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const STORAGE_KEY = 'usage-cost-items-v1';
+    let items = loadItems();
+    let selectedMenuId = null;
+    let targetType = 'none';
+
+    const $ = (s) => document.querySelector(s);
+    const $$ = (s) => [...document.querySelectorAll(s)];
+
+    const els = {
+      grid: $('#itemsGrid'), totalAmount: $('#totalAmount'), itemCount: $('#itemCount'),
+      todayTotal: $('#todayTotal'), tomorrowTotal: $('#tomorrowTotal'), targetTotal: $('#targetTotal'),
+      search: $('#searchInput'), sort: $('#sortSelect'), add: $('#addBtn'), settings: $('#settingsBtn'),
+      itemBackdrop: $('#itemModalBackdrop'), settingsBackdrop: $('#settingsBackdrop'), itemForm: $('#itemForm'),
+      itemTitle: $('#itemModalTitle'), editId: $('#editId'), name: $('#nameInput'), amount: $('#amountInput'),
+      purchaseDate: $('#purchaseDateInput'), targetDays: $('#targetDaysInput'), targetDate: $('#targetDateInput'),
+      daysWrap: $('#targetDaysWrap'), dateWrap: $('#targetDateWrap'), segment: $('#targetSegment'),
+      menu: $('#itemMenu'), menuEdit: $('#menuEdit'), menuDelete: $('#menuDelete'), toast: $('#toast')
+    };
+
+    function loadItems() {
+      try {
+        const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        return Array.isArray(raw) ? raw : [];
+      } catch { return []; }
+    }
+
+    function saveItems() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+      render();
+    }
+
+    function localDateString(date = new Date()) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function parseLocalDate(str) {
+      const [y, m, d] = str.split('-').map(Number);
+      return new Date(y, m - 1, d);
+    }
+
+    function daySerial(strOrDate) {
+      const d = typeof strOrDate === 'string' ? parseLocalDate(strOrDate) : strOrDate;
+      return Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000);
+    }
+
+    function inclusiveDays(fromDate, toDate = new Date()) {
+      return Math.max(1, daySerial(toDate) - daySerial(fromDate) + 1);
+    }
+
+    function tomorrowDate() {
+      const t = new Date();
+      t.setDate(t.getDate() + 1);
+      return t;
+    }
+
+    function getTargetDays(item) {
+      if (item.targetType === 'days' && Number(item.targetDays) > 0) return Number(item.targetDays);
+      if (item.targetType === 'date' && item.targetDate) {
+        return Math.max(1, daySerial(item.targetDate) - daySerial(item.purchaseDate) + 1);
+      }
+      return null;
+    }
+
+    function currentDaily(item, date = new Date()) {
+      return Number(item.amount) / inclusiveDays(item.purchaseDate, date);
+    }
+
+    function money(n) {
+      if (!Number.isFinite(n)) return '¥0.00';
+      return new Intl.NumberFormat('zh-CN', { style:'currency', currency:'CNY', minimumFractionDigits:2 }).format(n);
+    }
+
+    function formatDate(s) {
+      if (!s) return '—';
+      const [y,m,d] = s.split('-');
+      return `${y}.${m}.${d}`;
+    }
+
+    function escapeHTML(str) {
+      return String(str).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+    }
+
+    function renderSummary() {
+      const totalAmount = items.reduce((s, i) => s + Number(i.amount || 0), 0);
+      const today = items.reduce((s, i) => s + currentDaily(i), 0);
+      const tomorrow = items.reduce((s, i) => s + currentDaily(i, tomorrowDate()), 0);
+      const targeted = items.filter(i => getTargetDays(i));
+      const target = targeted.reduce((s, i) => s + Number(i.amount) / getTargetDays(i), 0);
+
+      els.totalAmount.textContent = money(totalAmount);
+      els.itemCount.textContent = `${items.length} 件物品`;
+      els.todayTotal.textContent = `${money(today)} / 天`;
+      els.tomorrowTotal.textContent = `${money(tomorrow)} / 天`;
+      els.targetTotal.textContent = targeted.length ? `${money(target)} / 天` : '—';
+    }
+
+    function getVisibleItems() {
+      const q = els.search.value.trim().toLowerCase();
+      const arr = items.filter(i => String(i.name).toLowerCase().includes(q));
+      const sort = els.sort.value;
+      arr.sort((a,b) => {
+        if (sort === 'newest') return daySerial(b.purchaseDate) - daySerial(a.purchaseDate);
+        if (sort === 'oldest') return daySerial(a.purchaseDate) - daySerial(b.purchaseDate);
+        if (sort === 'amountDesc') return Number(b.amount) - Number(a.amount);
+        if (sort === 'amountAsc') return Number(a.amount) - Number(b.amount);
+        if (sort === 'dailyDesc') return currentDaily(b) - currentDaily(a);
+        if (sort === 'dailyAsc') return currentDaily(a) - currentDaily(b);
+        if (sort === 'usedDesc') return inclusiveDays(b.purchaseDate) - inclusiveDays(a.purchaseDate);
+        return 0;
+      });
+      return arr;
+    }
+
+    function renderItems() {
+      const list = getVisibleItems();
+      if (!list.length) {
+        els.grid.innerHTML = `<div class="empty"><span class="emoji">🌷</span>${items.length ? '没有找到匹配的物品' : '还没有物品，点击右下角添加第一件吧'}</div>`;
+        return;
+      }
+
+      els.grid.innerHTML = list.map(item => {
+        const used = inclusiveDays(item.purchaseDate);
+        const daily = currentDaily(item);
+        const tomorrow = currentDaily(item, tomorrowDate());
+        const targetDays = getTargetDays(item);
+        let targetHtml = `<div class="goal-note">未设置使用目标</div>`;
+        if (targetDays) {
+          const progress = Math.min(100, used / targetDays * 100);
+          const targetDaily = Number(item.amount) / targetDays;
+          const done = used >= targetDays;
+          targetHtml = `
+            <div class="target-top">
+              <span>目标 ${targetDays} 天 · ${money(targetDaily)}/天</span>
+              <span>${Math.min(progress, 999).toFixed(progress < 10 ? 1 : 0)}%</span>
+            </div>
+            <div class="progress"><i style="width:${progress}%"></i></div>
+            <div class="goal-note ${done ? 'goal-done':''}">${done ? `✓ 已超过目标 ${used - targetDays} 天` : `还需使用 ${targetDays - used} 天`}</div>`;
+        }
+
+        return `
+          <article class="item-card" data-id="${item.id}">
+            <div class="item-head">
+              <div>
+                <div class="item-name">${escapeHTML(item.name)}</div>
+                <div class="item-price">${money(Number(item.amount))}</div>
+              </div>
+              <button class="more-btn" data-more="${item.id}" aria-label="更多">•••</button>
+            </div>
+            <div class="stats">
+              <div class="stat-box"><span>已使用</span><strong>${used} 天</strong></div>
+              <div class="stat-box"><span>当前成本</span><strong>${money(daily)}/天</strong></div>
+            </div>
+            <div class="tomorrow-line">
+              <span>明天会降到</span><strong>${money(tomorrow)}/天</strong>
+            </div>
+            <div class="target">
+              <div class="target-top"><span>购买于 ${formatDate(item.purchaseDate)}</span>${item.targetType === 'date' && item.targetDate ? `<span>至 ${formatDate(item.targetDate)}</span>` : ''}</div>
+              ${targetHtml}
+            </div>
+          </article>`;
+      }).join('');
+
+      $$('[data-more]').forEach(btn => btn.addEventListener('click', (e) => openMenu(e.currentTarget, e.currentTarget.dataset.more)));
+    }
+
+    function render() { renderSummary(); renderItems(); }
+
+    function setTargetType(type) {
+      targetType = type;
+      $$('#targetSegment button').forEach(b => b.classList.toggle('active', b.dataset.target === type));
+      els.daysWrap.style.display = type === 'days' ? 'block' : 'none';
+      els.dateWrap.style.display = type === 'date' ? 'block' : 'none';
+    }
+
+    function openItemModal(item = null) {
+      els.itemForm.reset();
+      els.editId.value = item?.id || '';
+      els.itemTitle.textContent = item ? '编辑物品' : '添加物品';
+      els.name.value = item?.name || '';
+      els.amount.value = item?.amount ?? '';
+      els.purchaseDate.value = item?.purchaseDate || localDateString();
+      setTargetType(item?.targetType || 'none');
+      els.targetDays.value = item?.targetDays ?? '';
+      els.targetDate.value = item?.targetDate ?? '';
+      els.itemBackdrop.classList.add('show');
+      setTimeout(() => els.name.focus(), 80);
+    }
+
+    function closeBackdrop(backdrop) { backdrop.classList.remove('show'); }
+
+    function showToast(text) {
+      els.toast.textContent = text;
+      els.toast.classList.add('show');
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => els.toast.classList.remove('show'), 1800);
+    }
+
+    function openMenu(btn, id) {
+      selectedMenuId = id;
+      const r = btn.getBoundingClientRect();
+      els.menu.style.left = `${Math.min(window.innerWidth - 145, Math.max(8, r.right - 132))}px`;
+      els.menu.style.top = `${Math.min(window.innerHeight - 110, r.bottom + 6)}px`;
+      els.menu.classList.add('show');
+    }
+    function closeMenu() { els.menu.classList.remove('show'); }
+
+    els.add.addEventListener('click', () => openItemModal());
+    els.settings.addEventListener('click', () => els.settingsBackdrop.classList.add('show'));
+    els.search.addEventListener('input', renderItems);
+    els.sort.addEventListener('change', renderItems);
+
+    $$('#targetSegment button').forEach(btn => btn.addEventListener('click', () => setTargetType(btn.dataset.target)));
+    $$('[data-close="item"]').forEach(b => b.addEventListener('click', () => closeBackdrop(els.itemBackdrop)));
+    $$('[data-close="settings"]').forEach(b => b.addEventListener('click', () => closeBackdrop(els.settingsBackdrop)));
+
+    [els.itemBackdrop, els.settingsBackdrop].forEach(backdrop => backdrop.addEventListener('click', e => {
+      if (e.target === backdrop) closeBackdrop(backdrop);
+    }));
+
+    els.itemForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const name = els.name.value.trim();
+      const amount = Number(els.amount.value);
+      const purchaseDate = els.purchaseDate.value;
+      if (!name || !purchaseDate || !Number.isFinite(amount) || amount < 0) return;
+
+      const todaySerial = daySerial(new Date());
+      if (daySerial(purchaseDate) > todaySerial) {
+        alert('购买日期不能晚于今天。');
+        return;
+      }
+
+      const data = {
+        id: els.editId.value || (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`),
+        name, amount, purchaseDate,
+        targetType,
+        targetDays: null,
+        targetDate: null,
+        createdAt: Date.now()
+      };
+
+      if (targetType === 'days') {
+        const days = Math.floor(Number(els.targetDays.value));
+        if (!Number.isFinite(days) || days < 1) { alert('请输入正确的目标使用天数。'); return; }
+        data.targetDays = days;
+      }
+      if (targetType === 'date') {
+        const d = els.targetDate.value;
+        if (!d || daySerial(d) < daySerial(purchaseDate)) { alert('结束日期不能早于购买日期。'); return; }
+        data.targetDate = d;
+      }
+
+      const idx = items.findIndex(i => i.id === data.id);
+      if (idx >= 0) {
+        data.createdAt = items[idx].createdAt || Date.now();
+        items[idx] = data;
+        showToast('已保存修改');
+      } else {
+        items.unshift(data);
+        showToast('已添加物品');
+      }
+      saveItems();
+      closeBackdrop(els.itemBackdrop);
+    });
+
+    els.menuEdit.addEventListener('click', () => {
+      const item = items.find(i => i.id === selectedMenuId);
+      closeMenu();
+      if (item) openItemModal(item);
+    });
+
+    els.menuDelete.addEventListener('click', () => {
+      const item = items.find(i => i.id === selectedMenuId);
+      closeMenu();
+      if (!item) return;
+      if (confirm(`确定删除“${item.name}”吗？`)) {
+        items = items.filter(i => i.id !== selectedMenuId);
+        saveItems();
+        showToast('已删除');
+      }
+    });
+
+    document.addEventListener('click', e => {
+      if (!els.menu.contains(e.target) && !e.target.closest('[data-more]')) closeMenu();
+    });
+
+    $('#exportBtn').addEventListener('click', () => {
+      const payload = { version: 1, exportedAt: new Date().toISOString(), items };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `物品使用成本备份-${localDateString()}.json`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 500);
+      showToast('备份已导出');
+    });
+
+    $('#importBtn').addEventListener('click', () => $('#importFile').click());
+    $('#importFile').addEventListener('change', async e => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      try {
+        const data = JSON.parse(await file.text());
+        const incoming = Array.isArray(data) ? data : data.items;
+        if (!Array.isArray(incoming)) throw new Error();
+        if (!confirm(`将导入 ${incoming.length} 件物品，并覆盖当前数据。继续吗？`)) return;
+        items = incoming.filter(i => i && i.name && Number.isFinite(Number(i.amount)) && i.purchaseDate);
+        saveItems();
+        closeBackdrop(els.settingsBackdrop);
+        showToast('导入成功');
+      } catch { alert('备份文件格式不正确。'); }
+      e.target.value = '';
+    });
+
+    $('#clearBtn').addEventListener('click', () => {
+      if (!items.length) return showToast('目前没有数据');
+      if (confirm('确定删除全部物品吗？此操作无法恢复。')) {
+        items = [];
+        saveItems();
+        closeBackdrop(els.settingsBackdrop);
+        showToast('已清空全部数据');
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>
