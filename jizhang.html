@@ -445,6 +445,62 @@
       .modal { border-radius:28px; padding-bottom:20px; }
       .modal-handle { display:none; }
     }
+  
+
+    .summary-breakdown {
+      position: relative; z-index: 1;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+      margin: -4px 0 14px;
+    }
+    .summary-pill {
+      padding: 10px 12px; border-radius: 15px; background: rgba(255,255,255,.6);
+      border: 1px solid rgba(255,255,255,.9); font-size: 12px; color: var(--muted);
+    }
+    .summary-pill strong { color: var(--text); font-size: 14px; margin-right: 4px; }
+
+    .filter-row { display:flex; gap:8px; overflow-x:auto; padding: 1px 1px 10px; margin-bottom: 7px; scrollbar-width:none; }
+    .filter-row::-webkit-scrollbar { display:none; }
+    .chip { flex:0 0 auto; border:1px solid var(--line); background:rgba(255,255,255,.78); color:var(--muted); border-radius:999px; padding:8px 12px; font-size:13px; }
+    .chip.active { background:var(--primary-soft); color:var(--primary-dark); border-color:rgba(184,107,152,.24); font-weight:700; }
+    .status-row { display:flex; gap:8px; margin-bottom: 14px; }
+
+    .category-badge { display:inline-flex; align-items:center; gap:5px; margin-bottom:7px; padding:5px 9px; border-radius:999px; background:#fff7fb; color:var(--primary-dark); border:1px solid #f2e2ec; font-size:12px; }
+    .status-badge { display:inline-flex; align-items:center; gap:5px; padding:5px 9px; border-radius:999px; font-size:12px; white-space:nowrap; }
+    .status-badge.active { background:var(--mint-soft); color:#527765; }
+    .status-badge.ended { background:#f3eef1; color:#786b74; }
+    .item-head-tags { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:7px; }
+    .ended-card { opacity:.88; }
+    .ended-card .tomorrow-line { background:#f4f0f3; color:#786b74; }
+
+    .category-manager { display:grid; gap:9px; margin-top:12px; }
+    .category-row { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 11px; background:#fff; border:1px solid var(--line); border-radius:14px; }
+    .category-name { min-width:0; display:flex; align-items:center; gap:8px; font-size:14px; }
+    .category-name .emoji { font-size:20px; }
+    .category-actions { display:flex; gap:6px; }
+    .tiny-btn { border:0; border-radius:10px; padding:7px 9px; background:var(--primary-soft); color:var(--primary-dark); font-size:12px; }
+    .tiny-btn.danger { background:#f9e9ec; color:var(--danger); }
+    .inline-create { display:grid; grid-template-columns:70px 1fr auto; gap:8px; margin-top:12px; }
+    .inline-create .field { min-height:42px; padding:9px 10px; }
+    .emoji-input { text-align:center; font-size:21px; }
+    .emoji-suggestions { display:flex; flex-wrap:wrap; gap:7px; margin-top:9px; }
+    .emoji-suggestions button { width:36px; height:36px; border:1px solid var(--line); background:#fff; border-radius:11px; font-size:19px; }
+    .form-subrow { display:grid; grid-template-columns:1fr auto; gap:8px; align-items:end; }
+    .muted-small { color:var(--muted); font-size:12px; line-height:1.55; }
+
+    .category-stats { display:grid; gap:9px; margin-top:12px; }
+    .cat-stat { padding:10px 11px; border-radius:14px; background:#fff; border:1px solid var(--line); }
+    .cat-stat-top { display:flex; justify-content:space-between; gap:10px; font-size:13px; }
+    .cat-stat-bar { height:6px; border-radius:99px; background:#f1e7ed; margin-top:8px; overflow:hidden; }
+    .cat-stat-bar i { display:block; height:100%; border-radius:inherit; background:linear-gradient(90deg,var(--primary),var(--lavender)); }
+
+    @media (max-width: 520px) {
+      .summary-breakdown { grid-template-columns:1fr; }
+      .inline-create { grid-template-columns:64px 1fr; }
+      .inline-create button { grid-column:1 / -1; }
+      .toolbar { grid-template-columns:1fr; }
+      .toolbar select { width:100%; }
+    }
+
   </style>
 </head>
 <body>
@@ -465,6 +521,10 @@
         </div>
         <div class="summary-count" id="itemCount">0 件物品</div>
       </div>
+      <div class="summary-breakdown">
+        <div class="summary-pill"><strong id="activeAmount">¥0.00</strong> 使用中 · <span id="activeCount">0件</span></div>
+        <div class="summary-pill"><strong id="endedAmount">¥0.00</strong> 已结束 · <span id="endedCount">0件</span></div>
+      </div>
       <div class="summary-grid">
         <div class="metric">
           <span>今日合计成本</span>
@@ -480,6 +540,13 @@
         </div>
       </div>
     </section>
+
+    <div class="filter-row" id="categoryFilters"></div>
+    <div class="status-row" id="statusFilters">
+      <button class="chip active" data-status="all">全部状态</button>
+      <button class="chip" data-status="active">使用中</button>
+      <button class="chip" data-status="ended">已结束</button>
+    </div>
 
     <section class="toolbar">
       <div class="search-wrap"><input id="searchInput" placeholder="搜索物品名称…" /></div>
@@ -521,6 +588,10 @@
             <label for="purchaseDateInput">购买日期 *</label>
             <input class="field" id="purchaseDateInput" type="date" required />
           </div>
+          <div class="form-group full">
+            <label for="categorySelect">分类</label>
+            <select class="field" id="categorySelect"></select>
+          </div>
         </div>
 
         <div class="form-group">
@@ -556,6 +627,22 @@
       </div>
       <div class="settings-list">
         <div class="settings-card">
+          <h3>分类管理</h3>
+          <p>分类名称和图标都可以自定义。图标直接输入 Emoji 即可，物品会保存分类 ID，之后改名称不会影响已有物品。</p>
+          <div class="inline-create">
+            <input class="field emoji-input" id="newCategoryEmoji" maxlength="8" placeholder="✨" aria-label="分类 Emoji" />
+            <input class="field" id="newCategoryName" maxlength="24" placeholder="例如：摄影器材" aria-label="分类名称" />
+            <button class="small-btn" id="addCategoryBtn" type="button">添加分类</button>
+          </div>
+          <div class="emoji-suggestions" id="emojiSuggestions"></div>
+          <div class="category-manager" id="categoryManager"></div>
+        </div>
+        <div class="settings-card">
+          <h3>分类统计</h3>
+          <p>按累计购买金额统计，方便看钱主要花在哪些类别。</p>
+          <div class="category-stats" id="categoryStats"></div>
+        </div>
+        <div class="settings-card">
           <h3>数据备份</h3>
           <p>数据默认只保存在当前浏览器中。建议偶尔导出 JSON 备份，换手机时也可以再导入。</p>
           <div class="settings-row">
@@ -577,341 +664,311 @@
     </div>
   </div>
 
+  <div class="modal-backdrop" id="endBackdrop">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="endTitle">
+      <div class="modal-handle"></div>
+      <div class="modal-head">
+        <h2 id="endTitle">结束使用</h2>
+        <button class="close-btn" data-close="end">✕</button>
+      </div>
+      <div class="form-group">
+        <label for="actualEndDateInput">实际结束日期</label>
+        <input class="field" id="actualEndDateInput" type="date" />
+        <div class="hint">结束后，该物品的使用天数和日均成本会冻结在这个日期。</div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-light" data-close="end">取消</button>
+        <button type="button" class="btn btn-primary" id="confirmEndBtn">确认结束</button>
+      </div>
+    </div>
+  </div>
+
   <div class="menu" id="itemMenu">
     <button id="menuEdit">编辑</button>
+    <button id="menuStatus">结束使用</button>
     <button id="menuDelete" class="danger">删除</button>
   </div>
 
   <div class="toast" id="toast"></div>
 
   <script>
-    const STORAGE_KEY = 'usage-cost-items-v1';
+    const STORAGE_KEY = 'usage-cost-items-v2';
+    const LEGACY_STORAGE_KEY = 'usage-cost-items-v1';
+    const CATEGORY_KEY = 'usage-cost-categories-v1';
+
+    const DEFAULT_CATEGORIES = [
+      { id:'digital', name:'数码电子', emoji:'📱' },
+      { id:'beauty', name:'美妆护肤', emoji:'💄' },
+      { id:'clothes', name:'服饰', emoji:'👗' },
+      { id:'bags', name:'包包配饰', emoji:'👜' },
+      { id:'shoes', name:'鞋靴', emoji:'👟' },
+      { id:'home', name:'家居生活', emoji:'🏠' },
+      { id:'kitchen', name:'厨房电器', emoji:'🍳' },
+      { id:'fitness', name:'运动健身', emoji:'🏃' },
+      { id:'games', name:'娱乐游戏', emoji:'🎮' },
+      { id:'office', name:'学习办公', emoji:'📚' },
+      { id:'jewelry', name:'珠宝首饰', emoji:'💎' },
+      { id:'other', name:'其他', emoji:'✨' }
+    ];
+
     let items = loadItems();
+    let categories = loadCategories();
     let selectedMenuId = null;
     let targetType = 'none';
+    let selectedCategory = 'all';
+    let selectedStatus = 'all';
+    let endingItemId = null;
 
-    const $ = (s) => document.querySelector(s);
-    const $$ = (s) => [...document.querySelectorAll(s)];
-
+    const $ = s => document.querySelector(s);
+    const $$ = s => [...document.querySelectorAll(s)];
     const els = {
-      grid: $('#itemsGrid'), totalAmount: $('#totalAmount'), itemCount: $('#itemCount'),
-      todayTotal: $('#todayTotal'), tomorrowTotal: $('#tomorrowTotal'), targetTotal: $('#targetTotal'),
-      search: $('#searchInput'), sort: $('#sortSelect'), add: $('#addBtn'), settings: $('#settingsBtn'),
-      itemBackdrop: $('#itemModalBackdrop'), settingsBackdrop: $('#settingsBackdrop'), itemForm: $('#itemForm'),
-      itemTitle: $('#itemModalTitle'), editId: $('#editId'), name: $('#nameInput'), amount: $('#amountInput'),
-      purchaseDate: $('#purchaseDateInput'), targetDays: $('#targetDaysInput'), targetDate: $('#targetDateInput'),
-      daysWrap: $('#targetDaysWrap'), dateWrap: $('#targetDateWrap'), segment: $('#targetSegment'),
-      menu: $('#itemMenu'), menuEdit: $('#menuEdit'), menuDelete: $('#menuDelete'), toast: $('#toast')
+      grid:$('#itemsGrid'), totalAmount:$('#totalAmount'), itemCount:$('#itemCount'),
+      activeAmount:$('#activeAmount'), activeCount:$('#activeCount'), endedAmount:$('#endedAmount'), endedCount:$('#endedCount'),
+      todayTotal:$('#todayTotal'), tomorrowTotal:$('#tomorrowTotal'), targetTotal:$('#targetTotal'),
+      search:$('#searchInput'), sort:$('#sortSelect'), add:$('#addBtn'), settings:$('#settingsBtn'),
+      categoryFilters:$('#categoryFilters'), statusFilters:$('#statusFilters'),
+      itemBackdrop:$('#itemModalBackdrop'), settingsBackdrop:$('#settingsBackdrop'), endBackdrop:$('#endBackdrop'),
+      itemForm:$('#itemForm'), itemTitle:$('#itemModalTitle'), editId:$('#editId'), name:$('#nameInput'), amount:$('#amountInput'),
+      purchaseDate:$('#purchaseDateInput'), category:$('#categorySelect'), targetDays:$('#targetDaysInput'), targetDate:$('#targetDateInput'),
+      daysWrap:$('#targetDaysWrap'), dateWrap:$('#targetDateWrap'), segment:$('#targetSegment'),
+      actualEndDate:$('#actualEndDateInput'), confirmEnd:$('#confirmEndBtn'),
+      menu:$('#itemMenu'), menuEdit:$('#menuEdit'), menuStatus:$('#menuStatus'), menuDelete:$('#menuDelete'), toast:$('#toast'),
+      categoryManager:$('#categoryManager'), categoryStats:$('#categoryStats'), newCategoryEmoji:$('#newCategoryEmoji'), newCategoryName:$('#newCategoryName')
     };
 
     function loadItems() {
       try {
-        const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-        return Array.isArray(raw) ? raw : [];
+        const raw = localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(LEGACY_STORAGE_KEY) ?? '[]';
+        const parsed = JSON.parse(raw);
+        return (Array.isArray(parsed) ? parsed : []).map(i => ({ status:'active', actualEndDate:null, categoryId:'other', ...i }));
       } catch { return []; }
     }
-
-    function saveItems() {
+    function loadCategories() {
+      try {
+        const raw = JSON.parse(localStorage.getItem(CATEGORY_KEY) || 'null');
+        return Array.isArray(raw) && raw.length ? raw : structuredClone(DEFAULT_CATEGORIES);
+      } catch { return structuredClone(DEFAULT_CATEGORIES); }
+    }
+    function saveAll() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+      localStorage.setItem(CATEGORY_KEY, JSON.stringify(categories));
       render();
     }
-
-    function localDateString(date = new Date()) {
-      const y = date.getFullYear();
-      const m = String(date.getMonth() + 1).padStart(2, '0');
-      const d = String(date.getDate()).padStart(2, '0');
+    function localDateString(date=new Date()) {
+      const y=date.getFullYear(), m=String(date.getMonth()+1).padStart(2,'0'), d=String(date.getDate()).padStart(2,'0');
       return `${y}-${m}-${d}`;
     }
-
-    function parseLocalDate(str) {
-      const [y, m, d] = str.split('-').map(Number);
-      return new Date(y, m - 1, d);
-    }
-
+    function parseLocalDate(str) { const [y,m,d]=str.split('-').map(Number); return new Date(y,m-1,d); }
     function daySerial(strOrDate) {
-      const d = typeof strOrDate === 'string' ? parseLocalDate(strOrDate) : strOrDate;
-      return Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000);
+      const d=typeof strOrDate==='string'?parseLocalDate(strOrDate):strOrDate;
+      return Math.floor(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/86400000);
     }
-
-    function inclusiveDays(fromDate, toDate = new Date()) {
-      return Math.max(1, daySerial(toDate) - daySerial(fromDate) + 1);
-    }
-
-    function tomorrowDate() {
-      const t = new Date();
-      t.setDate(t.getDate() + 1);
-      return t;
-    }
-
-    function getTargetDays(item) {
-      if (item.targetType === 'days' && Number(item.targetDays) > 0) return Number(item.targetDays);
-      if (item.targetType === 'date' && item.targetDate) {
-        return Math.max(1, daySerial(item.targetDate) - daySerial(item.purchaseDate) + 1);
-      }
+    function inclusiveDays(fromDate,toDate=new Date()) { return Math.max(1,daySerial(toDate)-daySerial(fromDate)+1); }
+    function tomorrowDate(){ const t=new Date(); t.setDate(t.getDate()+1); return t; }
+    function effectiveEnd(item, date=new Date()) { return item.status==='ended' && item.actualEndDate ? parseLocalDate(item.actualEndDate) : date; }
+    function usedDays(item,date=new Date()){ return inclusiveDays(item.purchaseDate,effectiveEnd(item,date)); }
+    function getTargetDays(item){
+      if(item.targetType==='days'&&Number(item.targetDays)>0)return Number(item.targetDays);
+      if(item.targetType==='date'&&item.targetDate)return Math.max(1,daySerial(item.targetDate)-daySerial(item.purchaseDate)+1);
       return null;
     }
+    function currentDaily(item,date=new Date()){ return Number(item.amount)/usedDays(item,date); }
+    function money(n){ return Number.isFinite(n)?new Intl.NumberFormat('zh-CN',{style:'currency',currency:'CNY',minimumFractionDigits:2}).format(n):'¥0.00'; }
+    function formatDate(s){ if(!s)return '—'; const [y,m,d]=s.split('-'); return `${y}.${m}.${d}`; }
+    function escapeHTML(str){ return String(str).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+    function catById(id){ return categories.find(c=>c.id===id) || {id:'other',name:'其他',emoji:'✨'}; }
 
-    function currentDaily(item, date = new Date()) {
-      return Number(item.amount) / inclusiveDays(item.purchaseDate, date);
+    function renderSummary(){
+      const active=items.filter(i=>i.status!=='ended'), ended=items.filter(i=>i.status==='ended');
+      const total=items.reduce((s,i)=>s+Number(i.amount||0),0);
+      const activeAmt=active.reduce((s,i)=>s+Number(i.amount||0),0), endedAmt=ended.reduce((s,i)=>s+Number(i.amount||0),0);
+      const today=active.reduce((s,i)=>s+currentDaily(i),0), tomorrow=active.reduce((s,i)=>s+currentDaily(i,tomorrowDate()),0);
+      const targeted=active.filter(i=>getTargetDays(i));
+      const target=targeted.reduce((s,i)=>s+Number(i.amount)/getTargetDays(i),0);
+      els.totalAmount.textContent=money(total); els.itemCount.textContent=`${items.length} 件物品`;
+      els.activeAmount.textContent=money(activeAmt); els.activeCount.textContent=`${active.length}件`;
+      els.endedAmount.textContent=money(endedAmt); els.endedCount.textContent=`${ended.length}件`;
+      els.todayTotal.textContent=`${money(today)} / 天`; els.tomorrowTotal.textContent=`${money(tomorrow)} / 天`;
+      els.targetTotal.textContent=targeted.length?`${money(target)} / 天`:'—';
     }
 
-    function money(n) {
-      if (!Number.isFinite(n)) return '¥0.00';
-      return new Intl.NumberFormat('zh-CN', { style:'currency', currency:'CNY', minimumFractionDigits:2 }).format(n);
+    function renderCategoryFilters(){
+      const counts=new Map(); items.forEach(i=>counts.set(i.categoryId,(counts.get(i.categoryId)||0)+1));
+      els.categoryFilters.innerHTML=`<button class="chip ${selectedCategory==='all'?'active':''}" data-cat="all">全部分类</button>`+
+        categories.map(c=>`<button class="chip ${selectedCategory===c.id?'active':''}" data-cat="${c.id}">${escapeHTML(c.emoji)} ${escapeHTML(c.name)}${counts.get(c.id)?` · ${counts.get(c.id)}`:''}</button>`).join('');
+      $$('[data-cat]').forEach(b=>b.onclick=()=>{selectedCategory=b.dataset.cat; render();});
+      $$('[data-status]').forEach(b=>b.classList.toggle('active',b.dataset.status===selectedStatus));
     }
 
-    function formatDate(s) {
-      if (!s) return '—';
-      const [y,m,d] = s.split('-');
-      return `${y}.${m}.${d}`;
-    }
-
-    function escapeHTML(str) {
-      return String(str).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
-    }
-
-    function renderSummary() {
-      const totalAmount = items.reduce((s, i) => s + Number(i.amount || 0), 0);
-      const today = items.reduce((s, i) => s + currentDaily(i), 0);
-      const tomorrow = items.reduce((s, i) => s + currentDaily(i, tomorrowDate()), 0);
-      const targeted = items.filter(i => getTargetDays(i));
-      const target = targeted.reduce((s, i) => s + Number(i.amount) / getTargetDays(i), 0);
-
-      els.totalAmount.textContent = money(totalAmount);
-      els.itemCount.textContent = `${items.length} 件物品`;
-      els.todayTotal.textContent = `${money(today)} / 天`;
-      els.tomorrowTotal.textContent = `${money(tomorrow)} / 天`;
-      els.targetTotal.textContent = targeted.length ? `${money(target)} / 天` : '—';
-    }
-
-    function getVisibleItems() {
-      const q = els.search.value.trim().toLowerCase();
-      const arr = items.filter(i => String(i.name).toLowerCase().includes(q));
-      const sort = els.sort.value;
-      arr.sort((a,b) => {
-        if (sort === 'newest') return daySerial(b.purchaseDate) - daySerial(a.purchaseDate);
-        if (sort === 'oldest') return daySerial(a.purchaseDate) - daySerial(b.purchaseDate);
-        if (sort === 'amountDesc') return Number(b.amount) - Number(a.amount);
-        if (sort === 'amountAsc') return Number(a.amount) - Number(b.amount);
-        if (sort === 'dailyDesc') return currentDaily(b) - currentDaily(a);
-        if (sort === 'dailyAsc') return currentDaily(a) - currentDaily(b);
-        if (sort === 'usedDesc') return inclusiveDays(b.purchaseDate) - inclusiveDays(a.purchaseDate);
-        return 0;
+    function getVisibleItems(){
+      const q=els.search.value.trim().toLowerCase();
+      const arr=items.filter(i=>{
+        const cat=catById(i.categoryId);
+        return (!q || String(i.name).toLowerCase().includes(q) || cat.name.toLowerCase().includes(q)) &&
+          (selectedCategory==='all'||i.categoryId===selectedCategory) &&
+          (selectedStatus==='all'||(i.status||'active')===selectedStatus);
       });
-      return arr;
+      const sort=els.sort.value;
+      arr.sort((a,b)=>{
+        if(sort==='newest')return daySerial(b.purchaseDate)-daySerial(a.purchaseDate);
+        if(sort==='oldest')return daySerial(a.purchaseDate)-daySerial(b.purchaseDate);
+        if(sort==='amountDesc')return Number(b.amount)-Number(a.amount);
+        if(sort==='amountAsc')return Number(a.amount)-Number(b.amount);
+        if(sort==='dailyDesc')return currentDaily(b)-currentDaily(a);
+        if(sort==='dailyAsc')return currentDaily(a)-currentDaily(b);
+        if(sort==='usedDesc')return usedDays(b)-usedDays(a);
+        return 0;
+      }); return arr;
     }
 
-    function renderItems() {
-      const list = getVisibleItems();
-      if (!list.length) {
-        els.grid.innerHTML = `<div class="empty"><span class="emoji">🌷</span>${items.length ? '没有找到匹配的物品' : '还没有物品，点击右下角添加第一件吧'}</div>`;
-        return;
-      }
-
-      els.grid.innerHTML = list.map(item => {
-        const used = inclusiveDays(item.purchaseDate);
-        const daily = currentDaily(item);
-        const tomorrow = currentDaily(item, tomorrowDate());
-        const targetDays = getTargetDays(item);
-        let targetHtml = `<div class="goal-note">未设置使用目标</div>`;
-        if (targetDays) {
-          const progress = Math.min(100, used / targetDays * 100);
-          const targetDaily = Number(item.amount) / targetDays;
-          const done = used >= targetDays;
-          targetHtml = `
-            <div class="target-top">
-              <span>目标 ${targetDays} 天 · ${money(targetDaily)}/天</span>
-              <span>${Math.min(progress, 999).toFixed(progress < 10 ? 1 : 0)}%</span>
-            </div>
-            <div class="progress"><i style="width:${progress}%"></i></div>
-            <div class="goal-note ${done ? 'goal-done':''}">${done ? `✓ 已超过目标 ${used - targetDays} 天` : `还需使用 ${targetDays - used} 天`}</div>`;
+    function renderItems(){
+      const list=getVisibleItems();
+      if(!list.length){ els.grid.innerHTML=`<div class="empty"><span class="emoji">🌷</span>${items.length?'没有找到匹配的物品':'还没有物品，点击右下角添加第一件吧'}</div>`; return; }
+      els.grid.innerHTML=list.map(item=>{
+        const ended=item.status==='ended', used=usedDays(item), daily=currentDaily(item), tomorrow=currentDaily(item,tomorrowDate());
+        const targetDays=getTargetDays(item), cat=catById(item.categoryId);
+        let targetHtml=`<div class="goal-note">未设置使用目标</div>`;
+        if(targetDays){
+          const progress=Math.min(100,used/targetDays*100), targetDaily=Number(item.amount)/targetDays, done=used>=targetDays;
+          targetHtml=`<div class="target-top"><span>目标 ${targetDays} 天 · ${money(targetDaily)}/天</span><span>${Math.min(progress,999).toFixed(progress<10?1:0)}%</span></div><div class="progress"><i style="width:${progress}%"></i></div><div class="goal-note ${done?'goal-done':''}">${done?`✓ 已达到目标${used>targetDays?`，超过 ${used-targetDays} 天`:''}`:`还需使用 ${targetDays-used} 天`}</div>`;
         }
-
-        return `
-          <article class="item-card" data-id="${item.id}">
-            <div class="item-head">
-              <div>
-                <div class="item-name">${escapeHTML(item.name)}</div>
-                <div class="item-price">${money(Number(item.amount))}</div>
-              </div>
-              <button class="more-btn" data-more="${item.id}" aria-label="更多">•••</button>
-            </div>
-            <div class="stats">
-              <div class="stat-box"><span>已使用</span><strong>${used} 天</strong></div>
-              <div class="stat-box"><span>当前成本</span><strong>${money(daily)}/天</strong></div>
-            </div>
-            <div class="tomorrow-line">
-              <span>明天会降到</span><strong>${money(tomorrow)}/天</strong>
-            </div>
-            <div class="target">
-              <div class="target-top"><span>购买于 ${formatDate(item.purchaseDate)}</span>${item.targetType === 'date' && item.targetDate ? `<span>至 ${formatDate(item.targetDate)}</span>` : ''}</div>
-              ${targetHtml}
-            </div>
-          </article>`;
+        return `<article class="item-card ${ended?'ended-card':''}" data-id="${item.id}">
+          <div class="item-head-tags"><span class="category-badge">${escapeHTML(cat.emoji)} ${escapeHTML(cat.name)}</span><span class="status-badge ${ended?'ended':'active'}">${ended?'✓ 已结束':'● 使用中'}</span></div>
+          <div class="item-head"><div><div class="item-name">${escapeHTML(item.name)}</div><div class="item-price">${money(Number(item.amount))}</div></div><button class="more-btn" data-more="${item.id}" aria-label="更多">•••</button></div>
+          <div class="stats"><div class="stat-box"><span>${ended?'实际使用':'已使用'}</span><strong>${used} 天</strong></div><div class="stat-box"><span>${ended?'最终成本':'当前成本'}</span><strong>${money(daily)}/天</strong></div></div>
+          <div class="tomorrow-line"><span>${ended?'实际结束日期':'明天会降到'}</span><strong>${ended?formatDate(item.actualEndDate):`${money(tomorrow)}/天`}</strong></div>
+          <div class="target"><div class="target-top"><span>购买于 ${formatDate(item.purchaseDate)}</span>${item.targetType==='date'&&item.targetDate?`<span>目标至 ${formatDate(item.targetDate)}</span>`:''}</div>${targetHtml}</div>
+        </article>`;
       }).join('');
-
-      $$('[data-more]').forEach(btn => btn.addEventListener('click', (e) => openMenu(e.currentTarget, e.currentTarget.dataset.more)));
+      $$('[data-more]').forEach(btn=>btn.onclick=e=>openMenu(e.currentTarget,e.currentTarget.dataset.more));
     }
 
-    function render() { renderSummary(); renderItems(); }
+    function renderCategorySelect(){
+      const current=els.category.value;
+      els.category.innerHTML=categories.map(c=>`<option value="${c.id}">${escapeHTML(c.emoji)} ${escapeHTML(c.name)}</option>`).join('');
+      els.category.value=categories.some(c=>c.id===current)?current:(categories.find(c=>c.id==='other')?.id||categories[0]?.id||'');
+    }
+    function renderCategoryManager(){
+      els.categoryManager.innerHTML=categories.map(c=>{
+        const count=items.filter(i=>i.categoryId===c.id).length;
+        return `<div class="category-row"><div class="category-name"><span class="emoji">${escapeHTML(c.emoji)}</span><span>${escapeHTML(c.name)} <span class="muted-small">· ${count}件</span></span></div><div class="category-actions"><button class="tiny-btn" data-cat-edit="${c.id}">编辑</button><button class="tiny-btn danger" data-cat-delete="${c.id}" ${categories.length<=1?'disabled':''}>删除</button></div></div>`;
+      }).join('');
+      $$('[data-cat-edit]').forEach(b=>b.onclick=()=>editCategory(b.dataset.catEdit));
+      $$('[data-cat-delete]').forEach(b=>b.onclick=()=>deleteCategory(b.dataset.catDelete));
+    }
+    function renderCategoryStats(){
+      const total=items.reduce((s,i)=>s+Number(i.amount||0),0)||1;
+      const rows=categories.map(c=>({c,amount:items.filter(i=>i.categoryId===c.id).reduce((s,i)=>s+Number(i.amount||0),0)})).filter(x=>x.amount>0).sort((a,b)=>b.amount-a.amount);
+      els.categoryStats.innerHTML=rows.length?rows.map(x=>`<div class="cat-stat"><div class="cat-stat-top"><span>${escapeHTML(x.c.emoji)} ${escapeHTML(x.c.name)}</span><strong>${money(x.amount)} · ${(x.amount/total*100).toFixed(1)}%</strong></div><div class="cat-stat-bar"><i style="width:${x.amount/total*100}%"></i></div></div>`).join(''):'<div class="muted-small">添加物品后这里会显示分类金额占比。</div>';
+    }
+    function render(){ renderSummary(); renderCategoryFilters(); renderItems(); renderCategorySelect(); renderCategoryManager(); renderCategoryStats(); }
 
-    function setTargetType(type) {
-      targetType = type;
-      $$('#targetSegment button').forEach(b => b.classList.toggle('active', b.dataset.target === type));
-      els.daysWrap.style.display = type === 'days' ? 'block' : 'none';
-      els.dateWrap.style.display = type === 'date' ? 'block' : 'none';
+    function setTargetType(type){ targetType=type; $$('#targetSegment button').forEach(b=>b.classList.toggle('active',b.dataset.target===type)); els.daysWrap.style.display=type==='days'?'block':'none'; els.dateWrap.style.display=type==='date'?'block':'none'; }
+    function openItemModal(item=null){
+      els.itemForm.reset(); els.editId.value=item?.id||''; els.itemTitle.textContent=item?'编辑物品':'添加物品';
+      els.name.value=item?.name||''; els.amount.value=item?.amount??''; els.purchaseDate.value=item?.purchaseDate||localDateString();
+      renderCategorySelect(); els.category.value=item?.categoryId||categories.find(c=>c.id==='other')?.id||categories[0]?.id||'';
+      setTargetType(item?.targetType||'none'); els.targetDays.value=item?.targetDays??''; els.targetDate.value=item?.targetDate??'';
+      els.itemBackdrop.classList.add('show'); setTimeout(()=>els.name.focus(),80);
+    }
+    function closeBackdrop(b){ b.classList.remove('show'); }
+    function showToast(text){ els.toast.textContent=text; els.toast.classList.add('show'); clearTimeout(showToast.timer); showToast.timer=setTimeout(()=>els.toast.classList.remove('show'),1800); }
+    function openMenu(btn,id){
+      selectedMenuId=id; const item=items.find(i=>i.id===id); els.menuStatus.textContent=item?.status==='ended'?'恢复使用':'结束使用';
+      const r=btn.getBoundingClientRect(); els.menu.style.left=`${Math.min(innerWidth-145,Math.max(8,r.right-132))}px`; els.menu.style.top=`${Math.min(innerHeight-145,r.bottom+6)}px`; els.menu.classList.add('show');
+    }
+    function closeMenu(){ els.menu.classList.remove('show'); }
+
+    function addCategory(){
+      const emoji=els.newCategoryEmoji.value.trim()||'✨', name=els.newCategoryName.value.trim();
+      if(!name)return showToast('请输入分类名称');
+      if(categories.some(c=>c.name===name))return showToast('分类名称已存在');
+      categories.push({id:`cat-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,name,emoji});
+      els.newCategoryEmoji.value=''; els.newCategoryName.value=''; saveAll(); showToast('分类已添加');
+    }
+    function editCategory(id){
+      const c=categories.find(x=>x.id===id); if(!c)return;
+      const emoji=prompt('输入分类 Emoji：',c.emoji); if(emoji===null)return;
+      const name=prompt('输入分类名称：',c.name); if(name===null)return;
+      const n=name.trim(); if(!n)return showToast('分类名称不能为空');
+      c.emoji=emoji.trim()||'✨'; c.name=n; saveAll(); showToast('分类已更新');
+    }
+    function deleteCategory(id){
+      const c=categories.find(x=>x.id===id); if(!c||categories.length<=1)return;
+      const used=items.filter(i=>i.categoryId===id).length;
+      if(!confirm(used?`“${c.name}”下有 ${used} 件物品。删除后这些物品会移动到“其他”。继续吗？`:`确定删除分类“${c.name}”吗？`))return;
+      let fallback=categories.find(x=>x.id==='other'&&x.id!==id);
+      if(!fallback){ fallback={id:`cat-${Date.now()}-other`,name:'其他',emoji:'✨'}; categories.push(fallback); }
+      items.forEach(i=>{if(i.categoryId===id)i.categoryId=fallback.id;}); categories=categories.filter(x=>x.id!==id); saveAll(); showToast('分类已删除');
     }
 
-    function openItemModal(item = null) {
-      els.itemForm.reset();
-      els.editId.value = item?.id || '';
-      els.itemTitle.textContent = item ? '编辑物品' : '添加物品';
-      els.name.value = item?.name || '';
-      els.amount.value = item?.amount ?? '';
-      els.purchaseDate.value = item?.purchaseDate || localDateString();
-      setTargetType(item?.targetType || 'none');
-      els.targetDays.value = item?.targetDays ?? '';
-      els.targetDate.value = item?.targetDate ?? '';
-      els.itemBackdrop.classList.add('show');
-      setTimeout(() => els.name.focus(), 80);
-    }
+    els.add.onclick=()=>openItemModal();
+    els.settings.onclick=()=>{renderCategoryManager();renderCategoryStats();els.settingsBackdrop.classList.add('show');};
+    els.search.oninput=renderItems; els.sort.onchange=renderItems;
+    els.statusFilters.onclick=e=>{const b=e.target.closest('[data-status]'); if(!b)return; selectedStatus=b.dataset.status; render();};
+    $$('#targetSegment button').forEach(btn=>btn.onclick=()=>setTargetType(btn.dataset.target));
+    $$('[data-close="item"]').forEach(b=>b.onclick=()=>closeBackdrop(els.itemBackdrop));
+    $$('[data-close="settings"]').forEach(b=>b.onclick=()=>closeBackdrop(els.settingsBackdrop));
+    $$('[data-close="end"]').forEach(b=>b.onclick=()=>closeBackdrop(els.endBackdrop));
+    [els.itemBackdrop,els.settingsBackdrop,els.endBackdrop].forEach(b=>b.onclick=e=>{if(e.target===b)closeBackdrop(b);});
 
-    function closeBackdrop(backdrop) { backdrop.classList.remove('show'); }
-
-    function showToast(text) {
-      els.toast.textContent = text;
-      els.toast.classList.add('show');
-      clearTimeout(showToast.timer);
-      showToast.timer = setTimeout(() => els.toast.classList.remove('show'), 1800);
-    }
-
-    function openMenu(btn, id) {
-      selectedMenuId = id;
-      const r = btn.getBoundingClientRect();
-      els.menu.style.left = `${Math.min(window.innerWidth - 145, Math.max(8, r.right - 132))}px`;
-      els.menu.style.top = `${Math.min(window.innerHeight - 110, r.bottom + 6)}px`;
-      els.menu.classList.add('show');
-    }
-    function closeMenu() { els.menu.classList.remove('show'); }
-
-    els.add.addEventListener('click', () => openItemModal());
-    els.settings.addEventListener('click', () => els.settingsBackdrop.classList.add('show'));
-    els.search.addEventListener('input', renderItems);
-    els.sort.addEventListener('change', renderItems);
-
-    $$('#targetSegment button').forEach(btn => btn.addEventListener('click', () => setTargetType(btn.dataset.target)));
-    $$('[data-close="item"]').forEach(b => b.addEventListener('click', () => closeBackdrop(els.itemBackdrop)));
-    $$('[data-close="settings"]').forEach(b => b.addEventListener('click', () => closeBackdrop(els.settingsBackdrop)));
-
-    [els.itemBackdrop, els.settingsBackdrop].forEach(backdrop => backdrop.addEventListener('click', e => {
-      if (e.target === backdrop) closeBackdrop(backdrop);
-    }));
-
-    els.itemForm.addEventListener('submit', e => {
-      e.preventDefault();
-      const name = els.name.value.trim();
-      const amount = Number(els.amount.value);
-      const purchaseDate = els.purchaseDate.value;
-      if (!name || !purchaseDate || !Number.isFinite(amount) || amount < 0) return;
-
-      const todaySerial = daySerial(new Date());
-      if (daySerial(purchaseDate) > todaySerial) {
-        alert('购买日期不能晚于今天。');
-        return;
-      }
-
-      const data = {
-        id: els.editId.value || (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`),
-        name, amount, purchaseDate,
-        targetType,
-        targetDays: null,
-        targetDate: null,
-        createdAt: Date.now()
+    els.itemForm.onsubmit=e=>{
+      e.preventDefault(); const name=els.name.value.trim(), amount=Number(els.amount.value), purchaseDate=els.purchaseDate.value;
+      if(!name||!purchaseDate||!Number.isFinite(amount)||amount<0)return;
+      if(daySerial(purchaseDate)>daySerial(new Date()))return alert('购买日期不能晚于今天。');
+      const existing=items.find(i=>i.id===els.editId.value);
+      const data={
+        id:els.editId.value||(crypto.randomUUID?crypto.randomUUID():`${Date.now()}-${Math.random()}`), name, amount, purchaseDate,
+        categoryId:els.category.value||categories[0]?.id||'other', targetType, targetDays:null, targetDate:null,
+        status:existing?.status||'active', actualEndDate:existing?.actualEndDate||null, createdAt:existing?.createdAt||Date.now()
       };
+      if(targetType==='days'){const days=Math.floor(Number(els.targetDays.value)); if(!Number.isFinite(days)||days<1)return alert('请输入正确的目标使用天数。'); data.targetDays=days;}
+      if(targetType==='date'){const d=els.targetDate.value; if(!d||daySerial(d)<daySerial(purchaseDate))return alert('目标结束日期不能早于购买日期。'); data.targetDate=d;}
+      if(data.status==='ended'&&data.actualEndDate&&daySerial(data.actualEndDate)<daySerial(purchaseDate))return alert('购买日期不能晚于实际结束日期。');
+      const idx=items.findIndex(i=>i.id===data.id); if(idx>=0){items[idx]=data;showToast('已保存修改');}else{items.unshift(data);showToast('已添加物品');}
+      saveAll(); closeBackdrop(els.itemBackdrop);
+    };
 
-      if (targetType === 'days') {
-        const days = Math.floor(Number(els.targetDays.value));
-        if (!Number.isFinite(days) || days < 1) { alert('请输入正确的目标使用天数。'); return; }
-        data.targetDays = days;
+    els.menuEdit.onclick=()=>{const item=items.find(i=>i.id===selectedMenuId);closeMenu();if(item)openItemModal(item);};
+    els.menuStatus.onclick=()=>{
+      const item=items.find(i=>i.id===selectedMenuId); closeMenu(); if(!item)return;
+      if(item.status==='ended'){
+        if(confirm(`恢复“${item.name}”为使用中吗？恢复后日均成本会继续随日期变化。`)){item.status='active';item.actualEndDate=null;saveAll();showToast('已恢复使用');}
+      }else{
+        endingItemId=item.id; els.actualEndDate.min=item.purchaseDate; els.actualEndDate.max=localDateString(); els.actualEndDate.value=localDateString(); els.endBackdrop.classList.add('show');
       }
-      if (targetType === 'date') {
-        const d = els.targetDate.value;
-        if (!d || daySerial(d) < daySerial(purchaseDate)) { alert('结束日期不能早于购买日期。'); return; }
-        data.targetDate = d;
-      }
+    };
+    els.confirmEnd.onclick=()=>{
+      const item=items.find(i=>i.id===endingItemId), d=els.actualEndDate.value; if(!item||!d)return;
+      if(daySerial(d)<daySerial(item.purchaseDate)||daySerial(d)>daySerial(new Date()))return alert('实际结束日期必须在购买日期与今天之间。');
+      item.status='ended'; item.actualEndDate=d; saveAll(); closeBackdrop(els.endBackdrop); showToast('已结束使用');
+    };
+    els.menuDelete.onclick=()=>{const item=items.find(i=>i.id===selectedMenuId);closeMenu();if(item&&confirm(`确定删除“${item.name}”吗？`)){items=items.filter(i=>i.id!==selectedMenuId);saveAll();showToast('已删除');}};
+    document.addEventListener('click',e=>{if(!els.menu.contains(e.target)&&!e.target.closest('[data-more]'))closeMenu();});
 
-      const idx = items.findIndex(i => i.id === data.id);
-      if (idx >= 0) {
-        data.createdAt = items[idx].createdAt || Date.now();
-        items[idx] = data;
-        showToast('已保存修改');
-      } else {
-        items.unshift(data);
-        showToast('已添加物品');
-      }
-      saveItems();
-      closeBackdrop(els.itemBackdrop);
-    });
+    $('#addCategoryBtn').onclick=addCategory;
+    const emojiList=['📱','💄','👗','👜','👟','🏠','🍳','🎮','📚','💎','☕','🎧','📷','🧸','🌷','✨'];
+    $('#emojiSuggestions').innerHTML=emojiList.map(e=>`<button type="button" data-emoji="${e}">${e}</button>`).join('');
+    $$('[data-emoji]').forEach(b=>b.onclick=()=>els.newCategoryEmoji.value=b.dataset.emoji);
 
-    els.menuEdit.addEventListener('click', () => {
-      const item = items.find(i => i.id === selectedMenuId);
-      closeMenu();
-      if (item) openItemModal(item);
-    });
-
-    els.menuDelete.addEventListener('click', () => {
-      const item = items.find(i => i.id === selectedMenuId);
-      closeMenu();
-      if (!item) return;
-      if (confirm(`确定删除“${item.name}”吗？`)) {
-        items = items.filter(i => i.id !== selectedMenuId);
-        saveItems();
-        showToast('已删除');
-      }
-    });
-
-    document.addEventListener('click', e => {
-      if (!els.menu.contains(e.target) && !e.target.closest('[data-more]')) closeMenu();
-    });
-
-    $('#exportBtn').addEventListener('click', () => {
-      const payload = { version: 1, exportedAt: new Date().toISOString(), items };
-      const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `物品使用成本备份-${localDateString()}.json`;
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 500);
-      showToast('备份已导出');
-    });
-
-    $('#importBtn').addEventListener('click', () => $('#importFile').click());
-    $('#importFile').addEventListener('change', async e => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      try {
-        const data = JSON.parse(await file.text());
-        const incoming = Array.isArray(data) ? data : data.items;
-        if (!Array.isArray(incoming)) throw new Error();
-        if (!confirm(`将导入 ${incoming.length} 件物品，并覆盖当前数据。继续吗？`)) return;
-        items = incoming.filter(i => i && i.name && Number.isFinite(Number(i.amount)) && i.purchaseDate);
-        saveItems();
-        closeBackdrop(els.settingsBackdrop);
-        showToast('导入成功');
-      } catch { alert('备份文件格式不正确。'); }
-      e.target.value = '';
-    });
-
-    $('#clearBtn').addEventListener('click', () => {
-      if (!items.length) return showToast('目前没有数据');
-      if (confirm('确定删除全部物品吗？此操作无法恢复。')) {
-        items = [];
-        saveItems();
-        closeBackdrop(els.settingsBackdrop);
-        showToast('已清空全部数据');
-      }
-    });
+    $('#exportBtn').onclick=()=>{
+      const payload={version:2,exportedAt:new Date().toISOString(),categories,items};
+      const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+      a.href=url;a.download=`物品使用成本备份-${localDateString()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),500);showToast('备份已导出');
+    };
+    $('#importBtn').onclick=()=>$('#importFile').click();
+    $('#importFile').onchange=async e=>{
+      const file=e.target.files?.[0];if(!file)return;
+      try{
+        const data=JSON.parse(await file.text()), incoming=Array.isArray(data)?data:data.items;
+        if(!Array.isArray(incoming))throw new Error();
+        if(!confirm(`将导入 ${incoming.length} 件物品，并覆盖当前数据。继续吗？`))return;
+        if(Array.isArray(data.categories)&&data.categories.length)categories=data.categories;
+        items=incoming.filter(i=>i&&i.name&&Number.isFinite(Number(i.amount))&&i.purchaseDate).map(i=>({status:'active',actualEndDate:null,categoryId:'other',...i}));
+        saveAll();closeBackdrop(els.settingsBackdrop);showToast('导入成功');
+      }catch{alert('备份文件格式不正确。');} e.target.value='';
+    };
+    $('#clearBtn').onclick=()=>{if(!items.length)return showToast('目前没有数据');if(confirm('确定删除全部物品吗？分类会保留，此操作无法恢复。')){items=[];saveAll();closeBackdrop(els.settingsBackdrop);showToast('已清空全部数据');}};
 
     render();
   </script>
